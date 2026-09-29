@@ -38,6 +38,14 @@ export interface AccountRecord {
   churn_probability: number;
   risk_tier: RiskTier;
   mrr_at_risk: number;
+  active_user_ratio?: number;
+  api_calls_monthly?: number;
+  primary_playbook?: string;
+  playbook_details?: Playbook;
+  shap_attributions?: {
+    positive: { feature: string; contribution: number; value: any }[];
+    negative: { feature: string; contribution: number; value: any }[];
+  };
 }
 
 export interface SinglePredictionResponse {

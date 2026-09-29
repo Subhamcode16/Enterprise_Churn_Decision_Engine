@@ -112,7 +112,7 @@ export default function BatchPage() {
   });
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-16">
+    <div className="w-full space-y-8 pb-16">
       {/* Editorial Header */}
       <div className="border-b border-[#22201E] pb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">

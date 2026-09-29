@@ -130,7 +130,7 @@ export default function PlaybooksPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-16">
+    <div className="w-full space-y-8 pb-16">
       {/* Editorial Page Header */}
       <div className="border-b border-[#22201E] pb-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
