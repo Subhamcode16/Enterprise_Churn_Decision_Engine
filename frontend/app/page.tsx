@@ -5,6 +5,8 @@ import { getDemoAccounts, getPlaybooks, predictAccount } from "@/lib/api";
 import { AccountRecord, PortfolioSummary, Playbook, SinglePredictionResponse } from "@/lib/types";
 import { sound, playTick, playBlip, playExecute } from "@/lib/sound";
 import PastelBentoMetrics from "@/components/PastelBentoMetrics";
+import LiveTelemetryHeader from "@/components/LiveTelemetryHeader";
+import CohortMigrationMatrix from "@/components/CohortMigrationMatrix";
 import RiskTable from "@/components/RiskTable";
 import RadialRiskGauge from "@/components/RadialRiskGauge";
 import ForceShapVisualizer from "@/components/ForceShapVisualizer";
@@ -22,8 +24,7 @@ import {
   Bot, 
   Sliders, 
   CheckCircle2, 
-  Calendar, 
-  RefreshCw 
+  Calendar 
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -36,6 +37,7 @@ export default function DashboardPage() {
   const [predictLoading, setPredictLoading] = useState(false);
   const [copilotOpen, setCopilotOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"shap" | "radar">("shap");
+  const [selectedCohortTier, setSelectedCohortTier] = useState<string>("All");
   const [dispatchedPlaybooks, setDispatchedPlaybooks] = useState<Record<string, boolean>>({});
 
   // Client-side instant prediction cache (0ms lag when switching accounts)
@@ -126,45 +128,16 @@ export default function DashboardPage() {
   return (
     <div className="w-full flex flex-row items-start pb-16">
       {/* Main Dashboard Canvas - Dynamically shrinks when Copilot is open */}
-      <div className="flex-1 min-w-0 space-y-7 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)]">
-        {/* Top Bar: Search & Executive Greeting */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 tracking-tight">
-              Good morning, Revenue Director
-            </h1>
-            <p className="mt-1 text-xs sm:text-sm text-stone-600 leading-relaxed font-sans">
-              Calibrated XGBoost & TreeSHAP engine actively monitoring 100 enterprise accounts. <strong className="text-stone-900 font-bold">22 accounts</strong> require proactive intervention today.
-            </p>
-          </div>
-
-          {/* Action Controls */}
-          <div className="flex items-center gap-2.5">
-            <button
-              onClick={() => {
-                playTick();
-                setCopilotOpen((prev) => !prev);
-              }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all duration-150 active:scale-[0.97] ${
-                copilotOpen
-                  ? "bg-amber-500 text-stone-950 font-bold"
-                  : "bg-[#141312] hover:bg-stone-800 text-[#FAF8F5]"
-              }`}
-            >
-              <Bot className={`w-4 h-4 ${copilotOpen ? "text-stone-950" : "text-amber-400"}`} />
-              <span>{copilotOpen ? "Copilot Active" : "AI Copilot"}</span>
-            </button>
-
-            <button
-              onClick={loadData}
-              disabled={loading}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#E8E5DD] hover:border-stone-400 text-stone-700 hover:text-stone-950 text-xs font-medium shadow-sm transition-all duration-150 active:scale-[0.97]"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-amber-500" : ""}`} />
-              <span>Sync</span>
-            </button>
-          </div>
-        </div>
+      <div className="flex-1 min-w-0 space-y-6 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)]">
+        {/* Live Telemetry Header Ribbon */}
+        <LiveTelemetryHeader
+          onOpenCopilot={() => setCopilotOpen((prev) => !prev)}
+          copilotOpen={copilotOpen}
+          onRefresh={loadData}
+          loading={loading}
+          accountsCount={accounts.length || 100}
+          urgentCount={summary ? summary.critical_risk_count + summary.high_risk_count : 22}
+        />
 
         {/* 4 Expressive Pastel Bento Metric Cards */}
         {loading ? (
@@ -179,6 +152,15 @@ export default function DashboardPage() {
           </div>
         ) : (
           summary && <PastelBentoMetrics summary={summary} />
+        )}
+
+        {/* Portfolio Risk Migration Flow & Cohort Health Matrix */}
+        {summary && (
+          <CohortMigrationMatrix
+            summary={summary}
+            selectedTier={selectedCohortTier}
+            onFilterTier={(tier) => setSelectedCohortTier(tier)}
+          />
         )}
 
         {/* 3-Column Studio Workspace */}
