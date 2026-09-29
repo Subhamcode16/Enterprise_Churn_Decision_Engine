@@ -19,7 +19,7 @@ import {
 import { predictAccount } from "@/lib/api";
 import { SinglePredictionResponse, RiskTier } from "@/lib/types";
 import { formatCurrency, getRiskBadgeClasses } from "@/lib/utils";
-import { sound } from "@/lib/sound";
+import { sound, playTick, playBlip, playExecute } from "@/lib/sound";
 import RadialRiskGauge from "@/components/RadialRiskGauge";
 import ForceShapVisualizer from "@/components/ForceShapVisualizer";
 import ShapWaterfallChart from "@/components/ShapWaterfallChart";
@@ -43,58 +43,73 @@ export default function SimulatorPage() {
   const [activeTab, setActiveTab] = useState<"forces" | "waterfall">("forces");
 
   // Run Baseline (Initial unmitigated state)
-  useEffect(() => {
-    const basePayload = {
-      account_id: "BASELINE-01",
-      company_name: "Vertex Analytics (Baseline)",
-      contract_mrr: 16500,
-      tenure_months: 18,
-      days_since_last_login: 19,
-      usage_change_pct_30d: -48,
-      open_p1_tickets: 2,
-      avg_resolution_time_hrs: 36.0,
-      nps_score: 3,
-      csat_score: 2.4,
-      payment_failures_past_quarter: 1,
-      days_until_renewal: 45,
-      contract_tier: "Enterprise",
-      active_user_ratio: 0.65,
-      api_calls_monthly: 12000,
-      auto_renew_enabled: 0,
-    };
-    predictAccount(basePayload).then((res) => setBaselineResult(res));
-  }, []);
+  const runBaseline = async () => {
+    try {
+      const res = await predictAccount({
+        account_id: "SIM-BASELINE",
+        company_name: "Baseline Account",
+        contract_mrr: 16500,
+        tenure_months: 18,
+        contract_tier: "Enterprise",
+        days_since_last_login: 19,
+        usage_change_pct_30d: -48,
+        open_p1_tickets: 2,
+        avg_resolution_time_hrs: 42,
+        nps_score: 3,
+        csat_score: 2.4,
+        payment_failures_past_quarter: 1,
+        days_until_renewal: 45,
+        auto_renew_enabled: 0,
+        churn_probability: 0.95,
+        risk_tier: "Critical",
+        mrr_at_risk: 15702,
+      });
+      setBaselineResult(res);
+    } catch (e) {
+      console.error("Baseline calculation failed", e);
+    }
+  };
 
-  // Run Dynamic Simulation
-  const runSimulation = () => {
+  // Run Simulation Inference with Debounce
+  const runSimulation = async () => {
     setLoading(true);
-    const payload = {
-      account_id: "SIM-ACCOUNT",
-      company_name: "Simulated Scenario Corp",
-      contract_mrr: Number(contractMrr),
-      tenure_months: Number(tenureMonths),
-      days_since_last_login: Number(daysSinceLogin),
-      usage_change_pct_30d: Number(usageChange),
-      open_p1_tickets: Number(openP1Tickets),
-      avg_resolution_time_hrs: 18.0,
-      nps_score: Number(npsScore),
-      csat_score: Number(csatScore),
-      payment_failures_past_quarter: Number(paymentFailures),
-      days_until_renewal: Number(daysUntilRenewal),
-      contract_tier: contractTier,
-      active_user_ratio: 0.85,
-      api_calls_monthly: 15000,
-      auto_renew_enabled: 1,
-    };
-
-    predictAccount(payload)
-      .then((res) => setSimResult(res))
-      .catch((err) => console.error("Simulation error:", err))
-      .finally(() => setLoading(false));
+    try {
+      const res = await predictAccount({
+        account_id: "SIM-CUSTOM",
+        company_name: "Simulated Counterfactual State",
+        contract_mrr: Number(contractMrr),
+        tenure_months: Number(tenureMonths),
+        contract_tier: contractTier,
+        days_since_last_login: Number(daysSinceLogin),
+        usage_change_pct_30d: Number(usageChange),
+        open_p1_tickets: Number(openP1Tickets),
+        avg_resolution_time_hrs: openP1Tickets === 0 ? 8 : 36,
+        nps_score: Number(npsScore),
+        csat_score: Number(csatScore),
+        payment_failures_past_quarter: Number(paymentFailures),
+        days_until_renewal: Number(daysUntilRenewal),
+        auto_renew_enabled: daysUntilRenewal > 90 ? 1 : 0,
+        churn_probability: 0.5,
+        risk_tier: "Medium",
+        mrr_at_risk: 8000,
+      });
+      setSimResult(res);
+    } catch (e) {
+      console.error("Simulation failed", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    runSimulation();
+    runBaseline();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      runSimulation();
+    }, 250);
+    return () => clearTimeout(timer);
   }, [
     contractMrr,
     tenureMonths,
@@ -108,13 +123,31 @@ export default function SimulatorPage() {
     contractTier,
   ]);
 
-  // Scenario Presets
-  const applyPreset = (type: "critical" | "tam_fix" | "exec_qbr" | "ideal") => {
-    sound.playSelect();
-    if (type === "critical") {
+  const handleReset = () => {
+    playTick();
+    setContractMrr(16500);
+    setTenureMonths(18);
+    setDaysSinceLogin(19);
+    setUsageChange(-48);
+    setOpenP1Tickets(2);
+    setNpsScore(3);
+    setCsatScore(2.4);
+    setPaymentFailures(1);
+    setDaysUntilRenewal(45);
+    setContractTier("Enterprise");
+  };
+
+  const applyPreset = (type: string) => {
+    playBlip();
+    if (type === "emergency_support") {
+      setOpenP1Tickets(0);
+      setCsatScore(4.5);
+      setNpsScore(8);
+      setDaysSinceLogin(2);
+    } else if (type === "disengaged") {
+      setDaysSinceLogin(28);
       setUsageChange(-65);
       setOpenP1Tickets(3);
-      setDaysSinceLogin(28);
       setNpsScore(2);
       setCsatScore(1.8);
       setPaymentFailures(2);
@@ -151,111 +184,117 @@ export default function SimulatorPage() {
   }, [simResult, baselineResult]);
 
   return (
-    <div className="space-y-6">
-      {/* Hero Title & Actions */}
-      <div className="pb-3 border-b border-stone-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="w-full space-y-7 pb-16 font-sans">
+      {/* Hero Title & Header */}
+      <div className="pb-4 border-b border-[#E8E5DD] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <Sliders className="w-6 h-6 text-amber-400" />
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-100 tracking-tight">
-              Counterfactual Risk Simulator
-            </h1>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-xs font-bold">
-              Dual-Pane Sandbox
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-stone-500">
+              Counterfactual Simulation Sandbox
             </span>
           </div>
-          <p className="mt-1 text-xs sm:text-sm text-stone-400">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 tracking-tight">
+            Counterfactual Risk Simulator
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-stone-600 max-w-2xl leading-relaxed">
             Compare unmitigated customer baseline versus counterfactual intervention scenarios with real-time TreeSHAP force recalculation.
           </p>
         </div>
 
-        {/* Dynamic Saved Revenue Badge */}
-        {mrrSaved > 0 && (
-          <div className="px-4 py-2 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2 shadow-sm animate-in fade-in">
-            <DollarSign className="w-4 h-4 text-emerald-400" />
-            <span>Revenue Protected: +{formatCurrency(mrrSaved)}/mo (+{formatCurrency(mrrSaved * 12)} ARR)</span>
+        {/* Real-time Saved MRR Exposure Ticker */}
+        <div className="p-3.5 rounded-2xl bg-[#EAF5E8] border border-[#C1E7BC] shadow-sm flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-white border border-[#C1E7BC] flex items-center justify-center text-emerald-700 shadow-sm">
+            <ShieldCheck className="w-5 h-5" />
           </div>
-        )}
+          <div>
+            <span className="text-[10px] font-mono uppercase font-bold text-emerald-800">
+              Revenue Protected
+            </span>
+            <div className="text-lg font-mono font-bold text-emerald-800">
+              +{formatCurrency(mrrSaved)}<span className="text-xs font-normal text-emerald-700">/mo</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Instant Scenario Preset Bar */}
-      <div className="p-3.5 rounded-2xl border border-stone-800 bg-gradient-to-r from-[#181716] via-[#141312] to-[#181716] backdrop-blur-xl flex flex-wrap items-center justify-between gap-3 text-xs">
-        <span className="font-bold text-stone-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-mono">
-          <Zap className="w-3.5 h-3.5 text-amber-400" /> Quick Intervention Scenarios:
-        </span>
-
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Preset Quick Scenario Pills */}
+      <div className="p-4 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="text-xs font-mono font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+          <Zap className="w-4 h-4 text-amber-500" />
+          Quick Scenarios:
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={() => applyPreset("critical")}
-            className="px-3 py-1.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-500/25 font-bold transition-all"
+            onClick={() => applyPreset("emergency_support")}
+            className="px-3 py-1.5 rounded-xl bg-[#FFF7D1] hover:bg-[#FFEFA8] border border-[#FFE885] text-[#7A5800] text-xs font-semibold transition-all"
           >
-            Severe Disengagement
+            Emergency Support Blitz
           </button>
           <button
             onClick={() => applyPreset("tam_fix")}
-            className="px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500/25 font-bold transition-all"
+            className="px-3 py-1.5 rounded-xl bg-[#EDF0FF] hover:bg-[#DCE2FF] border border-[#CCD4FF] text-[#2C3D8F] text-xs font-semibold transition-all"
           >
             TAM Re-Onboarding Fix
           </button>
           <button
             onClick={() => applyPreset("exec_qbr")}
-            className="px-3 py-1.5 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25 font-bold transition-all"
+            className="px-3 py-1.5 rounded-xl bg-[#FAF8F5] hover:bg-stone-100 border border-[#E8E5DD] text-stone-800 text-xs font-semibold transition-all"
           >
             Executive QBR Alignment
           </button>
           <button
             onClick={() => applyPreset("ideal")}
-            className="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 font-bold transition-all"
+            className="px-3 py-1.5 rounded-xl bg-[#EAF5E8] hover:bg-[#D6EED2] border border-[#C1E7BC] text-[#235E23] text-xs font-semibold transition-all"
           >
             Optimal Retention State
           </button>
         </div>
       </div>
 
-      {/* Dual-Pane Comparison Layout (Left: Controls, Center: Baseline, Right: Simulated) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Column 1: Telemetry Sliders (4 cols) */}
-        <div className="lg:col-span-4 rounded-3xl border border-stone-800 bg-gradient-to-b from-[#181716] via-[#141312] to-[#0E0D0C] backdrop-blur-2xl p-5 shadow-card space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-stone-800">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-stone-200 font-mono">
+      {/* Main Grid: Dials on Left, Side-by-Side Comparison on Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+        {/* Left Column: Interactive Dials (5 Cols - White Card) */}
+        <div className="lg:col-span-5 bg-white border border-[#E8E5DD] rounded-2xl p-6 shadow-sm space-y-5">
+          <div className="flex items-center justify-between pb-3 border-b border-[#F0ECE1]">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-800 flex items-center gap-1.5">
+              <Sliders className="w-4 h-4 text-amber-500" />
               Intervention Parameter Dials
-            </h2>
+            </h3>
             <button
-              onClick={() => applyPreset("ideal")}
-              className="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1"
+              onClick={handleReset}
+              className="flex items-center gap-1 text-[11px] font-mono text-stone-500 hover:text-stone-900 transition-colors"
             >
-              <RotateCcw className="w-3 h-3" /> Reset
+              <RotateCcw className="w-3 h-3" />
+              Reset Baseline
             </button>
           </div>
 
-          <div className="space-y-3.5 text-xs font-medium">
-            {/* 30-Day Usage */}
-            <div>
-              <div className="flex justify-between text-stone-300 mb-1">
-                <span>30-Day Usage Shift (%)</span>
-                <span className={`font-mono font-bold ${usageChange < 0 ? "text-red-400" : "text-emerald-400"}`}>
-                  {usageChange >= 0 ? "+" : ""}{usageChange}%
+          <div className="space-y-4 text-xs">
+            {/* 30-Day Usage Change */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between font-semibold">
+                <span className="text-stone-700">30-Day Usage Shift (%)</span>
+                <span className={`font-mono ${usageChange < 0 ? "text-rose-600" : "text-emerald-700"}`}>
+                  {usageChange > 0 ? "+" : ""}{usageChange}%
                 </span>
               </div>
               <input
                 type="range"
-                min="-100"
-                max="100"
+                min="-80"
+                max="80"
                 step="5"
                 value={usageChange}
-                onChange={(e) => {
-                  sound.playClick(800);
-                  setUsageChange(Number(e.target.value));
-                }}
+                onChange={(e) => setUsageChange(Number(e.target.value))}
                 className="w-full accent-amber-500 cursor-pointer"
               />
             </div>
 
             {/* Open P1 Tickets */}
-            <div>
-              <div className="flex justify-between text-stone-300 mb-1">
-                <span>Open P1 Critical Tickets</span>
-                <span className={`font-mono font-bold ${openP1Tickets > 0 ? "text-red-400" : "text-stone-200"}`}>
+            <div className="space-y-1.5">
+              <div className="flex justify-between font-semibold">
+                <span className="text-stone-700">Open P1 Critical Tickets</span>
+                <span className={`font-mono ${openP1Tickets > 0 ? "text-rose-600 font-bold" : "text-emerald-700"}`}>
                   {openP1Tickets} tickets
                 </span>
               </div>
@@ -265,41 +304,33 @@ export default function SimulatorPage() {
                 max="5"
                 step="1"
                 value={openP1Tickets}
-                onChange={(e) => {
-                  sound.playClick(800);
-                  setOpenP1Tickets(Number(e.target.value));
-                }}
+                onChange={(e) => setOpenP1Tickets(Number(e.target.value))}
                 className="w-full accent-amber-500 cursor-pointer"
               />
             </div>
 
-            {/* Days Since Last Login */}
-            <div>
-              <div className="flex justify-between text-stone-300 mb-1">
-                <span>Days Since Last Session</span>
-                <span className="font-mono font-bold text-stone-200">{daysSinceLogin} days</span>
+            {/* Days Since Login */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between font-semibold">
+                <span className="text-stone-700">Days Since Last Session</span>
+                <span className="font-mono text-stone-900 font-bold">{daysSinceLogin} days</span>
               </div>
               <input
                 type="range"
-                min="0"
-                max="60"
+                min="1"
+                max="30"
                 step="1"
                 value={daysSinceLogin}
-                onChange={(e) => {
-                  sound.playClick(800);
-                  setDaysSinceLogin(Number(e.target.value));
-                }}
+                onChange={(e) => setDaysSinceLogin(Number(e.target.value))}
                 className="w-full accent-amber-500 cursor-pointer"
               />
             </div>
 
-            {/* NPS Rating */}
-            <div>
-              <div className="flex justify-between text-stone-300 mb-1">
-                <span>NPS Customer Rating</span>
-                <span className={`font-mono font-bold ${npsScore <= 6 ? "text-red-400" : "text-emerald-400"}`}>
-                  {npsScore} / 10
-                </span>
+            {/* NPS Score */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between font-semibold">
+                <span className="text-stone-700">NPS Customer Rating</span>
+                <span className="font-mono text-stone-900 font-bold">{npsScore} / 10</span>
               </div>
               <input
                 type="range"
@@ -307,174 +338,127 @@ export default function SimulatorPage() {
                 max="10"
                 step="1"
                 value={npsScore}
-                onChange={(e) => {
-                  sound.playClick(800);
-                  setNpsScore(Number(e.target.value));
-                }}
+                onChange={(e) => setNpsScore(Number(e.target.value))}
                 className="w-full accent-amber-500 cursor-pointer"
               />
             </div>
 
             {/* Contract MRR */}
-            <div>
-              <div className="flex justify-between text-stone-300 mb-1">
-                <span>Contract MRR ($)</span>
-                <span className="font-mono font-bold text-stone-100">{formatCurrency(contractMrr)}</span>
+            <div className="space-y-1.5">
+              <div className="flex justify-between font-semibold">
+                <span className="text-stone-700">Contract MRR ($)</span>
+                <span className="font-mono text-stone-900 font-bold">{formatCurrency(contractMrr)}</span>
               </div>
               <input
                 type="range"
                 min="2000"
-                max="40000"
-                step="500"
+                max="50000"
+                step="1000"
                 value={contractMrr}
-                onChange={(e) => {
-                  sound.playClick(800);
-                  setContractMrr(Number(e.target.value));
-                }}
+                onChange={(e) => setContractMrr(Number(e.target.value))}
                 className="w-full accent-amber-500 cursor-pointer"
               />
             </div>
 
-            {/* Payment Failures */}
-            <div>
-              <div className="flex justify-between text-stone-300 mb-1">
-                <span>Billing Failures (Past Qtr)</span>
-                <span className={`font-mono font-bold ${paymentFailures > 0 ? "text-red-400" : "text-stone-200"}`}>
-                  {paymentFailures}
-                </span>
+            {/* Days until renewal */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between font-semibold">
+                <span className="text-stone-700">Days Until Renewal</span>
+                <span className="font-mono text-stone-900 font-bold">{daysUntilRenewal} days</span>
               </div>
               <input
                 type="range"
-                min="0"
-                max="3"
-                step="1"
-                value={paymentFailures}
-                onChange={(e) => {
-                  sound.playClick(800);
-                  setPaymentFailures(Number(e.target.value));
-                }}
-                className="w-full accent-amber-500 cursor-pointer"
-              />
-            </div>
-
-            {/* Days Until Renewal */}
-            <div>
-              <div className="flex justify-between text-stone-300 mb-1">
-                <span>Days Until Renewal</span>
-                <span className="font-mono font-bold text-stone-200">{daysUntilRenewal} days</span>
-              </div>
-              <input
-                type="range"
-                min="1"
+                min="10"
                 max="365"
                 step="5"
                 value={daysUntilRenewal}
-                onChange={(e) => {
-                  sound.playClick(800);
-                  setDaysUntilRenewal(Number(e.target.value));
-                }}
+                onChange={(e) => setDaysUntilRenewal(Number(e.target.value))}
                 className="w-full accent-amber-500 cursor-pointer"
               />
             </div>
           </div>
         </div>
 
-        {/* Column 2 & 3: Dual-Pane Comparison (8 cols) */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* Side-by-Side Comparison Matrix */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Left Card: Baseline State */}
-            {baselineResult && (
-              <div className="p-5 rounded-3xl border border-red-500/30 bg-gradient-to-b from-[#1C1615] via-[#161211] to-[#0E0D0C] backdrop-blur-xl shadow-card space-y-3">
-                <div className="flex justify-between items-center pb-2 border-b border-stone-800">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-red-400">
-                    Unmitigated Baseline
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-red-500/20 text-red-300 border border-red-500/40">
-                    {baselineResult.risk_tier} ({(baselineResult.churn_probability * 100).toFixed(0)}%)
-                  </span>
-                </div>
-
-                <div className="flex justify-center py-2">
-                  <RadialRiskGauge
-                    probability={baselineResult.churn_probability}
-                    riskTier={baselineResult.risk_tier}
-                    size={140}
-                  />
-                </div>
-
-                <div className="p-3 rounded-2xl bg-stone-900/80 border border-stone-800 flex justify-between items-center text-xs">
-                  <span className="text-stone-400 font-medium">Baseline MRR Loss:</span>
-                  <span className="font-mono font-extrabold text-red-400">
-                    {formatCurrency(baselineResult.mrr_at_risk)}
-                  </span>
-                </div>
+        {/* Right Column: Dual-Pane Before/After State & SHAP (7 Cols) */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Side-by-Side Comparison Box */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Baseline */}
+            <div className="p-5 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm flex flex-col items-center justify-between">
+              <div className="w-full flex items-center justify-between text-xs pb-2 border-b border-[#F0ECE1]">
+                <span className="font-mono uppercase font-bold text-stone-500">Unmitigated Baseline</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-100 text-rose-800">
+                  Critical (95%)
+                </span>
               </div>
-            )}
-
-            {/* Right Card: Counterfactual Simulated State */}
-            {simResult && (
-              <div className="p-5 rounded-3xl border border-amber-500/40 bg-gradient-to-b from-[#1F1C18] via-[#161412] to-[#0E0D0C] backdrop-blur-xl shadow-glowGold space-y-3">
-                <div className="flex justify-between items-center pb-2 border-b border-stone-800">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400">
-                    Counterfactual Simulated State
-                  </span>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${getRiskBadgeClasses(simResult.risk_tier)}`}>
-                    {simResult.risk_tier} ({(simResult.churn_probability * 100).toFixed(0)}%)
-                  </span>
-                </div>
-
-                <div className="flex justify-center py-2">
-                  <RadialRiskGauge
-                    probability={simResult.churn_probability}
-                    riskTier={simResult.risk_tier}
-                    size={140}
-                  />
-                </div>
-
-                <div className="p-3 rounded-2xl bg-stone-900/80 border border-stone-800 flex justify-between items-center text-xs">
-                  <span className="text-stone-400 font-medium">Simulated MRR Loss:</span>
-                  <span className="font-mono font-extrabold text-stone-100">
-                    {formatCurrency(simResult.mrr_at_risk)}
-                  </span>
-                </div>
+              <div className="py-4">
+                <RadialRiskGauge probability={0.95} riskTier="Critical" size={150} />
               </div>
-            )}
+              <div className="w-full p-2.5 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] text-center text-xs">
+                <span className="text-stone-500">Baseline MRR Loss: </span>
+                <strong className="font-mono text-rose-600 font-bold">$15,702</strong>
+              </div>
+            </div>
+
+            {/* Counterfactual Simulated State */}
+            <div className="p-5 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm flex flex-col items-center justify-between">
+              <div className="w-full flex items-center justify-between text-xs pb-2 border-b border-[#F0ECE1]">
+                <span className="font-mono uppercase font-bold text-emerald-800">Counterfactual State</span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                  simResult?.risk_tier === "Critical" 
+                    ? "bg-rose-100 text-rose-800" 
+                    : simResult?.risk_tier === "High"
+                    ? "bg-amber-100 text-amber-800"
+                    : "bg-emerald-100 text-emerald-800"
+                }`}>
+                  {simResult ? `${simResult.risk_tier} (${(simResult.churn_probability * 100).toFixed(0)}%)` : "Calculating..."}
+                </span>
+              </div>
+              <div className="py-4">
+                <RadialRiskGauge
+                  probability={simResult ? simResult.churn_probability : 0.5}
+                  riskTier={simResult ? simResult.risk_tier : "Medium"}
+                  size={150}
+                />
+              </div>
+              <div className="w-full p-2.5 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] text-center text-xs">
+                <span className="text-stone-500">Simulated MRR Loss: </span>
+                <strong className="font-mono text-stone-900 font-bold">
+                  {simResult ? formatCurrency(simResult.mrr_at_risk) : "..."}
+                </strong>
+              </div>
+            </div>
           </div>
 
-          {/* Deep-Dive Force SHAP Breakdown */}
-          {simResult && (
-            <div className="p-6 rounded-3xl border border-stone-800 bg-gradient-to-b from-[#181716] via-[#141312] to-[#0E0D0C] backdrop-blur-2xl shadow-card space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-800">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-stone-200">
-                    Simulated TreeSHAP Force Dynamic
-                  </h3>
-                </div>
-                <div className="flex items-center gap-1 p-1 rounded-xl bg-stone-900 border border-stone-800 text-xs font-bold">
-                  <button
-                    onClick={() => {
-                      sound.playClick(700);
-                      setActiveTab("forces");
-                    }}
-                    className={`px-3 py-1 rounded-lg ${activeTab === "forces" ? "bg-amber-500 text-stone-950 font-extrabold" : "text-stone-400"}`}
-                  >
-                    Forces
-                  </button>
-                  <button
-                    onClick={() => {
-                      sound.playClick(700);
-                      setActiveTab("waterfall");
-                    }}
-                    className={`px-3 py-1 rounded-lg ${activeTab === "waterfall" ? "bg-amber-500 text-stone-950 font-extrabold" : "text-stone-400"}`}
-                  >
-                    Waterfall
-                  </button>
-                </div>
+          {/* TreeSHAP Diagnostics Card */}
+          <div className="p-6 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#F0ECE1]">
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-800 flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                Simulated TreeSHAP Force Dynamic
+              </h3>
+              <div className="flex items-center gap-1 bg-[#FAF8F5] p-1 rounded-lg border border-[#EFECE4] text-xs">
+                <button
+                  onClick={() => setActiveTab("forces")}
+                  className={`px-2.5 py-1 rounded-md transition-all ${
+                    activeTab === "forces" ? "bg-[#141312] text-white font-bold" : "text-stone-600"
+                  }`}
+                >
+                  Forces
+                </button>
+                <button
+                  onClick={() => setActiveTab("waterfall")}
+                  className={`px-2.5 py-1 rounded-md transition-all ${
+                    activeTab === "waterfall" ? "bg-[#141312] text-white font-bold" : "text-stone-600"
+                  }`}
+                >
+                  Waterfall
+                </button>
               </div>
+            </div>
 
-              {activeTab === "forces" ? (
+            {simResult ? (
+              activeTab === "forces" ? (
                 <ForceShapVisualizer
                   drivers={simResult.top_drivers}
                   baseValue={simResult.base_value}
@@ -488,9 +472,13 @@ export default function SimulatorPage() {
                   totalMargin={simResult.total_margin}
                   predictedProbability={simResult.churn_probability}
                 />
-              )}
-            </div>
-          )}
+              )
+            ) : (
+              <div className="p-8 text-center text-xs text-stone-400">
+                Calculating counterfactual SHAP attributions...
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

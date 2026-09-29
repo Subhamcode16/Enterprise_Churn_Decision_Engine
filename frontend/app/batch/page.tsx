@@ -112,35 +112,35 @@ export default function BatchPage() {
   });
 
   return (
-    <div className="w-full space-y-8 pb-16">
+    <div className="w-full space-y-7 pb-16 font-sans">
       {/* Editorial Header */}
-      <div className="border-b border-[#22201E] pb-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+      <div className="pb-4 border-b border-[#E8E5DD]">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              <span className="text-[10px] font-mono tracking-widest uppercase text-stone-400">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-stone-500">
                 Vectorized Ingestion Engine
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif text-[#FAF8F5] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 tracking-tight">
               Batch CSV Decision Processor
             </h1>
-            <p className="mt-1 text-xs text-stone-400 max-w-2xl leading-relaxed">
-              Upload customer account datasets for high-throughput vectorized churn risk scoring, financial loss quantification, and automatic playbook dispatching.
+            <p className="mt-1 text-xs sm:text-sm text-stone-600 max-w-2xl leading-relaxed">
+              Upload customer account datasets for vectorized churn risk scoring, financial loss quantification, and automatic playbook dispatching.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={handleLoadSample}
-              className="px-3 py-1.5 rounded-lg bg-[#181716] border border-[#22201E] hover:border-stone-700 text-stone-300 text-xs font-medium transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-white border border-[#E8E5DD] hover:border-stone-400 text-stone-700 text-xs font-semibold shadow-sm transition-all"
             >
               Load Sample Data
             </button>
             <button
               onClick={downloadSampleTemplate}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FAF8F5] text-[#0E0D0C] hover:bg-stone-200 text-xs font-semibold shadow-sm transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#141312] text-[#FAF8F5] hover:bg-stone-800 text-xs font-semibold shadow-sm transition-all"
             >
               <Download className="w-3.5 h-3.5" />
               Template CSV
@@ -149,26 +149,28 @@ export default function BatchPage() {
         </div>
       </div>
 
-      {/* Upload Dropzone Container */}
-      <div className="p-8 rounded-xl border border-dashed border-[#2E2B28] hover:border-amber-400/40 bg-[#181716]/60 backdrop-blur-sm transition-all text-center relative">
-        <UploadCloud className="w-10 h-10 mx-auto text-amber-400/80 mb-3" />
+      {/* Upload Dropzone Container (Clean Studio Light Bento) */}
+      <div className="p-8 sm:p-12 rounded-2xl border-2 border-dashed border-[#DCD8CC] hover:border-amber-500/60 bg-white shadow-sm transition-all text-center relative">
+        <div className="w-12 h-12 rounded-2xl bg-[#FFF7D1] border border-[#FFE885] flex items-center justify-center mx-auto mb-3 text-[#7A5800]">
+          <UploadCloud className="w-6 h-6" />
+        </div>
         
-        <h3 className="text-sm font-medium text-[#FAF8F5]">
+        <h3 className="text-base font-bold text-stone-900">
           {file ? file.name : "Select or drag & drop customer CSV dataset"}
         </h3>
-        <p className="text-xs text-stone-400 mt-1 max-w-md mx-auto">
+        <p className="text-xs text-stone-500 mt-1 max-w-md mx-auto">
           Vectorized batch engine accepts up to 10,000 accounts per upload with sub-second ML scoring.
         </p>
 
         {file && (
-          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0E0D0C] border border-[#22201E] text-[11px] font-mono text-stone-300">
-            <FileText className="w-3.5 h-3.5 text-amber-400" />
-            <span>{(file.size / 1024).toFixed(1)} KB • CSV Ready</span>
+          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAF8F5] border border-[#E8E5DD] text-xs font-mono text-stone-700 font-medium">
+            <FileText className="w-3.5 h-3.5 text-amber-600" />
+            <span>{(file.size / 1024).toFixed(1)} KB • CSV Validated</span>
           </div>
         )}
 
         <div className="mt-6 flex items-center justify-center gap-3">
-          <label className="cursor-pointer px-4 py-2 rounded-lg bg-[#22201E] hover:bg-[#2A2825] border border-[#33302C] text-stone-200 text-xs font-medium transition-colors">
+          <label className="cursor-pointer px-4 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-white border border-[#DCD8CC] text-stone-800 text-xs font-semibold transition-all shadow-sm">
             Browse File
             <input
               type="file"
@@ -182,7 +184,7 @@ export default function BatchPage() {
             <button
               onClick={handleUpload}
               disabled={loading}
-              className="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-950 text-xs font-semibold shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all flex items-center gap-1.5"
+              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-950 text-xs font-bold shadow-sm transition-all flex items-center gap-2"
             >
               {loading ? (
                 <>
@@ -200,7 +202,7 @@ export default function BatchPage() {
         </div>
 
         {error && (
-          <div className="mt-4 p-3 max-w-md mx-auto rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-400 flex items-center gap-2 text-left">
+          <div className="mt-4 p-3 max-w-md mx-auto rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2 text-left">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -212,23 +214,23 @@ export default function BatchPage() {
         <div className="space-y-6 pt-2">
           {/* Executive Scoreboard */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-[#181716] border border-[#22201E]">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400">Total Evaluated</span>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-[#FAF8F5] mt-1">
+            <div className="p-4 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-500 font-bold">Total Evaluated</span>
+              <div className="text-xl sm:text-2xl font-bold font-mono text-stone-900 mt-1">
                 {results.total_processed} <span className="text-xs font-normal text-stone-500 font-sans">Accounts</span>
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#181716] border border-[#22201E]">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400">Total MRR at Risk</span>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-rose-400 mt-1">
+            <div className="p-4 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-500 font-bold">Total MRR at Risk</span>
+              <div className="text-xl sm:text-2xl font-bold font-mono text-rose-600 mt-1">
                 {formatCurrency(results.total_mrr_at_risk)}
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#181716] border border-[#22201E]">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400">Critical Risk</span>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-rose-400 mt-1 flex items-baseline gap-1.5">
+            <div className="p-4 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-500 font-bold">Critical Risk</span>
+              <div className="text-xl sm:text-2xl font-bold font-mono text-rose-600 mt-1 flex items-baseline gap-1.5">
                 {results.critical_risk_count}
                 <span className="text-xs font-normal text-stone-500 font-sans">
                   ({((results.critical_risk_count / results.total_processed) * 100).toFixed(0)}%)
@@ -236,9 +238,9 @@ export default function BatchPage() {
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#181716] border border-[#22201E]">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400">High Risk</span>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-amber-400 mt-1 flex items-baseline gap-1.5">
+            <div className="p-4 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-500 font-bold">High Risk</span>
+              <div className="text-xl sm:text-2xl font-bold font-mono text-amber-700 mt-1 flex items-baseline gap-1.5">
                 {results.high_risk_count}
                 <span className="text-xs font-normal text-stone-500 font-sans">
                   ({((results.high_risk_count / results.total_processed) * 100).toFixed(0)}%)
@@ -258,10 +260,10 @@ export default function BatchPage() {
                     playTick();
                     setFilterTier(tier);
                   }}
-                  className={`px-3 py-1 rounded-md text-[11px] font-mono tracking-wider uppercase transition-colors ${
+                  className={`px-3 py-1 rounded-lg text-[11px] font-mono tracking-wider uppercase transition-colors ${
                     filterTier === tier
-                      ? "bg-[#FAF8F5] text-[#0E0D0C] font-bold"
-                      : "bg-[#181716] text-stone-400 hover:text-stone-200 border border-[#22201E]"
+                      ? "bg-[#141312] text-[#FAF8F5] font-bold shadow-sm"
+                      : "bg-white text-stone-600 hover:text-stone-900 border border-[#E8E5DD]"
                   }`}
                 >
                   {tier}
@@ -272,32 +274,32 @@ export default function BatchPage() {
             {/* Search and Queue Actions */}
             <div className="flex items-center gap-2.5 w-full sm:w-auto">
               <div className="relative flex-1 sm:w-56">
-                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-500" />
+                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400" />
                 <input
                   type="text"
                   placeholder="Filter accounts..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#181716] border border-[#22201E] focus:border-amber-400/50 rounded-lg pl-7 pr-2.5 py-1 text-xs text-stone-200 placeholder:text-stone-500 focus:outline-none transition-colors"
+                  className="w-full bg-white border border-[#E8E5DD] focus:border-stone-800 rounded-xl pl-7 pr-2.5 py-1 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none transition-colors"
                 />
               </div>
 
               <button
                 onClick={handleQueueAllCritical}
-                className={`px-3 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
                   queuedAll
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                    : "bg-[#181716] hover:bg-[#22201E] border border-[#22201E] text-stone-300 hover:text-[#FAF8F5]"
+                    ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                    : "bg-[#141312] hover:bg-stone-800 text-[#FAF8F5] shadow-sm"
                 }`}
               >
                 {queuedAll ? (
                   <>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Queued Critical Workflows</span>
                   </>
                 ) : (
                   <>
-                    <Send className="w-3 h-3 text-amber-400" />
+                    <Send className="w-3.5 h-3.5 text-amber-400" />
                     <span>Queue All Critical</span>
                   </>
                 )}
@@ -306,10 +308,10 @@ export default function BatchPage() {
           </div>
 
           {/* Enriched Scored Table */}
-          <div className="rounded-xl border border-[#22201E] bg-[#181716] shadow-xl overflow-hidden">
+          <div className="rounded-2xl border border-[#E8E5DD] bg-white shadow-sm overflow-hidden">
             <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
               <table className="w-full text-left text-xs">
-                <thead className="sticky top-0 z-10 bg-[#0E0D0C] text-stone-400 uppercase font-mono text-[10px] tracking-wider border-b border-[#22201E]">
+                <thead className="sticky top-0 z-10 bg-[#FAF8F5] text-stone-500 uppercase font-mono text-[10px] tracking-wider border-b border-[#E8E5DD]">
                   <tr>
                     <th className="py-3 px-4">Account ID & Name</th>
                     <th className="py-3 px-4">Contract MRR</th>
@@ -319,46 +321,54 @@ export default function BatchPage() {
                     <th className="py-3 px-4">Recommended Playbook</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#22201E]/60">
+                <tbody className="divide-y divide-[#F0ECE1]">
                   {filteredAccounts.map((item) => (
-                    <tr key={item.account_id} className="hover:bg-[#1E1D1B] transition-colors">
+                    <tr key={item.account_id} className="hover:bg-[#FAF8F5] transition-colors">
                       <td className="py-3 px-4">
-                        <div className="font-medium text-[#FAF8F5]">{item.company_name}</div>
-                        <div className="text-[10px] font-mono text-stone-500">{item.account_id}</div>
+                        <div className="font-semibold text-stone-900">{item.company_name}</div>
+                        <div className="text-[10px] font-mono text-stone-400">{item.account_id}</div>
                       </td>
-                      <td className="py-3 px-4 font-mono text-stone-300">
+                      <td className="py-3 px-4 font-mono text-stone-800 font-medium">
                         {formatCurrency(item.contract_mrr)}
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 rounded-full bg-[#0E0D0C] overflow-hidden">
+                          <div className="w-16 h-2 rounded-full bg-[#E8E5DD] overflow-hidden">
                             <div
                               className={`h-full rounded-full ${
                                 item.churn_probability >= 0.7
                                   ? "bg-rose-500"
                                   : item.churn_probability >= 0.4
-                                  ? "bg-amber-400"
+                                  ? "bg-amber-500"
                                   : "bg-emerald-500"
                               }`}
                               style={{ width: `${item.churn_probability * 100}%` }}
                             />
                           </div>
-                          <span className="font-mono text-xs font-bold text-stone-200">
+                          <span className="font-mono text-xs font-bold text-stone-900">
                             {(item.churn_probability * 100).toFixed(1)}%
                           </span>
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase font-semibold ${getRiskBadgeClasses(item.risk_tier)}`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono uppercase font-bold ${
+                          item.risk_tier === "Critical"
+                            ? "bg-rose-100 text-rose-800"
+                            : item.risk_tier === "High"
+                            ? "bg-amber-100 text-amber-800"
+                            : item.risk_tier === "Medium"
+                            ? "bg-stone-100 text-stone-700"
+                            : "bg-emerald-100 text-emerald-800"
+                        }`}>
                           {item.risk_tier}
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-mono font-bold text-rose-400">
+                      <td className="py-3 px-4 font-mono font-bold text-rose-600">
                         {formatCurrency(item.mrr_at_risk)}
                       </td>
                       <td className="py-3 px-4">
-                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#0E0D0C] border border-[#22201E] text-stone-300 font-mono text-[11px]">
-                          <span className="text-amber-400">▶</span>
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#FAF8F5] border border-[#E8E5DD] text-stone-800 font-mono text-[11px] font-semibold">
+                          <span className="text-amber-500">▶</span>
                           {item.primary_playbook}
                         </div>
                       </td>
@@ -367,7 +377,7 @@ export default function BatchPage() {
 
                   {filteredAccounts.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-stone-500">
+                      <td colSpan={6} className="py-12 text-center text-stone-400 text-xs">
                         No accounts match the selected filter.
                       </td>
                     </tr>

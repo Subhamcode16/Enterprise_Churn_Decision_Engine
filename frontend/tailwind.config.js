@@ -64,9 +64,9 @@ module.exports = {
         glowGold: "0 0 25px -4px rgba(245, 158, 11, 0.3)",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        serif: ["Newsreader", "Georgia", "serif"],
-        mono: ["JetBrains Mono", "monospace"]
+        sans: ["'Plus Jakarta Sans'", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["'Plus Jakarta Sans'", "Georgia", "serif"],
+        mono: ["'JetBrains Mono'", "monospace"]
       }
     },
   },
