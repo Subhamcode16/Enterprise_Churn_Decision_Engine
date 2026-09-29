@@ -1,95 +1,385 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, ShieldCheck, Clock, UserCheck, AlertTriangle, Layers, Zap } from "lucide-react";
+import { 
+  BookOpen, 
+  ShieldCheck, 
+  Clock, 
+  UserCheck, 
+  AlertTriangle, 
+  Layers, 
+  Zap, 
+  Search, 
+  Send, 
+  CheckCircle2, 
+  Terminal, 
+  Copy, 
+  ExternalLink,
+  Filter,
+  Flame,
+  ArrowUpRight
+} from "lucide-react";
 import { getPlaybooks } from "@/lib/api";
 import { Playbook } from "@/lib/types";
+import { playBlip, playExecute, playTick } from "@/lib/sound";
+
+const DEPARTMENT_FILTERS = [
+  { id: "ALL", label: "All Departments" },
+  { id: "CS", label: "Customer Success", category: "Account Health & Usage" },
+  { id: "ENG", label: "Engineering & SRE", category: "Technical & Reliability" },
+  { id: "FIN", label: "Billing & FinOps", category: "Commercial & Billing" },
+  { id: "EXEC", label: "Executive Leadership", category: "Commercial" },
+  { id: "GROWTH", label: "Product & Adoption", category: "Feature Adoption" },
+];
 
 export default function PlaybooksPage() {
   const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPlaybook, setSelectedPlaybook] = useState<Playbook | null>(null);
+  const [dispatchStatus, setDispatchStatus] = useState<"idle" | "dispatching" | "dispatched">("idle");
+  const [copiedPayload, setCopiedPayload] = useState(false);
 
   useEffect(() => {
     getPlaybooks()
-      .then((res) => setPlaybooks(res.playbooks))
+      .then((res) => {
+        setPlaybooks(res.playbooks);
+        if (res.playbooks.length > 0) {
+          setSelectedPlaybook(res.playbooks[0]);
+        }
+      })
       .catch((err) => console.error("Failed to load playbooks:", err))
       .finally(() => setLoading(false));
   }, []);
 
+  const filteredPlaybooks = playbooks.filter((pb) => {
+    const matchesSearch = 
+      pb.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      pb.playbook_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      pb.assignee_role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      pb.action_summary.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+    if (activeFilter === "ALL") return true;
+    if (activeFilter === "CS") return pb.category.includes("Account Health") || pb.assignee_role.includes("Customer");
+    if (activeFilter === "ENG") return pb.category.includes("Technical") || pb.assignee_role.includes("Engineering");
+    if (activeFilter === "FIN") return pb.category.includes("Billing") || pb.assignee_role.includes("Billing") || pb.assignee_role.includes("Finance");
+    if (activeFilter === "EXEC") return pb.assignee_role.includes("Executive") || pb.assignee_role.includes("VP");
+    if (activeFilter === "GROWTH") return pb.category.includes("Adoption") || pb.assignee_role.includes("Product");
+    return true;
+  });
+
   const getPriorityBadge = (p: string) => {
     switch (p) {
       case "P0":
-        return "bg-red-500/20 text-red-400 border-red-500/40";
+        return "bg-rose-500/10 text-rose-400 border-rose-500/30";
       case "P1":
-        return "bg-orange-500/20 text-orange-400 border-orange-500/40";
+        return "bg-amber-500/10 text-amber-400 border-amber-500/30";
       case "P2":
-        return "bg-amber-500/20 text-amber-400 border-amber-500/40";
+        return "bg-stone-500/10 text-stone-300 border-stone-500/30";
       default:
-        return "bg-indigo-500/20 text-indigo-400 border-indigo-500/40";
+        return "bg-stone-800 text-stone-400 border-stone-700";
     }
   };
 
+  const handleSelectPlaybook = (pb: Playbook) => {
+    playTick();
+    setSelectedPlaybook(pb);
+    setDispatchStatus("idle");
+  };
+
+  const handleSimulateDispatch = () => {
+    if (!selectedPlaybook) return;
+    playBlip();
+    setDispatchStatus("dispatching");
+    setTimeout(() => {
+      playExecute();
+      setDispatchStatus("dispatched");
+    }, 900);
+  };
+
+  const currentPayloadJson = selectedPlaybook ? JSON.stringify({
+    event_id: `evt_test_${Date.now().toString(36)}`,
+    event_type: "REVENUE_RETENTION_INTERVENTION",
+    timestamp: new Date().toISOString(),
+    playbook: {
+      id: selectedPlaybook.playbook_id,
+      priority: selectedPlaybook.priority,
+      target_sla_hours: selectedPlaybook.sla_hours,
+      assignee: selectedPlaybook.assignee_role,
+    },
+    target_account: {
+      account_id: "ACC-904",
+      company_name: "Stratis Financial",
+      contract_mrr: 8900,
+      churn_probability: 0.814,
+      mrr_at_risk: 7244.6,
+    },
+    execution_context: {
+      trigger: selectedPlaybook.title,
+      protocol: selectedPlaybook.action_summary,
+      webhook_endpoint: "https://api.churniq.internal/v1/orchestrator/webhook"
+    }
+  }, null, 2) : "";
+
+  const handleCopyPayload = () => {
+    navigator.clipboard.writeText(currentPayloadJson);
+    setCopiedPayload(true);
+    setTimeout(() => setCopiedPayload(false), 2000);
+  };
+
   return (
-    <div className="space-y-8">
-      {/* Hero */}
-      <div className="pb-2 border-b border-slate-800/80">
-        <div className="flex items-center gap-2">
-          <BookOpen className="w-6 h-6 text-indigo-400" />
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Retention Playbook Master Catalog
-          </h1>
+    <div className="space-y-8 max-w-7xl mx-auto pb-16">
+      {/* Editorial Page Header */}
+      <div className="border-b border-[#22201E] pb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <span className="text-[10px] font-mono tracking-widest uppercase text-stone-400">
+                Decision Intelligence Protocol
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-serif text-[#FAF8F5] tracking-tight">
+              Retention Playbook Master Catalog
+            </h1>
+            <p className="mt-1 text-xs text-stone-400 max-w-2xl leading-relaxed">
+              Deterministic, SLA-bound intervention workflows mapped automatically to root-cause SHAP drivers and expected MRR loss.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="px-3.5 py-1.5 rounded-lg bg-[#181716] border border-[#22201E] text-stone-300 text-xs font-mono">
+              <span className="text-amber-400 font-bold">{playbooks.length}</span> Active Workflows
+            </div>
+          </div>
         </div>
-        <p className="mt-1 text-sm text-slate-400">
-          Deterministic business rules and automated interventions mapped to customer health signals and root-cause SHAP drivers.
-        </p>
+
+        {/* Filter & Search Bar */}
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          {/* Department Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
+            {DEPARTMENT_FILTERS.map((f) => (
+              <button
+                key={f.id}
+                onClick={() => {
+                  playTick();
+                  setActiveFilter(f.id);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-150 ${
+                  activeFilter === f.id
+                    ? "bg-[#FAF8F5] text-[#0E0D0C] shadow-sm font-semibold"
+                    : "bg-[#181716] text-stone-400 hover:text-stone-200 border border-[#22201E] hover:border-stone-700"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Search Input */}
+          <div className="relative w-full sm:w-64">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
+            <input
+              type="text"
+              placeholder="Search playbooks or roles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#181716] border border-[#22201E] focus:border-amber-400/50 rounded-lg pl-8 pr-3 py-1.5 text-xs text-stone-200 placeholder:text-stone-500 focus:outline-none transition-colors font-sans"
+            />
+          </div>
+        </div>
       </div>
 
       {loading ? (
-        <div className="p-12 text-center text-slate-400">
-          <Zap className="w-6 h-6 mx-auto text-indigo-400 animate-spin mb-2" />
-          Loading playbook catalog...
+        <div className="p-16 text-center text-stone-400">
+          <Zap className="w-6 h-6 mx-auto text-amber-400 animate-spin mb-3" />
+          <p className="text-xs font-mono">Loading playbook orchestrator catalog...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {playbooks.map((pb) => (
-            <div
-              key={pb.playbook_id}
-              className="p-6 rounded-2xl border border-slate-800 bg-[#0F1626]/80 backdrop-blur-xl shadow-card hover:border-indigo-500/40 transition-all duration-200"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md border ${getPriorityBadge(pb.priority)}`}>
-                    {pb.priority}
-                  </span>
-                  <span className="text-xs font-mono font-bold text-slate-300">
-                    {pb.playbook_id}
-                  </span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Playbook Cards Grid (Left 7 Columns) */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-stone-500 px-1">
+              <span>Catalog Entries ({filteredPlaybooks.length})</span>
+              <span>Click to inspect payload</span>
+            </div>
+
+            <div className="space-y-3.5">
+              {filteredPlaybooks.map((pb) => {
+                const isSelected = selectedPlaybook?.playbook_id === pb.playbook_id;
+                return (
+                  <div
+                    key={pb.playbook_id}
+                    onClick={() => handleSelectPlaybook(pb)}
+                    className={`cursor-pointer p-5 rounded-xl border transition-all duration-200 text-left relative overflow-hidden ${
+                      isSelected
+                        ? "bg-[#1C1B19] border-amber-400/60 shadow-[0_0_24px_rgba(245,158,11,0.08)] ring-1 ring-amber-400/40"
+                        : "bg-[#181716] border-[#22201E] hover:border-stone-700 hover:bg-[#1A1918]"
+                    }`}
+                  >
+                    {/* Active Accent Bar */}
+                    {isSelected && (
+                      <div className="absolute top-0 left-0 bottom-0 w-1 bg-amber-400" />
+                    )}
+
+                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${getPriorityBadge(pb.priority)}`}>
+                          {pb.priority}
+                        </span>
+                        <span className="text-xs font-mono font-bold text-[#FAF8F5]">
+                          {pb.playbook_id}
+                        </span>
+                      </div>
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#0E0D0C] border border-[#22201E] text-stone-400 font-sans">
+                        {pb.category}
+                      </span>
+                    </div>
+
+                    <h3 className="text-sm font-semibold text-[#FAF8F5] mb-2 leading-snug">
+                      {pb.title}
+                    </h3>
+
+                    <p className="text-xs text-stone-400 leading-relaxed bg-[#0E0D0C]/70 p-3 rounded-lg border border-[#22201E]/80 mb-3.5 font-sans">
+                      {pb.action_summary}
+                    </p>
+
+                    <div className="flex items-center justify-between text-[11px] text-stone-400 pt-2.5 border-t border-[#22201E]">
+                      <div className="flex items-center gap-1.5">
+                        <UserCheck className="w-3.5 h-3.5 text-stone-500" />
+                        <span>Owner: <strong className="text-stone-300 font-medium">{pb.assignee_role}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-1.5 font-mono">
+                        <Clock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>SLA: <strong className="text-amber-400 font-bold">{pb.sla_hours}h</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {filteredPlaybooks.length === 0 && (
+                <div className="p-12 text-center rounded-xl bg-[#181716] border border-[#22201E] text-stone-400">
+                  <BookOpen className="w-8 h-8 mx-auto text-stone-600 mb-2" />
+                  <p className="text-xs font-serif">No playbooks found matching filter or query.</p>
                 </div>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 font-medium">
-                  {pb.category}
+              )}
+            </div>
+          </div>
+
+          {/* Webhook & Orchestrator Inspector (Right 5 Columns) */}
+          <div className="lg:col-span-5">
+            <div className="sticky top-20 space-y-4">
+              <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-stone-500 px-1">
+                <span>Webhook Dispatch Inspector</span>
+                <span className="text-emerald-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Ready
                 </span>
               </div>
 
-              <h3 className="text-base font-bold text-white mt-3">
-                {pb.title}
-              </h3>
+              {selectedPlaybook ? (
+                <div className="p-5 rounded-xl bg-[#181716] border border-[#22201E] shadow-xl space-y-5">
+                  {/* Header info */}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400">
+                        Active Target
+                      </span>
+                      <span className="text-xs font-mono text-stone-400">
+                        {selectedPlaybook.playbook_id}
+                      </span>
+                    </div>
+                    <h2 className="text-base font-serif font-bold text-[#FAF8F5] mt-1">
+                      {selectedPlaybook.title}
+                    </h2>
+                  </div>
 
-              <p className="mt-2 text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
-                {pb.action_summary}
-              </p>
+                  {/* Dispatch Route Info */}
+                  <div className="p-3 rounded-lg bg-[#0E0D0C] border border-[#22201E] space-y-2 text-xs">
+                    <div className="flex justify-between items-center text-[11px] text-stone-400">
+                      <span>Method & Route</span>
+                      <span className="font-mono text-emerald-400 font-bold">POST /v1/orchestrator/dispatch</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px] text-stone-400">
+                      <span>Assigned Department</span>
+                      <span className="text-stone-200">{selectedPlaybook.assignee_role}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px] text-stone-400">
+                      <span>Resolution Target</span>
+                      <span className="font-mono text-amber-400">{selectedPlaybook.sla_hours} Hours Maximum</span>
+                    </div>
+                  </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                <div className="flex items-center gap-1.5">
-                  <UserCheck className="w-4 h-4 text-indigo-400" />
-                  <span>Assignee: <strong className="text-slate-200">{pb.assignee_role}</strong></span>
+                  {/* Live JSON Payload Inspector */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1.5 text-xs text-stone-300 font-medium">
+                        <Terminal className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Simulated Webhook Payload</span>
+                      </div>
+                      <button
+                        onClick={handleCopyPayload}
+                        className="flex items-center gap-1 text-[11px] text-stone-400 hover:text-stone-200 transition-colors"
+                      >
+                        {copiedPayload ? (
+                          <>
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                            <span className="text-emerald-400">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span>Copy JSON</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <pre className="p-3.5 rounded-lg bg-[#0E0D0C] border border-[#22201E] text-[11px] font-mono text-stone-300 overflow-x-auto max-h-[260px] leading-relaxed select-all">
+                      {currentPayloadJson}
+                    </pre>
+                  </div>
+
+                  {/* Dispatch Trigger CTA */}
+                  <div className="pt-2">
+                    <button
+                      onClick={handleSimulateDispatch}
+                      disabled={dispatchStatus === "dispatching"}
+                      className={`w-full py-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all duration-200 ${
+                        dispatchStatus === "dispatched"
+                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                          : "bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-[0_0_20px_rgba(245,158,11,0.2)] active:scale-[0.99]"
+                      }`}
+                    >
+                      {dispatchStatus === "dispatching" ? (
+                        <>
+                          <Zap className="w-4 h-4 animate-spin text-stone-950" />
+                          <span>Dispatching Webhook Signal...</span>
+                        </>
+                      ) : dispatchStatus === "dispatched" ? (
+                        <>
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <span>Intervention Dispatched to {selectedPlaybook.assignee_role}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-3.5 h-3.5" />
+                          <span>Simulate Playbook Webhook Dispatch</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-amber-400" />
-                  <span>SLA: <strong className="text-slate-200">{pb.sla_hours} hours</strong></span>
+              ) : (
+                <div className="p-8 text-center rounded-xl bg-[#181716] border border-[#22201E] text-stone-500">
+                  Select a playbook from the list to view its schema payload.
                 </div>
-              </div>
+              )}
             </div>
-          ))}
+          </div>
         </div>
       )}
     </div>
