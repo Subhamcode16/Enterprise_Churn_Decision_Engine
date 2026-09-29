@@ -26,12 +26,12 @@ def generate_company_name(rnd: np.random.RandomState) -> str:
     return f"{prefix} {suffix}"
 
 def generate_b2b_churn_dataset(
-    n_samples: int = 12000,
+    n_samples: int = 50000,
     random_seed: int = 42,
     output_path: str = None
 ) -> pd.DataFrame:
     """
-    Generates a realistic B2B enterprise SaaS account dataset.
+    Generates a realistic 50,000-record B2B enterprise SaaS account dataset.
     """
     rnd = np.random.RandomState(random_seed)
 

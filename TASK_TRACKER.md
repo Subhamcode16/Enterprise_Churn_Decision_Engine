@@ -9,7 +9,7 @@
 ## 🧭 Executive Architecture & System Context
 
 CHURNIQ is an Enterprise Churn & Revenue Decision Engine designed for high-ACV B2B SaaS. It unifies:
-1. **Calibrated Machine Learning**: XGBoost Binary Classifier with isotonic calibration achieving **Recall ≥ 0.77**, **ROC-AUC ~0.886**, and threshold optimization at `P(Churn) ≥ 0.35`.
+1. **Calibrated Machine Learning (`v1.1.0`)**: XGBoost Classifier trained on 50,000 multi-tenant accounts with class weighting and L1/L2 regularization achieving **Recall = 0.8814 (at $P \ge 0.35$)**, **ROC-AUC = 0.8858**, and Brier calibration score `0.1323`.
 2. **Local Explainability**: TreeSHAP feature attributions decomposing individual risk scores into positive risk drivers and negative protective retention anchors.
 3. **Deterministic Rules & SLA Playbooks**: 6 automated intervention protocols bound to role assignees and SLA timers (e.g. `PB-SUPP-01`, `PB-ENGAGE-02`, `PB-EXEC-04`).
 4. **Interactive Studio Bento UI**: Next.js 14, Tailwind CSS, Lenis momentum smooth scrolling, `transitions-dev` micro-motion tokens, live number tickers, and an integrated side-by-side Decision Copilot.
