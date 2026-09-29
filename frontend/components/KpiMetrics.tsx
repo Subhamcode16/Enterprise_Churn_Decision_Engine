@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, DollarSign, TrendingDown, Users, ShieldAlert, ArrowUpRight } from "lucide-react";
+import { AlertTriangle, DollarSign, TrendingDown, Users, ArrowUpRight } from "lucide-react";
 import { PortfolioSummary } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 
@@ -21,31 +21,31 @@ export default function KpiMetrics({ summary }: KpiMetricsProps) {
       borderColor: "border-red-500/30",
     },
     {
-      title: "Active Monitored ARR / MRR",
+      title: "Monitored Active Portfolio",
       value: formatCurrency(summary.total_portfolio_mrr),
-      badge: `${summary.total_accounts} Accounts`,
-      badgeColor: "bg-indigo-500/15 text-indigo-300 border-indigo-500/30",
-      subtext: `ARR: ${formatCurrency(summary.total_portfolio_mrr * 12)}`,
+      badge: `${summary.total_accounts} Enterprise Accounts`,
+      badgeColor: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+      subtext: `Annual Run-Rate: ${formatCurrency(summary.total_portfolio_mrr * 12)}`,
       icon: Users,
-      glowColor: "rgba(99, 102, 241, 0.15)",
-      borderColor: "border-indigo-500/30",
+      glowColor: "rgba(245, 158, 11, 0.15)",
+      borderColor: "border-amber-500/30",
     },
     {
-      title: "Critical & High Risk Pipeline",
+      title: "Urgent Critical & High Pipeline",
       value: `${summary.critical_risk_count + summary.high_risk_count}`,
       badge: "Action Required",
-      badgeColor: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-      subtext: `${summary.critical_risk_count} Critical • ${summary.high_risk_count} High Risk accounts`,
+      badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+      subtext: `${summary.critical_risk_count} Critical • ${summary.high_risk_count} High Risk`,
       icon: AlertTriangle,
       glowColor: "rgba(245, 158, 11, 0.15)",
       borderColor: "border-amber-500/30",
     },
     {
-      title: "Retention & Expansion Base",
+      title: "Stable Retention Cohort",
       value: `${summary.low_risk_count + summary.medium_risk_count}`,
       badge: "Healthy Base",
       badgeColor: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-      subtext: `${summary.low_risk_count} Low Risk • ${summary.medium_risk_count} Stable`,
+      subtext: `${summary.low_risk_count} Low Risk • ${summary.medium_risk_count} Moderate`,
       icon: TrendingDown,
       glowColor: "rgba(16, 185, 129, 0.15)",
       borderColor: "border-emerald-500/30",
@@ -62,21 +62,21 @@ export default function KpiMetrics({ summary }: KpiMetricsProps) {
             style={{
               boxShadow: `0 10px 30px -10px ${card.glowColor}`,
             }}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#131B2E] via-[#0F1626] to-[#0A0E1A] p-5 border ${card.borderColor} backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:border-slate-600`}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#1E1C1A] via-[#161514] to-[#100F0E] p-5 border ${card.borderColor} backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:border-stone-600`}
           >
             {/* Top Row */}
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 font-mono">
                 {card.title}
               </span>
-              <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300">
-                <Icon className="w-4 h-4" />
+              <div className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-300">
+                <Icon className="w-4 h-4 text-amber-400" />
               </div>
             </div>
 
             {/* Value & Badge */}
-            <div className="mt-4 flex items-baseline justify-between gap-2">
-              <div className="text-2xl sm:text-3xl font-mono font-extrabold text-white tracking-tight">
+            <div className="mt-3.5 flex items-baseline justify-between gap-2">
+              <div className="text-2xl sm:text-3xl font-mono font-extrabold text-stone-100 tracking-tight">
                 {card.value}
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${card.badgeColor}`}>
@@ -84,7 +84,7 @@ export default function KpiMetrics({ summary }: KpiMetricsProps) {
               </span>
             </div>
 
-            <p className="mt-2 text-xs text-slate-400 font-medium">
+            <p className="mt-2 text-xs text-stone-400 font-medium">
               {card.subtext}
             </p>
           </div>

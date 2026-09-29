@@ -12,9 +12,9 @@ interface RadialRiskGaugeProps {
 export default function RadialRiskGauge({
   probability,
   riskTier,
-  size = 180,
+  size = 170,
 }: RadialRiskGaugeProps) {
-  const strokeWidth = 14;
+  const strokeWidth = 12;
   const radius = (size - strokeWidth) / 2;
   const circumference = Math.PI * radius; // Half circle (180 deg)
   const clampedProb = Math.min(Math.max(probability, 0), 1);
@@ -54,18 +54,18 @@ export default function RadialRiskGauge({
     <div className="relative flex flex-col items-center justify-center">
       <svg
         width={size}
-        height={size * 0.65}
-        viewBox={`0 0 ${size} ${size * 0.7}`}
+        height={size * 0.62}
+        viewBox={`0 0 ${size} ${size * 0.65}`}
         className="overflow-visible"
       >
         <defs>
-          <linearGradient id="riskGaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="editorialGaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#10B981" />
-            <stop offset="35%" stopColor="#F59E0B" />
-            <stop offset="65%" stopColor="#F97316" />
+            <stop offset="40%" stopColor="#F59E0B" />
+            <stop offset="70%" stopColor="#F97316" />
             <stop offset="100%" stopColor="#EF4444" />
           </linearGradient>
-          <filter id="gaugeGlow">
+          <filter id="gaugeGlowGold">
             <feGaussianBlur stdDeviation="3" result="coloredBlur" />
             <feMerge>
               <feMergeNode in="coloredBlur" />
@@ -78,21 +78,21 @@ export default function RadialRiskGauge({
         <path
           d={`M ${strokeWidth / 2} ${size / 2} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${size / 2}`}
           fill="none"
-          stroke="#1E293B"
+          stroke="#292524"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
         />
 
-        {/* Dynamic Glowing Filled Arc */}
+        {/* Dynamic Filled Arc */}
         <path
           d={`M ${strokeWidth / 2} ${size / 2} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${size / 2}`}
           fill="none"
-          stroke="url(#riskGaugeGrad)"
+          stroke="url(#editorialGaugeGrad)"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          filter="url(#gaugeGlow)"
+          filter="url(#gaugeGlowGold)"
           className="transition-all duration-700 ease-out"
         />
 
@@ -105,21 +105,21 @@ export default function RadialRiskGauge({
             <circle
               cx={cx}
               cy={cy}
-              r={6}
-              fill="#FFFFFF"
+              r={5.5}
+              fill="#FAF8F5"
               className="drop-shadow-[0_0_8px_rgba(255,255,255,0.9)] transition-all duration-700 ease-out"
             />
           );
         })()}
       </svg>
 
-      {/* Numerical Probability Readout */}
-      <div className="absolute top-[42%] flex flex-col items-center">
-        <span className="text-3xl font-mono font-extrabold text-white tracking-tighter">
+      {/* Probability Readout */}
+      <div className="absolute top-[38%] flex flex-col items-center">
+        <span className="text-3xl font-mono font-extrabold text-stone-100 tracking-tighter">
           {(clampedProb * 100).toFixed(1)}%
         </span>
         <span className={`text-[10px] uppercase font-extrabold tracking-widest ${colorConfig.text}`}>
-          {riskTier} Risk
+          {riskTier} Churn Risk
         </span>
       </div>
     </div>

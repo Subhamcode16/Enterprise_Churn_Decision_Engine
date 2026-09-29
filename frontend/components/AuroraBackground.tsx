@@ -23,12 +23,12 @@ export default function AuroraBackground() {
 
     window.addEventListener("resize", handleResize);
 
-    // Ethereal Particle Orbs
+    // Warm Obsidian & Champagne Amber Orbs
     const orbs = [
-      { x: width * 0.2, y: height * 0.25, r: 350, color: "rgba(99, 102, 241, 0.12)", vx: 0.4, vy: 0.2 },
-      { x: width * 0.8, y: height * 0.35, r: 420, color: "rgba(236, 72, 153, 0.08)", vx: -0.3, vy: 0.3 },
-      { x: width * 0.5, y: height * 0.75, r: 380, color: "rgba(56, 189, 248, 0.10)", vx: 0.2, vy: -0.4 },
-      { x: width * 0.1, y: height * 0.85, r: 300, color: "rgba(168, 85, 247, 0.09)", vx: -0.2, vy: -0.2 },
+      { x: width * 0.25, y: height * 0.2, r: 400, color: "rgba(245, 158, 11, 0.08)", vx: 0.25, vy: 0.15 },
+      { x: width * 0.75, y: height * 0.3, r: 450, color: "rgba(217, 119, 6, 0.06)", vx: -0.2, vy: 0.2 },
+      { x: width * 0.5, y: height * 0.8, r: 400, color: "rgba(180, 83, 9, 0.05)", vx: 0.15, vy: -0.25 },
+      { x: width * 0.1, y: height * 0.85, r: 350, color: "rgba(120, 113, 108, 0.06)", vx: -0.15, vy: -0.15 },
     ];
 
     const render = () => {
@@ -67,15 +67,15 @@ export default function AuroraBackground() {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Dynamic Animated Canvas Mesh */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-80" />
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-90" />
       
-      {/* Cyber-Lux Grid Mesh Texture */}
+      {/* Hairline Grid Overlay */}
       <div 
-        className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:32px_32px]"
+        className="absolute inset-0 opacity-[0.025] bg-[linear-gradient(to_right,#d6d3d1_1px,transparent_1px),linear-gradient(to_bottom,#d6d3d1_1px,transparent_1px)] bg-[size:36px_36px]"
       />
 
-      {/* Top subtle vignette */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#060911] via-transparent to-[#060911]/80" />
+      {/* Deep Obsidian Edge Vignette */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0E0D0C] via-transparent to-[#0E0D0C]/80" />
     </div>
   );
 }
