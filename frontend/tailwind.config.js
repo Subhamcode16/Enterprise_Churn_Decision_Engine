@@ -10,14 +10,23 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "#0E0D0C",
-        surface: {
-          50: "#2B2926",
-          100: "#22201E",
-          200: "#1A1918",
-          300: "#141312",
-          border: "rgba(255, 255, 255, 0.08)",
-          specular: "rgba(245, 158, 11, 0.25)"
+        canvas: "#F6F4EE",
+        card: "#FFFFFF",
+        cardBorder: "#E8E5DD",
+        sidebar: "#141312",
+        bento: {
+          canary: "#FFF7D1",
+          canaryBorder: "#FFE885",
+          canaryText: "#7A5800",
+          rose: "#FFE9E9",
+          roseBorder: "#FFC2C2",
+          roseText: "#8E2424",
+          sage: "#EAF5E8",
+          sageBorder: "#C1E7BC",
+          sageText: "#235E23",
+          lavender: "#EDF0FF",
+          lavenderBorder: "#CCD4FF",
+          lavenderText: "#2C3D8F",
         },
         gold: {
           50: "#FFFBEB",
@@ -39,7 +48,8 @@ module.exports = {
           600: "#57534E",
           700: "#44403C",
           800: "#292524",
-          900: "#1C1917"
+          900: "#1C1917",
+          950: "#0E0D0C"
         },
         risk: {
           low: "#10B981",
@@ -49,12 +59,13 @@ module.exports = {
         }
       },
       boxShadow: {
-        glowGold: "0 0 30px -5px rgba(245, 158, 11, 0.2)",
-        glowRisk: "0 0 30px -5px rgba(239, 68, 68, 0.2)",
-        card: "0 10px 40px 0 rgba(0, 0, 0, 0.6)"
+        bento: "0 2px 12px -2px rgba(0, 0, 0, 0.04), 0 1px 3px 0 rgba(0, 0, 0, 0.02)",
+        bentoHover: "0 8px 24px -4px rgba(0, 0, 0, 0.08), 0 2px 6px 0 rgba(0, 0, 0, 0.04)",
+        glowGold: "0 0 25px -4px rgba(245, 158, 11, 0.3)",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["Newsreader", "Georgia", "serif"],
         mono: ["JetBrains Mono", "monospace"]
       }
     },
