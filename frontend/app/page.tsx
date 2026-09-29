@@ -16,6 +16,7 @@ import RenewalTimelineRail from "@/components/RenewalTimelineRail";
 import DecisionCopilot from "@/components/DecisionCopilot";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import SkeletonPulse from "@/components/SkeletonPulse";
+import TextStateSwap from "@/components/TextStateSwap";
 import { formatCurrency, resolvePrimaryPlaybook } from "@/lib/utils";
 import Link from "next/link";
 import { 
@@ -198,20 +199,24 @@ export default function DashboardPage() {
                       <span>{selectedAccount.tenure_months}mo Active</span>
                     </div>
 
-                    <h2 className="text-2xl font-serif font-bold text-stone-900">
-                      {selectedAccount.company_name}
-                    </h2>
+                    <TextStateSwap triggerKey={selectedAccount.company_name}>
+                      <h2 className="text-2xl font-serif font-bold text-stone-900 tracking-tight">
+                        {selectedAccount.company_name}
+                      </h2>
+                    </TextStateSwap>
                   </div>
 
-                  <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold uppercase ${
-                    selectedAccount.risk_tier === "Critical"
-                      ? "bg-rose-100 text-rose-800 border border-rose-200"
-                      : selectedAccount.risk_tier === "High"
-                      ? "bg-amber-100 text-amber-800 border border-amber-200"
-                      : "bg-stone-100 text-stone-700 border border-stone-200"
-                  }`}>
-                    {selectedAccount.risk_tier} RISK
-                  </span>
+                  <TextStateSwap triggerKey={selectedAccount.risk_tier}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold uppercase ${
+                      selectedAccount.risk_tier === "Critical"
+                        ? "bg-rose-100 text-rose-800 border border-rose-200"
+                        : selectedAccount.risk_tier === "High"
+                        ? "bg-amber-100 text-amber-800 border border-amber-200"
+                        : "bg-stone-100 text-stone-700 border border-stone-200"
+                    }`}>
+                      {selectedAccount.risk_tier} RISK
+                    </span>
+                  </TextStateSwap>
                 </div>
 
                 {/* Gauge & Key Exposure Metrics */}
@@ -228,14 +233,14 @@ export default function DashboardPage() {
                     <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] transition-all hover:border-stone-300">
                       <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500">Contract Value</span>
                       <div className="text-base font-mono font-bold text-stone-900 mt-0.5">
-                        <AnimatedCounter prefix="$" value={selectedAccount.contract_mrr} decimals={0} />
+                        <AnimatedCounter prefix="$" value={selectedAccount.contract_mrr} decimals={0} showDelta={true} />
                       </div>
                     </div>
 
                     <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] transition-all hover:border-stone-300">
                       <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500">MRR Exposure</span>
                       <div className="text-base font-mono font-bold text-rose-600 mt-0.5">
-                        <AnimatedCounter prefix="$" value={selectedAccount.mrr_at_risk} decimals={0} />
+                        <AnimatedCounter prefix="$" value={selectedAccount.mrr_at_risk} decimals={0} showDelta={true} />
                       </div>
                     </div>
 
@@ -245,7 +250,7 @@ export default function DashboardPage() {
                         selectedAccount.usage_change_pct_30d < 0 ? "text-rose-600" : "text-emerald-700"
                       }`}>
                         {selectedAccount.usage_change_pct_30d > 0 ? "+" : ""}
-                        <AnimatedCounter value={selectedAccount.usage_change_pct_30d} decimals={1} suffix="%" />
+                        <AnimatedCounter value={selectedAccount.usage_change_pct_30d} decimals={1} suffix="%" showDelta={true} />
                       </div>
                     </div>
 
@@ -254,7 +259,7 @@ export default function DashboardPage() {
                       <div className={`text-base font-mono font-bold mt-0.5 ${
                         selectedAccount.open_p1_tickets > 0 ? "text-rose-600" : "text-stone-700"
                       }`}>
-                        <AnimatedCounter value={selectedAccount.open_p1_tickets} decimals={0} suffix=" Open" />
+                        <AnimatedCounter value={selectedAccount.open_p1_tickets} decimals={0} suffix=" Open" showDelta={true} />
                       </div>
                     </div>
                   </div>
@@ -285,17 +290,19 @@ export default function DashboardPage() {
                           : "bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-sm active:scale-[0.97]"
                       }`}
                     >
-                      {isCurrentDispatched ? (
-                        <>
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Protocol Dispatched</span>
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="w-3.5 h-3.5 fill-stone-950" />
-                          <span>Deploy Protocol Now</span>
-                        </>
-                      )}
+                      <TextStateSwap triggerKey={isCurrentDispatched ? "dispatched" : "deploy"}>
+                        {isCurrentDispatched ? (
+                          <span className="flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Protocol Dispatched</span>
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1.5">
+                            <Zap className="w-3.5 h-3.5 fill-stone-950" />
+                            <span>Deploy Protocol Now</span>
+                          </span>
+                        )}
+                      </TextStateSwap>
                     </button>
 
                     <button
@@ -382,7 +389,7 @@ export default function DashboardPage() {
                       </>
                     ) : (
                       <div className="p-8 text-center text-xs text-stone-400">
-                        Calculating TreeSHAP attributions...
+                        <span className="t-shimmer">Calculating TreeSHAP attributions...</span>
                       </div>
                     )}
                   </div>

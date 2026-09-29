@@ -375,7 +375,7 @@ export default function DecisionCopilot({
         {isTyping && (
           <div className="flex items-center gap-2 p-3 rounded-2xl bg-white border border-[#E8E5DD] text-stone-500 max-w-[220px] shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin" />
-            <span className="text-[11px] font-mono">Synthesizing TreeSHAP...</span>
+            <span className="text-[11px] font-mono t-shimmer">Synthesizing TreeSHAP...</span>
           </div>
         )}
         <div ref={messagesEndRef} />

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Activity, Sparkles, Zap, ShieldCheck, Clock, RefreshCw, Bot } from "lucide-react";
 import { sound, playTick } from "@/lib/sound";
+import AnimatedCounter from "@/components/AnimatedCounter";
 
 interface LiveTelemetryHeaderProps {
   onOpenCopilot: () => void;
@@ -32,24 +33,24 @@ export default function LiveTelemetryHeader({
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[#E8E5DD]/60">
-      <div>
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[#E8E5DD]/60 font-sans">
+      <div className="space-y-1">
         <div className="flex items-center gap-2.5 mb-1.5">
           <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[#7A5800] text-[10px] font-mono font-bold tracking-wide">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500 -ml-2.5" />
-            <span>XGBoost + TreeSHAP Active</span>
+            <span className="t-shimmer">XGBoost + TreeSHAP Active</span>
           </div>
 
           <span className="text-[11px] font-mono text-stone-400">
-            Inference Latency: <strong className="text-stone-700 font-bold">{latency}ms</strong>
+            Inference Latency: <strong className="text-stone-700 font-bold"><AnimatedCounter value={latency} suffix="ms" duration={300} /></strong>
           </span>
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 tracking-tight t-texts-reveal">
           Good morning, Revenue Director
         </h1>
-        <p className="mt-1 text-xs sm:text-sm text-stone-600 leading-relaxed font-sans max-w-2xl">
+        <p className="mt-1 text-xs sm:text-sm text-stone-600 leading-relaxed font-sans max-w-2xl t-texts-reveal">
           Deterministic ML engine actively monitoring <strong className="text-stone-900 font-semibold">{accountsCount} enterprise accounts</strong>. <strong className="text-rose-600 font-bold">{urgentCount} accounts</strong> flagged for immediate intervention.
         </p>
       </div>
