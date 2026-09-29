@@ -19,7 +19,7 @@ import {
   Flame,
   ArrowUpRight
 } from "lucide-react";
-import { getPlaybooks } from "@/lib/api";
+import { getPlaybooks, getDispatchedPlaybooks, dispatchPlaybook, updateDispatchedPlaybookStatus } from "@/lib/api";
 import { Playbook } from "@/lib/types";
 import { playBlip, playExecute, playTick } from "@/lib/sound";
 
@@ -34,6 +34,7 @@ const DEPARTMENT_FILTERS = [
 
 export default function PlaybooksPage() {
   const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
+  const [dispatchedList, setDispatchedList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,16 +43,32 @@ export default function PlaybooksPage() {
   const [copiedPayload, setCopiedPayload] = useState(false);
 
   useEffect(() => {
-    getPlaybooks()
-      .then((res) => {
-        setPlaybooks(res.playbooks);
-        if (res.playbooks.length > 0) {
-          setSelectedPlaybook(res.playbooks[0]);
+    Promise.all([
+      getPlaybooks(),
+      getDispatchedPlaybooks().catch(() => [])
+    ])
+      .then(([pbRes, dispRes]) => {
+        setPlaybooks(pbRes.playbooks);
+        setDispatchedList(dispRes || []);
+        if (pbRes.playbooks.length > 0) {
+          setSelectedPlaybook(pbRes.playbooks[0]);
         }
       })
       .catch((err) => console.error("Failed to load playbooks:", err))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleStatusChange = async (recordId: number, status: "completed" | "escalated") => {
+    try {
+      playBlip();
+      await updateDispatchedPlaybookStatus(recordId, status);
+      setDispatchedList((prev) =>
+        prev.map((item) => (item.id === recordId ? { ...item, status } : item))
+      );
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    }
+  };
 
   const filteredPlaybooks = playbooks.filter((pb) => {
     const matchesSearch = 
@@ -379,6 +396,103 @@ export default function PlaybooksPage() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Active Dispatched Workflows & SLA Timers Section */}
+          <div className="mt-12 p-6 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-rose-600" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-stone-950 tracking-tight">Active Dispatched Retention Workflows</h3>
+                  <p className="text-[11px] text-stone-500">Live operational audit trail and SLA resolution tracker</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-stone-100 text-stone-700 border border-stone-200">
+                  {dispatchedList.filter(d => d.status === "active").length} Active Workflows
+                </span>
+              </div>
+            </div>
+
+            {dispatchedList.length === 0 ? (
+              <div className="p-8 text-center rounded-xl bg-[#FAF8F5] border border-dashed border-[#E5E2DA] text-stone-400 text-xs">
+                No dispatched retention playbooks recorded yet. Trigger one from the catalog above or from the main dashboard copilot.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-[#EFECE4] text-[11px] text-stone-400 font-medium">
+                      <th className="pb-3 pl-2">Account ID</th>
+                      <th className="pb-3">Company Name</th>
+                      <th className="pb-3">Playbook</th>
+                      <th className="pb-3">Priority</th>
+                      <th className="pb-3">Assignee Role</th>
+                      <th className="pb-3">SLA Target</th>
+                      <th className="pb-3">Status</th>
+                      <th className="pb-3 pr-2 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F6F4EE]">
+                    {dispatchedList.map((item) => (
+                      <tr key={item.id} className="hover:bg-[#FAF8F5] transition-colors">
+                        <td className="py-3 pl-2 font-mono font-bold text-stone-900">{item.account_id}</td>
+                        <td className="py-3 font-medium text-stone-800">{item.company_name}</td>
+                        <td className="py-3 font-mono text-stone-600">{item.playbook_id}</td>
+                        <td className="py-3">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono border ${
+                            item.priority === "P0" ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-amber-50 text-amber-700 border-amber-200"
+                          }`}>
+                            {item.priority}
+                          </span>
+                        </td>
+                        <td className="py-3 text-stone-600">{item.assignee_role}</td>
+                        <td className="py-3">
+                          <div className="flex items-center gap-1 text-[11px] font-mono font-semibold text-rose-700">
+                            <Clock className="w-3 h-3" />
+                            <span>{item.sla_hours}h Max</span>
+                          </div>
+                        </td>
+                        <td className="py-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            item.status === "completed"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : item.status === "escalated"
+                              ? "bg-rose-100 text-rose-800"
+                              : "bg-amber-100 text-amber-800 animate-pulse"
+                          }`}>
+                            {item.status}
+                          </span>
+                        </td>
+                        <td className="py-3 pr-2 text-right">
+                          {item.status === "active" ? (
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => handleStatusChange(item.id, "completed")}
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-xs"
+                              >
+                                Resolve
+                              </button>
+                              <button
+                                onClick={() => handleStatusChange(item.id, "escalated")}
+                                className="px-2 py-1 rounded-lg text-[10px] font-bold bg-stone-100 hover:bg-rose-50 text-stone-700 hover:text-rose-700 transition-all border border-stone-200"
+                              >
+                                Escalate
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-stone-400 font-mono">Archived</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}

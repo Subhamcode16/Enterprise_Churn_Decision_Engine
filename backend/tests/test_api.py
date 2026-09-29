@@ -117,3 +117,55 @@ def test_model_telemetry():
         assert res.status_code == 200
         data = res.json()
         assert "runs" in data
+
+def test_update_playbook_status():
+    with TestClient(app) as client:
+        dispatch_payload = {
+            "account_id": "ACC-STATUS-01",
+            "company_name": "Status Corp",
+            "playbook_id": "PB-SUPP-01",
+            "priority": "P0",
+            "assignee_role": "VP Engineering",
+            "sla_hours": 4
+        }
+        create_res = client.post("/api/v1/playbooks/dispatch", json=dispatch_payload)
+        rec_id = create_res.json()["id"]
+
+        patch_res = client.patch(f"/api/v1/playbooks/dispatched/{rec_id}/status", json={"status": "completed"})
+        assert patch_res.status_code == 200
+        assert patch_res.json()["status"] == "completed"
+
+def test_export_renewal_brief():
+    with TestClient(app) as client:
+        payload = {
+            "account_payload": {
+                "account_id": "ACC-BRIEF-01",
+                "company_name": "Brief Corp",
+                "contract_mrr": 12000.0,
+                "tenure_months": 18,
+                "contract_tier": "Enterprise",
+                "days_since_last_login": 15,
+                "usage_change_pct_30d": -30.0,
+                "active_user_ratio": 0.6,
+                "api_calls_monthly": 8000,
+                "open_p1_tickets": 2,
+                "avg_resolution_time_hrs": 36.0,
+                "nps_score": 3,
+                "csat_score": 2.8,
+                "payment_failures_past_quarter": 1,
+                "days_until_renewal": 45,
+                "auto_renew_enabled": 0
+            },
+            "overrides": {
+                "open_p1_tickets": 0,
+                "usage_change_pct_30d": 10.0,
+                "auto_renew_enabled": 1
+            }
+        }
+        res = client.post("/api/v1/scenarios/export-brief", json=payload)
+        assert res.status_code == 200
+        data = res.json()
+        assert data["account_id"] == "ACC-BRIEF-01"
+        assert data["risk_delta"] > 0
+        assert "brief_markdown" in data
+        assert len(data["recommended_mitigation_plan"]) >= 1

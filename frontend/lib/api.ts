@@ -154,6 +154,42 @@ export async function dispatchPlaybook(payload: {
   }
 }
 
+export async function getDispatchedPlaybooks(): Promise<Array<{
+  id: number;
+  account_id: string;
+  company_name: string;
+  playbook_id: string;
+  priority: string;
+  assignee_role: string;
+  sla_hours: number;
+  status: string;
+  created_at: string;
+  deadline_at: string | null;
+}>> {
+  try {
+    return await fetchWithAuth("/api/v1/playbooks/dispatched");
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function updateDispatchedPlaybookStatus(recordId: number, status: "active" | "completed" | "escalated") {
+  return await fetchWithAuth(`/api/v1/playbooks/dispatched/${recordId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function exportRenewalBrief(accountPayload: Partial<AccountRecord>, overrides: Record<string, any>) {
+  return await fetchWithAuth("/api/v1/scenarios/export-brief", {
+    method: "POST",
+    body: JSON.stringify({
+      account_payload: accountPayload,
+      overrides: overrides,
+    }),
+  });
+}
+
 export async function uploadBatchCsv(file: File): Promise<BatchResponse> {
   const url = `${API_BASE_URL}/api/v1/batch-predict`;
   const formData = new FormData();
