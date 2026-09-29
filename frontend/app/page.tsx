@@ -12,27 +12,18 @@ import ShapWaterfallChart from "@/components/ShapWaterfallChart";
 import AccountRadar from "@/components/AccountRadar";
 import RenewalTimelineRail from "@/components/RenewalTimelineRail";
 import DecisionCopilot from "@/components/DecisionCopilot";
-import { formatCurrency, getRiskBadgeClasses, resolvePrimaryPlaybook } from "@/lib/utils";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import SkeletonPulse from "@/components/SkeletonPulse";
+import { formatCurrency, resolvePrimaryPlaybook } from "@/lib/utils";
 import Link from "next/link";
 import { 
-  Activity, 
-  ShieldAlert, 
-  Sparkles, 
-  RefreshCw, 
   BarChart2, 
   Zap, 
   Bot, 
   Sliders, 
   CheckCircle2, 
-  ArrowRight, 
   Calendar, 
-  Users, 
-  AlertTriangle,
-  Clock,
-  Search,
-  Filter,
-  Flame,
-  TrendingDown
+  RefreshCw 
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -120,7 +111,7 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full space-y-7 pb-16">
-      {/* Top Bar: Search & Executive Greeting (Intelly & Finexy Style) */}
+      {/* Top Bar: Search & Executive Greeting */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
         <div>
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 tracking-tight">
@@ -138,7 +129,7 @@ export default function DashboardPage() {
               playTick();
               setCopilotOpen(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#141312] hover:bg-stone-800 text-[#FAF8F5] text-xs font-semibold shadow-sm transition-all active:scale-[0.98]"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#141312] hover:bg-stone-800 text-[#FAF8F5] text-xs font-semibold shadow-sm transition-all duration-200 active:scale-[0.97]"
           >
             <Bot className="w-4 h-4 text-amber-400" />
             <span>AI Copilot</span>
@@ -147,7 +138,7 @@ export default function DashboardPage() {
           <button
             onClick={loadData}
             disabled={loading}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#E8E5DD] hover:border-stone-400 text-stone-700 hover:text-stone-950 text-xs font-medium shadow-sm transition-all"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#E8E5DD] hover:border-stone-400 text-stone-700 hover:text-stone-950 text-xs font-medium shadow-sm transition-all duration-200 active:scale-[0.97]"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-amber-500" : ""}`} />
             <span>Sync</span>
@@ -156,11 +147,23 @@ export default function DashboardPage() {
       </div>
 
       {/* 4 Expressive Pastel Bento Metric Cards (Intelly Style) */}
-      {summary && <PastelBentoMetrics summary={summary} />}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-36 bg-white border border-[#E8E5DD] p-5 rounded-2xl space-y-3">
+              <SkeletonPulse className="h-3 w-28 rounded" />
+              <SkeletonPulse className="h-7 w-36 rounded" />
+              <SkeletonPulse className="h-3 w-20 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        summary && <PastelBentoMetrics summary={summary} />
+      )}
 
       {/* 3-Column Studio Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
-        {/* Column 1: Surveillance Watchlist (4 Cols - Finexy Table) */}
+        {/* Column 1: Surveillance Watchlist (4 Cols) */}
         <div className="lg:col-span-4 space-y-2">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-800 flex items-center gap-2">
@@ -174,13 +177,14 @@ export default function DashboardPage() {
             accounts={accounts}
             onSelectAccount={handleSelectAccount}
             selectedAccountId={selectedAccount?.account_id}
+            loading={loading}
           />
         </div>
 
-        {/* Column 2: Deep-Dive Decision Hero Canvas (5 Cols - Intelly Canvas) */}
+        {/* Column 2: Deep-Dive Decision Hero Canvas (5 Cols) */}
         <div className="lg:col-span-5 space-y-6">
           {selectedAccount ? (
-            <div className="bg-[#FFFFFF] border border-[#E8E5DD] rounded-2xl p-6 shadow-sm space-y-6">
+            <div className="bg-[#FFFFFF] border border-[#E8E5DD] rounded-2xl p-6 shadow-sm space-y-6 transition-all duration-300">
               {/* Account Header */}
               <div className="flex items-start justify-between pb-4 border-b border-[#F0ECE1]">
                 <div>
@@ -219,42 +223,42 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="sm:col-span-7 grid grid-cols-2 gap-2.5">
-                  <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EFECE4]">
+                  <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] transition-all hover:border-stone-300">
                     <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500">Contract Value</span>
                     <div className="text-base font-mono font-bold text-stone-900 mt-0.5">
-                      {formatCurrency(selectedAccount.contract_mrr)}
+                      <AnimatedCounter prefix="$" value={selectedAccount.contract_mrr} decimals={0} />
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EFECE4]">
+                  <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] transition-all hover:border-stone-300">
                     <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500">MRR Exposure</span>
                     <div className="text-base font-mono font-bold text-rose-600 mt-0.5">
-                      {formatCurrency(selectedAccount.mrr_at_risk)}
+                      <AnimatedCounter prefix="$" value={selectedAccount.mrr_at_risk} decimals={0} />
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EFECE4]">
+                  <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] transition-all hover:border-stone-300">
                     <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500">30d Usage</span>
                     <div className={`text-base font-mono font-bold mt-0.5 ${
                       selectedAccount.usage_change_pct_30d < 0 ? "text-rose-600" : "text-emerald-700"
                     }`}>
                       {selectedAccount.usage_change_pct_30d > 0 ? "+" : ""}
-                      {selectedAccount.usage_change_pct_30d.toFixed(1)}%
+                      <AnimatedCounter value={selectedAccount.usage_change_pct_30d} decimals={1} suffix="%" />
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EFECE4]">
+                  <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] transition-all hover:border-stone-300">
                     <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500">P1 Tickets</span>
                     <div className={`text-base font-mono font-bold mt-0.5 ${
                       selectedAccount.open_p1_tickets > 0 ? "text-rose-600" : "text-stone-700"
                     }`}>
-                      {selectedAccount.open_p1_tickets} Open
+                      <AnimatedCounter value={selectedAccount.open_p1_tickets} decimals={0} suffix=" Open" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* High-Impact Visual CTA Banner (Finexy & Intelly Dark CTA) */}
+              {/* High-Impact Visual CTA Banner */}
               <div className="p-4 rounded-xl bg-[#141312] text-[#FAF8F5] space-y-3 shadow-md">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
@@ -273,10 +277,10 @@ export default function DashboardPage() {
                 <div className="pt-1 flex flex-wrap items-center gap-2.5">
                   <button
                     onClick={() => handleExecutePlaybook(currentPlaybookId)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all duration-200 ${
                       isCurrentDispatched
                         ? "bg-emerald-500 text-stone-950 font-bold"
-                        : "bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-sm active:scale-[0.98]"
+                        : "bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-sm active:scale-[0.97]"
                     }`}
                   >
                     {isCurrentDispatched ? (
@@ -297,7 +301,7 @@ export default function DashboardPage() {
                       playTick();
                       setCopilotOpen(true);
                     }}
-                    className="px-3.5 py-2 rounded-xl bg-[#262422] hover:bg-[#33302C] text-stone-200 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                    className="px-3.5 py-2 rounded-xl bg-[#262422] hover:bg-[#33302C] text-stone-200 text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 active:scale-[0.97]"
                   >
                     <Bot className="w-3.5 h-3.5 text-amber-400" />
                     <span>Ask Copilot</span>
@@ -306,7 +310,7 @@ export default function DashboardPage() {
                   <Link
                     href="/simulator"
                     onClick={() => playTick()}
-                    className="px-3.5 py-2 rounded-xl bg-[#262422] hover:bg-[#33302C] text-stone-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                    className="px-3.5 py-2 rounded-xl bg-[#262422] hover:bg-[#33302C] text-stone-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 active:scale-[0.97]"
                   >
                     <Sliders className="w-3.5 h-3.5" />
                     <span>Simulate</span>
@@ -314,18 +318,16 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Diagnostic Tabs */}
+              {/* Diagnostic Sliding Tabs */}
               <div className="space-y-4 pt-1">
-                <div className="flex items-center gap-2 border-b border-[#F0ECE1] pb-2">
+                <div className="relative flex items-center p-1 rounded-xl bg-[#F0ECE1] border border-[#E8E5DD] text-xs">
                   <button
                     onClick={() => {
                       playTick();
                       setActiveTab("shap");
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      activeTab === "shap"
-                        ? "bg-[#141312] text-[#FAF8F5] shadow-sm font-bold"
-                        : "text-stone-600 hover:text-stone-950"
+                    className={`relative z-10 flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 text-center ${
+                      activeTab === "shap" ? "text-[#FAF8F5] font-bold" : "text-stone-600 hover:text-stone-900"
                     }`}
                   >
                     TreeSHAP Explainability
@@ -336,19 +338,32 @@ export default function DashboardPage() {
                       playTick();
                       setActiveTab("radar");
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      activeTab === "radar"
-                        ? "bg-[#141312] text-[#FAF8F5] shadow-sm font-bold"
-                        : "text-stone-600 hover:text-stone-950"
+                    className={`relative z-10 flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 text-center ${
+                      activeTab === "radar" ? "text-[#FAF8F5] font-bold" : "text-stone-600 hover:text-stone-900"
                     }`}
                   >
                     5D Health Radar
                   </button>
+
+                  {/* Sliding Indicator Pill */}
+                  <div
+                    className="absolute top-1 bottom-1 bg-[#141312] rounded-lg shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                    style={{
+                      left: activeTab === "shap" ? "4px" : "50%",
+                      width: "calc(50% - 4px)",
+                    }}
+                  />
                 </div>
 
                 {activeTab === "shap" && (
-                  <div className="space-y-4">
-                    {prediction ? (
+                  <div className="space-y-4 transition-opacity duration-300">
+                    {predictLoading ? (
+                      <div className="p-6 bg-[#FAF8F5] rounded-xl space-y-4">
+                        <SkeletonPulse className="h-4 w-48 rounded" />
+                        <SkeletonPulse className="h-20 w-full rounded-xl" />
+                        <SkeletonPulse className="h-32 w-full rounded-xl" />
+                      </div>
+                    ) : prediction ? (
                       <>
                         <ForceShapVisualizer
                           drivers={prediction.top_drivers}
@@ -372,7 +387,7 @@ export default function DashboardPage() {
                 )}
 
                 {activeTab === "radar" && (
-                  <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] flex flex-col items-center">
+                  <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] flex flex-col items-center transition-opacity duration-300">
                     <AccountRadar account={selectedAccount} />
                   </div>
                 )}
@@ -385,7 +400,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Column 3: Renewal Timeline Rail & Copilot Launcher (3 Cols - Intelly Rail) */}
+        {/* Column 3: Renewal Timeline Rail & Copilot Launcher (3 Cols) */}
         <div className="lg:col-span-3 space-y-2">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-800 flex items-center gap-2">

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { RiskTier } from "@/lib/types";
+import AnimatedCounter from "@/components/AnimatedCounter";
 
 interface RadialRiskGaugeProps {
   probability: number;
@@ -85,7 +86,7 @@ export default function RadialRiskGauge({
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className="transition-all duration-700 ease-out"
+          className="transition-all duration-700 cubic-bezier(0.22, 1, 0.36, 1)"
         />
 
         {/* Needle / Indicator Dot */}
@@ -101,16 +102,16 @@ export default function RadialRiskGauge({
               fill="#141312"
               stroke="#FFFFFF"
               strokeWidth={2}
-              className="drop-shadow-md transition-all duration-700 ease-out"
+              className="drop-shadow-md transition-all duration-700 cubic-bezier(0.22, 1, 0.36, 1)"
             />
           );
         })()}
       </svg>
 
-      {/* Probability Readout (High-Contrast Bold Dark Numbers) */}
+      {/* Probability Readout (High-Contrast Bold Dark Numbers with Animated Counter) */}
       <div className="absolute top-[36%] flex flex-col items-center">
         <span className="text-3xl font-mono font-bold text-stone-900 tracking-tighter">
-          {(clampedProb * 100).toFixed(1)}%
+          <AnimatedCounter value={clampedProb * 100} decimals={1} suffix="%" duration={700} />
         </span>
         <span className={`text-[10px] uppercase font-mono tracking-wider ${colorConfig.text}`}>
           {riskTier} Churn Risk
