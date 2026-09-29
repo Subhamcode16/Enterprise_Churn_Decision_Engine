@@ -20,7 +20,7 @@ import {
   ShieldAlert
 } from "lucide-react";
 import { AccountRecord, Playbook } from "@/lib/types";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, resolvePrimaryPlaybook } from "@/lib/utils";
 import { playBlip, playExecute, playTick } from "@/lib/sound";
 
 interface Message {
@@ -66,6 +66,9 @@ export default function DecisionCopilot({
   useEffect(() => {
     if (!account) return;
 
+    const primaryPb = resolvePrimaryPlaybook(account) || "PB-SUPP-01";
+    const pbObj = playbooks.find((p) => p.playbook_id === primaryPb) || account.playbook_details;
+
     const initialMsg: Message = {
       id: "init-" + account.account_id,
       sender: "agent",
@@ -73,7 +76,7 @@ export default function DecisionCopilot({
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       card: {
         type: "playbook_recommendation",
-        title: `Recommended Protocol: ${account.primary_playbook}`,
+        title: `Recommended Protocol: ${primaryPb}`,
         metrics: [
           { label: "Contract MRR", value: formatCurrency(account.contract_mrr) },
           { label: "Expected Loss", value: formatCurrency(account.mrr_at_risk), color: "text-rose-600 font-bold" },
@@ -81,14 +84,14 @@ export default function DecisionCopilot({
           { label: "Renewal Window", value: `${account.days_until_renewal} Days` },
         ],
         actions: [
-          { label: `⚡ Deploy ${account.primary_playbook}`, actionId: `exec-${account.primary_playbook}`, variant: "primary" },
+          { label: `⚡ Deploy ${primaryPb}`, actionId: `exec-${primaryPb}`, variant: "primary" },
           { label: "Explain SHAP Drivers", actionId: "explain-shap", variant: "secondary" },
         ],
       },
     };
 
     setMessages([initialMsg]);
-  }, [account]);
+  }, [account, playbooks]);
 
   const categoryPills = [
     { label: "Risk Drivers", icon: Search, color: "text-emerald-700 bg-emerald-50 border-emerald-200", query: "Explain the top root causes and SHAP feature drivers for this account." },
@@ -125,7 +128,7 @@ export default function DecisionCopilot({
       setIsTyping(false);
       const response = generateAgentResponse(userQuery, account, playbooks);
       setMessages((prev) => [...prev, response]);
-    }, 700);
+    }, 400);
   };
 
   const handleActionClick = (actionId: string) => {
@@ -152,6 +155,8 @@ export default function DecisionCopilot({
   function generateAgentResponse(query: string, acc: AccountRecord, pbs: Playbook[]): Message {
     const q = query.toLowerCase();
     const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const primaryPb = resolvePrimaryPlaybook(acc) || "PB-SUPP-01";
+    const pbObj = pbs.find((p) => p.playbook_id === primaryPb) || acc.playbook_details;
 
     if (q.includes("why") || q.includes("shap") || q.includes("driver") || q.includes("cause")) {
       const posDrivers = acc.shap_attributions?.positive || [];
@@ -174,7 +179,7 @@ export default function DecisionCopilot({
             { label: "Top Driver", value: posDrivers[0]?.feature || "P1 Tickets", color: "text-amber-700 font-bold" },
           ],
           actions: [
-            { label: `⚡ Deploy ${acc.primary_playbook}`, actionId: `exec-${acc.primary_playbook}`, variant: "primary" },
+            { label: `⚡ Deploy ${primaryPb}`, actionId: `exec-${primaryPb}`, variant: "primary" },
           ],
         },
       };
@@ -209,18 +214,18 @@ export default function DecisionCopilot({
       return {
         id: `a-${Date.now()}`,
         sender: "agent",
-        text: `📄 **Executive Retention Briefing Generated:**\n\n**To:** VP Customer Success & Account Lead\n**Subject:** URGENT: Retention Intervention — ${acc.company_name} (${formatCurrency(acc.contract_mrr)} MRR)\n\n**Situation:** Account has elevated churn probability (${(acc.churn_probability * 100).toFixed(1)}%) ahead of renewal in ${acc.days_until_renewal} days. MRR at risk: ${formatCurrency(acc.mrr_at_risk)}.\n\n**Root Cause:** TreeSHAP shows acute dissatisfaction stemming from ${acc.open_p1_tickets} open P1 tickets and ${acc.usage_change_pct_30d}% 30d usage drop.\n\n**Recommendation:** Immediate execution of ${acc.primary_playbook}. Executive sponsor meeting recommended within 48h.`,
+        text: `📄 **Executive Retention Briefing Generated:**\n\n**To:** VP Customer Success & Account Lead\n**Subject:** URGENT: Retention Intervention — ${acc.company_name} (${formatCurrency(acc.contract_mrr)} MRR)\n\n**Situation:** Account has elevated churn probability (${(acc.churn_probability * 100).toFixed(1)}%) ahead of renewal in ${acc.days_until_renewal} days. MRR at risk: ${formatCurrency(acc.mrr_at_risk)}.\n\n**Root Cause:** TreeSHAP shows acute dissatisfaction stemming from ${acc.open_p1_tickets} open P1 tickets and ${acc.usage_change_pct_30d}% 30d usage drop.\n\n**Recommendation:** Immediate execution of ${primaryPb}. Executive sponsor meeting recommended within 48h.`,
         timestamp: timeStr,
         card: {
           type: "executive_brief",
           title: "Executive Directives",
           metrics: [
-            { label: "Assignee Role", value: acc.playbook_details?.assignee_role || "VP of CS" },
-            { label: "Target SLA", value: `${acc.playbook_details?.sla_hours || 4} Hours` },
+            { label: "Assignee Role", value: pbObj?.assignee_role || "VP of CS" },
+            { label: "Target SLA", value: `${pbObj?.sla_hours || 4} Hours` },
             { label: "Renewal Window", value: `${acc.days_until_renewal} Days` },
           ],
           actions: [
-            { label: `⚡ Dispatch Webhook to ${acc.playbook_details?.assignee_role || "CS"}`, actionId: `exec-${acc.primary_playbook}`, variant: "primary" },
+            { label: `⚡ Dispatch Webhook to ${pbObj?.assignee_role || "CS"}`, actionId: `exec-${primaryPb}`, variant: "primary" },
           ],
         },
       };
@@ -230,18 +235,18 @@ export default function DecisionCopilot({
     return {
       id: `a-${Date.now()}`,
       sender: "agent",
-      text: `Based on calibrated XGBoost features for **${acc.company_name}**, the recommended protocol is **${acc.primary_playbook}** (${acc.playbook_details?.title || "Targeted Retention Protocol"}).\n\n**Action Summary:**\n${acc.playbook_details?.action_summary || "Deploy immediate customer success outreach and technical support remediation."}\n\n**Assignee:** ${acc.playbook_details?.assignee_role || "Customer Success"} | **SLA:** ${acc.playbook_details?.sla_hours || 4} hours.`,
+      text: `Based on calibrated XGBoost features for **${acc.company_name}**, the recommended protocol is **${primaryPb}** (${pbObj?.title || "Targeted Retention Protocol"}).\n\n**Action Summary:**\n${pbObj?.action_summary || "Deploy immediate customer success outreach and technical support remediation."}\n\n**Assignee:** ${pbObj?.assignee_role || "Customer Success"} | **SLA:** ${pbObj?.sla_hours || 4} hours.`,
       timestamp: timeStr,
       card: {
         type: "playbook_recommendation",
-        title: `Protocol Details: ${acc.primary_playbook}`,
+        title: `Protocol Details: ${primaryPb}`,
         metrics: [
-          { label: "Priority", value: acc.playbook_details?.priority || "P0", color: "text-rose-600 font-bold" },
-          { label: "SLA Window", value: `${acc.playbook_details?.sla_hours || 4}h` },
-          { label: "Category", value: acc.playbook_details?.category || "Account Health" },
+          { label: "Priority", value: pbObj?.priority || "P0", color: "text-rose-600 font-bold" },
+          { label: "SLA Window", value: `${pbObj?.sla_hours || 4}h` },
+          { label: "Category", value: pbObj?.category || "Account Health" },
         ],
         actions: [
-          { label: `⚡ Execute ${acc.primary_playbook} Now`, actionId: `exec-${acc.primary_playbook}`, variant: "primary" },
+          { label: `⚡ Execute ${primaryPb} Now`, actionId: `exec-${primaryPb}`, variant: "primary" },
         ],
       },
     };
@@ -276,7 +281,7 @@ export default function DecisionCopilot({
         </div>
       </div>
 
-      {/* 2. Hero Greeting & Category Chips (Matching Reference Image) */}
+      {/* 2. Hero Greeting & Category Chips */}
       <div className="p-5 pb-3 bg-white text-center space-y-3 border-b border-[#F0ECE1]/60">
         <div className="space-y-1">
           <h2 className="text-xl sm:text-2xl font-serif font-bold text-stone-900 tracking-tight">
@@ -295,7 +300,7 @@ export default function DecisionCopilot({
               <button
                 key={idx}
                 onClick={() => handleSend(pill.query)}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-medium transition-all duration-200 hover:scale-105 active:scale-95 shadow-2xs ${pill.color}`}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-medium transition-all duration-150 hover:scale-105 active:scale-95 shadow-2xs ${pill.color}`}
               >
                 <IconComponent className="w-3 h-3" />
                 <span>{pill.label}</span>
@@ -347,7 +352,7 @@ export default function DecisionCopilot({
                         <button
                           key={act.actionId}
                           onClick={() => handleActionClick(act.actionId)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 active:scale-95 ${
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all duration-150 active:scale-95 ${
                             act.variant === "primary"
                               ? "bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold shadow-xs"
                               : "bg-[#141312] hover:bg-stone-800 text-white"
@@ -376,14 +381,14 @@ export default function DecisionCopilot({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 4. Horizontal Suggested Action Prompt Cards (Matching Reference Image) */}
+      {/* 4. Horizontal Suggested Action Prompt Cards */}
       <div className="px-4 py-2.5 bg-white border-t border-[#F0ECE1]">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           {bottomSuggestedCards.map((sc, idx) => (
             <button
               key={idx}
               onClick={() => handleSend(sc.query)}
-              className="px-3 py-2 rounded-xl bg-[#FAF8F5] hover:bg-[#F3EFE6] border border-[#E8E5DD] text-stone-700 hover:text-stone-950 text-[11px] font-medium whitespace-nowrap transition-all duration-200 hover:shadow-2xs active:scale-95 flex-shrink-0"
+              className="px-3 py-2 rounded-xl bg-[#FAF8F5] hover:bg-[#F3EFE6] border border-[#E8E5DD] text-stone-700 hover:text-stone-950 text-[11px] font-medium whitespace-nowrap transition-all duration-150 hover:shadow-2xs active:scale-95 flex-shrink-0"
             >
               {sc.title}
             </button>
@@ -391,7 +396,7 @@ export default function DecisionCopilot({
         </div>
       </div>
 
-      {/* 5. Bottom Rounded Input Bar (Reference Style with Mic, Link, Sparkles & Black Pill Send Button) */}
+      {/* 5. Bottom Rounded Input Bar */}
       <div className="p-4 bg-white border-t border-[#EFECE4]">
         <form
           onSubmit={(e) => {
@@ -450,11 +455,11 @@ export default function DecisionCopilot({
               <Compass className="w-4 h-4" />
             </button>
 
-            {/* Black Pill Send Button (Reference Design) */}
+            {/* Black Pill Send Button */}
             <button
               type="submit"
               disabled={!input.trim()}
-              className="px-4 py-1.5 rounded-xl bg-[#141312] hover:bg-stone-800 disabled:opacity-40 text-white text-xs font-semibold tracking-wide transition-all duration-200 active:scale-95 shadow-sm"
+              className="px-4 py-1.5 rounded-xl bg-[#141312] hover:bg-stone-800 disabled:opacity-40 text-white text-xs font-semibold tracking-wide transition-all duration-150 active:scale-95 shadow-sm"
             >
               Send
             </button>

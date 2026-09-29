@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getDemoAccounts, getPlaybooks, predictAccount } from "@/lib/api";
 import { AccountRecord, PortfolioSummary, Playbook, SinglePredictionResponse } from "@/lib/types";
 import { sound, playTick, playBlip, playExecute } from "@/lib/sound";
@@ -38,6 +38,9 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<"shap" | "radar">("shap");
   const [dispatchedPlaybooks, setDispatchedPlaybooks] = useState<Record<string, boolean>>({});
 
+  // Client-side instant prediction cache (0ms lag when switching accounts)
+  const predictionCache = useRef<Record<string, SinglePredictionResponse>>({});
+
   const loadData = () => {
     sound.playClick(650);
     setLoading(true);
@@ -47,10 +50,11 @@ export default function DashboardPage() {
         setAccounts(accRes.accounts);
         setPlaybooks(pbRes.playbooks);
         if (accRes.accounts.length > 0) {
+          const firstAcc = accRes.accounts[0];
           setSelectedAccount((prev) => {
-            if (!prev) return accRes.accounts[0];
+            if (!prev) return firstAcc;
             const found = accRes.accounts.find((a) => a.account_id === prev.account_id);
-            return found || accRes.accounts[0];
+            return found || firstAcc;
           });
         }
       })
@@ -74,11 +78,21 @@ export default function DashboardPage() {
     };
   }, []);
 
+  // 0ms Instant Cache Fetching for TreeSHAP Predictions
   useEffect(() => {
     if (!selectedAccount) return;
+
+    const accId = selectedAccount.account_id;
+    if (predictionCache.current[accId]) {
+      setPrediction(predictionCache.current[accId]);
+      setPredictLoading(false);
+      return;
+    }
+
     setPredictLoading(true);
     predictAccount(selectedAccount)
       .then((res) => {
+        predictionCache.current[accId] = res;
         setPrediction(res);
       })
       .catch((err) => {
@@ -112,7 +126,7 @@ export default function DashboardPage() {
   return (
     <div className="w-full flex flex-row items-start pb-16">
       {/* Main Dashboard Canvas - Dynamically shrinks when Copilot is open */}
-      <div className="flex-1 min-w-0 space-y-7 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]">
+      <div className="flex-1 min-w-0 space-y-7 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)]">
         {/* Top Bar: Search & Executive Greeting */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
           <div>
@@ -131,7 +145,7 @@ export default function DashboardPage() {
                 playTick();
                 setCopilotOpen((prev) => !prev);
               }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all duration-200 active:scale-[0.97] ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all duration-150 active:scale-[0.97] ${
                 copilotOpen
                   ? "bg-amber-500 text-stone-950 font-bold"
                   : "bg-[#141312] hover:bg-stone-800 text-[#FAF8F5]"
@@ -144,7 +158,7 @@ export default function DashboardPage() {
             <button
               onClick={loadData}
               disabled={loading}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#E8E5DD] hover:border-stone-400 text-stone-700 hover:text-stone-950 text-xs font-medium shadow-sm transition-all duration-200 active:scale-[0.97]"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#E8E5DD] hover:border-stone-400 text-stone-700 hover:text-stone-950 text-xs font-medium shadow-sm transition-all duration-150 active:scale-[0.97]"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-amber-500" : ""}`} />
               <span>Sync</span>
@@ -152,7 +166,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* 4 Expressive Pastel Bento Metric Cards (Intelly Style) */}
+        {/* 4 Expressive Pastel Bento Metric Cards */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
@@ -190,7 +204,7 @@ export default function DashboardPage() {
           {/* Column 2: Deep-Dive Decision Hero Canvas (5 Cols) */}
           <div className="lg:col-span-5 space-y-6">
             {selectedAccount ? (
-              <div className="bg-[#FFFFFF] border border-[#E8E5DD] rounded-2xl p-6 shadow-sm space-y-6 transition-all duration-300">
+              <div className="bg-[#FFFFFF] border border-[#E8E5DD] rounded-2xl p-6 shadow-sm space-y-6 transition-all duration-200">
                 {/* Account Header */}
                 <div className="flex items-start justify-between pb-4 border-b border-[#F0ECE1]">
                   <div>
@@ -283,7 +297,7 @@ export default function DashboardPage() {
                   <div className="pt-1 flex flex-wrap items-center gap-2.5">
                     <button
                       onClick={() => handleExecutePlaybook(currentPlaybookId)}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all duration-200 ${
+                      className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all duration-150 ${
                         isCurrentDispatched
                           ? "bg-emerald-500 text-stone-950 font-bold"
                           : "bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-sm active:scale-[0.97]"
@@ -307,7 +321,7 @@ export default function DashboardPage() {
                         playTick();
                         setCopilotOpen(true);
                       }}
-                      className="px-3.5 py-2 rounded-xl bg-[#262422] hover:bg-[#33302C] text-stone-200 text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 active:scale-[0.97]"
+                      className="px-3.5 py-2 rounded-xl bg-[#262422] hover:bg-[#33302C] text-stone-200 text-xs font-semibold flex items-center gap-1.5 transition-all duration-150 active:scale-[0.97]"
                     >
                       <Bot className="w-3.5 h-3.5 text-amber-400" />
                       <span>Ask Copilot</span>
@@ -316,7 +330,7 @@ export default function DashboardPage() {
                     <Link
                       href="/simulator"
                       onClick={() => playTick()}
-                      className="px-3.5 py-2 rounded-xl bg-[#262422] hover:bg-[#33302C] text-stone-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 active:scale-[0.97]"
+                      className="px-3.5 py-2 rounded-xl bg-[#262422] hover:bg-[#33302C] text-stone-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all duration-150 active:scale-[0.97]"
                     >
                       <Sliders className="w-3.5 h-3.5" />
                       <span>Simulate</span>
@@ -324,7 +338,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Diagnostic Sliding Tabs */}
+                {/* Diagnostic Sliding Tabs (Persistent DOM Retention for 0ms Lag) */}
                 <div className="space-y-4 pt-1">
                   <div className="relative flex items-center p-1 rounded-xl bg-[#F0ECE1] border border-[#E8E5DD] text-xs">
                     <button
@@ -332,8 +346,8 @@ export default function DashboardPage() {
                         playTick();
                         setActiveTab("shap");
                       }}
-                      className={`relative z-10 flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 text-center ${
-                        activeTab === "shap" ? "text-[#FAF8F5] font-bold" : "text-stone-600 hover:text-stone-900"
+                      className={`relative z-10 flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 text-center ${
+                        activeTab === "shap" ? "text-[#FAF8F5] font-bold" : "text-stone-600 hover:text-stone-950"
                       }`}
                     >
                       TreeSHAP Explainability
@@ -344,8 +358,8 @@ export default function DashboardPage() {
                         playTick();
                         setActiveTab("radar");
                       }}
-                      className={`relative z-10 flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 text-center ${
-                        activeTab === "radar" ? "text-[#FAF8F5] font-bold" : "text-stone-600 hover:text-stone-900"
+                      className={`relative z-10 flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 text-center ${
+                        activeTab === "radar" ? "text-[#FAF8F5] font-bold" : "text-stone-600 hover:text-stone-950"
                       }`}
                     >
                       5D Health Radar
@@ -353,7 +367,7 @@ export default function DashboardPage() {
 
                     {/* Sliding Indicator Pill */}
                     <div
-                      className="absolute top-1 bottom-1 bg-[#141312] rounded-lg shadow-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                      className="absolute top-1 bottom-1 bg-[#141312] rounded-lg shadow-sm transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
                       style={{
                         left: activeTab === "shap" ? "4px" : "50%",
                         width: "calc(50% - 4px)",
@@ -361,42 +375,40 @@ export default function DashboardPage() {
                     />
                   </div>
 
-                  {activeTab === "shap" && (
-                    <div className="space-y-4 transition-opacity duration-300">
-                      {predictLoading ? (
-                        <div className="p-6 bg-[#FAF8F5] rounded-xl space-y-4">
-                          <SkeletonPulse className="h-4 w-48 rounded" />
-                          <SkeletonPulse className="h-20 w-full rounded-xl" />
-                          <SkeletonPulse className="h-32 w-full rounded-xl" />
-                        </div>
-                      ) : prediction ? (
-                        <>
-                          <ForceShapVisualizer
-                            drivers={prediction.top_drivers}
-                            baseValue={prediction.base_value}
-                            totalMargin={prediction.total_margin}
-                            predictedProbability={prediction.churn_probability}
-                          />
-                          <ShapWaterfallChart
-                            drivers={prediction.top_drivers}
-                            baseValue={prediction.base_value}
-                            totalMargin={prediction.total_margin}
-                            predictedProbability={prediction.churn_probability}
-                          />
-                        </>
-                      ) : (
-                        <div className="p-8 text-center text-xs text-stone-400">
-                          Calculating TreeSHAP attributions...
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {/* Tab 1: TreeSHAP */}
+                  <div className={activeTab === "shap" ? "space-y-4 block opacity-100 transition-opacity duration-150" : "hidden opacity-0"}>
+                    {predictLoading ? (
+                      <div className="p-6 bg-[#FAF8F5] rounded-xl space-y-4">
+                        <SkeletonPulse className="h-4 w-48 rounded" />
+                        <SkeletonPulse className="h-20 w-full rounded-xl" />
+                        <SkeletonPulse className="h-32 w-full rounded-xl" />
+                      </div>
+                    ) : prediction ? (
+                      <>
+                        <ForceShapVisualizer
+                          drivers={prediction.top_drivers}
+                          baseValue={prediction.base_value}
+                          totalMargin={prediction.total_margin}
+                          predictedProbability={prediction.churn_probability}
+                        />
+                        <ShapWaterfallChart
+                          drivers={prediction.top_drivers}
+                          baseValue={prediction.base_value}
+                          totalMargin={prediction.total_margin}
+                          predictedProbability={prediction.churn_probability}
+                        />
+                      </>
+                    ) : (
+                      <div className="p-8 text-center text-xs text-stone-400">
+                        Calculating TreeSHAP attributions...
+                      </div>
+                    )}
+                  </div>
 
-                  {activeTab === "radar" && (
-                    <div className="p-4 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] flex flex-col items-center transition-opacity duration-300">
-                      <AccountRadar account={selectedAccount} />
-                    </div>
-                  )}
+                  {/* Tab 2: 5D Radar */}
+                  <div className={activeTab === "radar" ? "p-4 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] flex flex-col items-center block opacity-100 transition-opacity duration-150" : "hidden opacity-0"}>
+                    <AccountRadar account={selectedAccount} />
+                  </div>
                 </div>
               </div>
             ) : (
@@ -428,7 +440,7 @@ export default function DashboardPage() {
 
       {/* Integrated Sliding Side Column: Decision Copilot Panel */}
       <aside
-        className={`flex-shrink-0 sticky top-6 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] h-[calc(100vh-4rem)] ${
+        className={`flex-shrink-0 sticky top-6 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] h-[calc(100vh-4rem)] ${
           copilotOpen
             ? "w-[380px] lg:w-[420px] xl:w-[450px] opacity-100 pl-6 pointer-events-auto"
             : "w-0 opacity-0 pointer-events-none p-0 overflow-hidden"

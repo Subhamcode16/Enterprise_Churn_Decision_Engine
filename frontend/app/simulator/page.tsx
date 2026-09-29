@@ -458,21 +458,24 @@ export default function SimulatorPage() {
             </div>
 
             {simResult ? (
-              activeTab === "forces" ? (
-                <ForceShapVisualizer
-                  drivers={simResult.top_drivers}
-                  baseValue={simResult.base_value}
-                  totalMargin={simResult.total_margin}
-                  predictedProbability={simResult.churn_probability}
-                />
-              ) : (
-                <ShapWaterfallChart
-                  drivers={simResult.top_drivers}
-                  baseValue={simResult.base_value}
-                  totalMargin={simResult.total_margin}
-                  predictedProbability={simResult.churn_probability}
-                />
-              )
+              <div className="space-y-4">
+                <div className={activeTab === "forces" ? "block opacity-100 transition-opacity duration-150" : "hidden opacity-0"}>
+                  <ForceShapVisualizer
+                    drivers={simResult.top_drivers}
+                    baseValue={simResult.base_value}
+                    totalMargin={simResult.total_margin}
+                    predictedProbability={simResult.churn_probability}
+                  />
+                </div>
+                <div className={activeTab === "waterfall" ? "block opacity-100 transition-opacity duration-150" : "hidden opacity-0"}>
+                  <ShapWaterfallChart
+                    drivers={simResult.top_drivers}
+                    baseValue={simResult.base_value}
+                    totalMargin={simResult.total_margin}
+                    predictedProbability={simResult.churn_probability}
+                  />
+                </div>
+              </div>
             ) : (
               <div className="p-8 text-center text-xs text-stone-400">
                 Calculating counterfactual SHAP attributions...
