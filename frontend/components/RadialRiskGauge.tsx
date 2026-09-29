@@ -24,27 +24,27 @@ export default function RadialRiskGauge({
     switch (riskTier) {
       case "Critical":
         return {
-          glow: "rgba(239, 68, 68, 0.4)",
-          text: "text-red-400",
+          glow: "rgba(239, 68, 68, 0.25)",
+          text: "text-rose-600 font-bold",
           gradient: "from-red-500 to-rose-600",
         };
       case "High":
         return {
-          glow: "rgba(249, 115, 22, 0.4)",
-          text: "text-orange-400",
+          glow: "rgba(249, 115, 22, 0.25)",
+          text: "text-amber-700 font-bold",
           gradient: "from-orange-500 to-amber-600",
         };
       case "Medium":
         return {
-          glow: "rgba(245, 158, 11, 0.4)",
-          text: "text-amber-400",
+          glow: "rgba(245, 158, 11, 0.25)",
+          text: "text-stone-700 font-bold",
           gradient: "from-amber-500 to-yellow-500",
         };
       case "Low":
       default:
         return {
-          glow: "rgba(16, 185, 129, 0.4)",
-          text: "text-emerald-400",
+          glow: "rgba(16, 185, 129, 0.25)",
+          text: "text-emerald-700 font-bold",
           gradient: "from-emerald-400 to-teal-500",
         };
     }
@@ -65,25 +65,18 @@ export default function RadialRiskGauge({
             <stop offset="70%" stopColor="#F97316" />
             <stop offset="100%" stopColor="#EF4444" />
           </linearGradient>
-          <filter id="gaugeGlowGold">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
 
-        {/* Background Arc */}
+        {/* Background Track Arc (Clean Light Gray) */}
         <path
           d={`M ${strokeWidth / 2} ${size / 2} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${size / 2}`}
           fill="none"
-          stroke="#292524"
+          stroke="#E8E5DD"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
         />
 
-        {/* Dynamic Filled Arc */}
+        {/* Dynamic Filled Colored Arc */}
         <path
           d={`M ${strokeWidth / 2} ${size / 2} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${size / 2}`}
           fill="none"
@@ -92,7 +85,6 @@ export default function RadialRiskGauge({
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          filter="url(#gaugeGlowGold)"
           className="transition-all duration-700 ease-out"
         />
 
@@ -106,19 +98,21 @@ export default function RadialRiskGauge({
               cx={cx}
               cy={cy}
               r={5.5}
-              fill="#FAF8F5"
-              className="drop-shadow-[0_0_8px_rgba(255,255,255,0.9)] transition-all duration-700 ease-out"
+              fill="#141312"
+              stroke="#FFFFFF"
+              strokeWidth={2}
+              className="drop-shadow-md transition-all duration-700 ease-out"
             />
           );
         })()}
       </svg>
 
-      {/* Probability Readout */}
-      <div className="absolute top-[38%] flex flex-col items-center">
-        <span className="text-3xl font-mono font-extrabold text-stone-100 tracking-tighter">
+      {/* Probability Readout (High-Contrast Bold Dark Numbers) */}
+      <div className="absolute top-[36%] flex flex-col items-center">
+        <span className="text-3xl font-mono font-bold text-stone-900 tracking-tighter">
           {(clampedProb * 100).toFixed(1)}%
         </span>
-        <span className={`text-[10px] uppercase font-extrabold tracking-widest ${colorConfig.text}`}>
+        <span className={`text-[10px] uppercase font-mono tracking-wider ${colorConfig.text}`}>
           {riskTier} Churn Risk
         </span>
       </div>

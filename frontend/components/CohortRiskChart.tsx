@@ -50,30 +50,30 @@ export default function CohortRiskChart({ accounts }: CohortRiskChartProps) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="p-3.5 rounded-xl bg-[#090D16]/95 border border-slate-700 shadow-2xl backdrop-blur-xl text-xs space-y-1.5 min-w-[180px]">
-          <div className="font-bold text-white border-b border-slate-800 pb-1 flex justify-between">
+        <div className="p-3.5 rounded-2xl bg-white border border-[#E8E5DD] shadow-xl text-xs space-y-1.5 min-w-[190px]">
+          <div className="font-bold text-stone-900 border-b border-[#F0ECE1] pb-1 flex justify-between">
             <span>Renewal Window:</span>
-            <span className="text-indigo-400 font-mono">{label}</span>
+            <span className="text-amber-700 font-mono">{label}</span>
           </div>
-          <div className="flex justify-between text-red-400">
+          <div className="flex justify-between text-rose-600 font-medium">
             <span>Critical Risk:</span>
             <span className="font-bold font-mono">{data.critical} accounts</span>
           </div>
-          <div className="flex justify-between text-orange-400">
+          <div className="flex justify-between text-amber-700 font-medium">
             <span>High Risk:</span>
             <span className="font-bold font-mono">{data.high} accounts</span>
           </div>
-          <div className="flex justify-between text-amber-400">
+          <div className="flex justify-between text-stone-600 font-medium">
             <span>Medium Risk:</span>
             <span className="font-bold font-mono">{data.medium} accounts</span>
           </div>
-          <div className="flex justify-between text-emerald-400">
+          <div className="flex justify-between text-emerald-700 font-medium">
             <span>Low Risk:</span>
             <span className="font-bold font-mono">{data.low} accounts</span>
           </div>
-          <div className="pt-1.5 border-t border-slate-800 flex justify-between font-bold text-slate-200">
+          <div className="pt-1.5 border-t border-[#F0ECE1] flex justify-between font-bold text-stone-900">
             <span>MRR at Risk:</span>
-            <span className="text-red-400 font-mono">{formatCurrency(data.mrrExposed)}</span>
+            <span className="text-rose-600 font-mono">{formatCurrency(data.mrrExposed)}</span>
           </div>
         </div>
       );
@@ -85,19 +85,19 @@ export default function CohortRiskChart({ accounts }: CohortRiskChartProps) {
     <div className="w-full h-[220px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E8E5DD" vertical={false} />
           <XAxis
             dataKey="name"
-            stroke="#64748B"
+            stroke="#78716C"
             fontSize={11}
             tickLine={false}
-            axisLine={{ stroke: "#334155" }}
+            axisLine={{ stroke: "#E8E5DD" }}
           />
           <YAxis
-            stroke="#64748B"
+            stroke="#78716C"
             fontSize={11}
             tickLine={false}
-            axisLine={{ stroke: "#334155" }}
+            axisLine={{ stroke: "#E8E5DD" }}
           />
           <Tooltip content={<CustomTooltip />} />
           <Bar dataKey="critical" name="Critical" stackId="a" fill="#EF4444" radius={[0, 0, 0, 0]} />
