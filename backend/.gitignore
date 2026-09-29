@@ -1,0 +1,9 @@
+.env
+.env.local
+*.log
+logs/
+planner_debug.log
+__pycache__/
+*.pyc
+.pytest_cache/
+*.joblib

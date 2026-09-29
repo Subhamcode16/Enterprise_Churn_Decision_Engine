@@ -1,0 +1,43 @@
+{
+  "model_version": "1.0.0",
+  "algorithm": "XGBoost Classifier",
+  "transformed_feature_names": [
+    "contract_mrr",
+    "tenure_months",
+    "days_since_last_login",
+    "usage_change_pct_30d",
+    "active_user_ratio",
+    "api_calls_monthly",
+    "open_p1_tickets",
+    "avg_resolution_time_hrs",
+    "nps_score",
+    "csat_score",
+    "payment_failures_past_quarter",
+    "days_until_renewal",
+    "auto_renew_enabled",
+    "contract_tier_Enterprise",
+    "contract_tier_Professional",
+    "contract_tier_Standard"
+  ],
+  "train_metrics": {
+    "train_roc_auc": 0.963924838537217,
+    "train_recall": 0.9364754098360656,
+    "train_precision": 0.5246842709529277,
+    "train_f1": 0.6725533480500367,
+    "train_accuracy": 0.8609375,
+    "scale_pos_weight": 7.502459016393443
+  },
+  "test_metrics": {
+    "roc_auc": 0.8863447082654975,
+    "recall": 0.7786885245901639,
+    "precision": 0.4391371340523883,
+    "f1_score": 0.5615763546798029,
+    "accuracy": 0.8145833333333333,
+    "brier_score": 0.12837684154510498
+  },
+  "dataset_summary": {
+    "total_records": 12000,
+    "churn_rate": 0.1525,
+    "total_mrr_monitored": 58198058.35999999
+  }
+}
