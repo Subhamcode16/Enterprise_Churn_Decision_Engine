@@ -86,3 +86,43 @@ class HealthStatusResponse(BaseModel):
 class WhatIfSimulationRequest(BaseModel):
     account_payload: AccountInputSchema
     overrides: Dict[str, Any]
+
+class DispatchedPlaybookInput(BaseModel):
+    account_id: str = Field(..., min_length=2, max_length=64)
+    company_name: str = Field("Enterprise Account", max_length=255)
+    playbook_id: str = Field(..., min_length=2, max_length=64)
+    priority: Optional[str] = Field("P0", max_length=16)
+    assignee_role: Optional[str] = Field("Customer Success", max_length=128)
+    sla_hours: Optional[int] = Field(4, ge=1, le=720)
+
+class DispatchedPlaybookResponse(BaseModel):
+    id: int
+    account_id: str
+    company_name: str
+    playbook_id: str
+    priority: str
+    assignee_role: str
+    sla_hours: int
+    status: str
+    created_at: str
+    deadline_at: Optional[str] = None
+
+class AccountNoteInput(BaseModel):
+    author: Optional[str] = Field("CS Lead", max_length=128)
+    note: str = Field(..., min_length=1, max_length=2000)
+
+class AccountNoteResponse(BaseModel):
+    id: int
+    account_id: str
+    author: str
+    note: str
+    created_at: str
+
+class RetrainResponse(BaseModel):
+    status: str
+    model_version: str
+    recall: float
+    roc_auc: float
+    f1_score: float
+    total_training_samples: int
+    trained_at: str

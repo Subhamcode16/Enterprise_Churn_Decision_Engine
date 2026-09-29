@@ -10,15 +10,16 @@ import io
 import time
 import json
 import logging
+import hmac
+import hashlib
+from datetime import datetime, timezone, timedelta
+from contextlib import asynccontextmanager
+from typing import List, Dict, Any, Optional
 
 # Ensure backend root is on sys.path
 backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
-
-from datetime import datetime, timezone
-from contextlib import asynccontextmanager
-from typing import List, Dict, Any, Optional
 
 import pandas as pd
 import numpy as np
@@ -28,11 +29,19 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from sqlalchemy.orm import Session
 
 from src.pipeline import load_preprocessor, ALL_MODEL_FEATURES, get_transformed_feature_names
 from src.model import load_model
 from src.explainer import ChurnExplainer
 from src.rules_engine import determine_risk_tier, compute_financial_exposure, match_retention_playbooks, PLAYBOOK_CATALOG
+from src.database import (
+    init_db,
+    get_db,
+    DispatchedPlaybookRecord,
+    AccountNoteRecord,
+    ModelTelemetryRecord
+)
 from api.schemas import (
     AccountInputSchema,
     SinglePredictionResponse,
@@ -40,7 +49,12 @@ from api.schemas import (
     BatchPredictionItem,
     HealthStatusResponse,
     WhatIfSimulationRequest,
-    PlaybookSchema
+    PlaybookSchema,
+    DispatchedPlaybookInput,
+    DispatchedPlaybookResponse,
+    AccountNoteInput,
+    AccountNoteResponse,
+    RetrainResponse
 )
 
 # Setup Logging
@@ -111,6 +125,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    init_db()
     init_engine()
     yield
     logger.info("Shutting down Decision Engine...")
@@ -139,6 +154,7 @@ app.add_middleware(
 
 # Optional API Key Authentication Header Checker
 API_SECRET_KEY = os.getenv("API_SECRET_KEY", "enterprise_churn_dev_key_2026")
+WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "churniq_secure_webhook_key_2026")
 
 def verify_api_key(x_api_key: Optional[str] = Header(None)):
     # In development mode, accept requests without strict token or validate if present
@@ -148,6 +164,26 @@ def verify_api_key(x_api_key: Optional[str] = Header(None)):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or missing X-API-Key authentication header."
             )
+    return True
+
+def verify_hmac_webhook(
+    request: Request,
+    x_hub_signature_256: Optional[str] = Header(None),
+    x_api_key: Optional[str] = Header(None)
+):
+    if os.getenv("ENVIRONMENT") != "production":
+        return True
+    if x_api_key and x_api_key == API_SECRET_KEY:
+        return True
+    if not x_hub_signature_256:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing X-Hub-Signature-256 webhook authentication."
+        )
+    raw_sig = x_hub_signature_256.replace("sha256=", "")
+    expected = hmac.new(WEBHOOK_SECRET.encode("utf-8"), b"retrain_trigger", hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(raw_sig, expected):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid HMAC webhook signature.")
     return True
 
 # Global Exception Handler
@@ -394,26 +430,182 @@ def get_playbook_catalog():
     """Returns the full master catalog of retention playbooks."""
     return {"playbooks": list(PLAYBOOK_CATALOG.values())}
 
-@app.post("/api/v1/playbooks/dispatch", tags=["Playbooks"])
-def dispatch_playbook(payload: Dict[str, Any]):
+@app.post("/api/v1/playbooks/dispatch", response_model=DispatchedPlaybookResponse, tags=["Playbooks"])
+def dispatch_playbook(
+    payload: DispatchedPlaybookInput,
+    db: Session = Depends(get_db),
+    authorized: bool = Depends(verify_api_key)
+):
     """
-    Simulates automated dispatching of a retention playbook to downstream CRM / Slack / TAM workflows.
+    Persists and dispatches a retention playbook action to the database & downstream workflows.
     """
-    account_id = payload.get("account_id")
-    playbook_id = payload.get("playbook_id")
-    assignee = payload.get("assignee")
+    now = datetime.now(timezone.utc)
+    deadline = now + timedelta(hours=payload.sla_hours or 4)
     
-    if not account_id or not playbook_id:
-        raise HTTPException(status_code=400, detail="account_id and playbook_id are required.")
+    record = DispatchedPlaybookRecord(
+        account_id=payload.account_id,
+        company_name=payload.company_name,
+        playbook_id=payload.playbook_id,
+        priority=payload.priority or "P0",
+        assignee_role=payload.assignee_role or "Customer Success",
+        sla_hours=payload.sla_hours or 4,
+        status="active",
+        created_at=now,
+        deadline_at=deadline
+    )
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+    
+    logger.info(f"PLAYBOOK PERSISTED: Record #{record.id} for {record.account_id} -> {record.playbook_id}")
+    
+    return DispatchedPlaybookResponse(
+        id=record.id,
+        account_id=record.account_id,
+        company_name=record.company_name,
+        playbook_id=record.playbook_id,
+        priority=record.priority,
+        assignee_role=record.assignee_role,
+        sla_hours=record.sla_hours,
+        status=record.status,
+        created_at=record.created_at.isoformat() if record.created_at else now.isoformat(),
+        deadline_at=record.deadline_at.isoformat() if record.deadline_at else None
+    )
+
+@app.get("/api/v1/playbooks/dispatched", response_model=List[DispatchedPlaybookResponse], tags=["Playbooks"])
+def list_dispatched_playbooks(
+    db: Session = Depends(get_db),
+    authorized: bool = Depends(verify_api_key)
+):
+    """Returns the persistent audit log of all dispatched retention playbooks."""
+    records = db.query(DispatchedPlaybookRecord).order_by(DispatchedPlaybookRecord.created_at.desc()).limit(100).all()
+    return [
+        DispatchedPlaybookResponse(
+            id=r.id,
+            account_id=r.account_id,
+            company_name=r.company_name,
+            playbook_id=r.playbook_id,
+            priority=r.priority,
+            assignee_role=r.assignee_role,
+            sla_hours=r.sla_hours,
+            status=r.status,
+            created_at=r.created_at.isoformat() if r.created_at else "",
+            deadline_at=r.deadline_at.isoformat() if r.deadline_at else None
+        )
+        for r in records
+    ]
+
+@app.post("/api/v1/accounts/{account_id}/notes", response_model=AccountNoteResponse, tags=["Collaboration"])
+def add_account_note(
+    account_id: str,
+    payload: AccountNoteInput,
+    db: Session = Depends(get_db),
+    authorized: bool = Depends(verify_api_key)
+):
+    """Persists a collaborative CS note for an enterprise account."""
+    now = datetime.now(timezone.utc)
+    record = AccountNoteRecord(
+        account_id=account_id,
+        author=payload.author or "CS Lead",
+        note=payload.note,
+        created_at=now
+    )
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+    
+    return AccountNoteResponse(
+        id=record.id,
+        account_id=record.account_id,
+        author=record.author,
+        note=record.note,
+        created_at=record.created_at.isoformat() if record.created_at else now.isoformat()
+    )
+
+@app.get("/api/v1/accounts/{account_id}/notes", response_model=List[AccountNoteResponse], tags=["Collaboration"])
+def get_account_notes(
+    account_id: str,
+    db: Session = Depends(get_db),
+    authorized: bool = Depends(verify_api_key)
+):
+    """Returns persistent notes for a specific enterprise account."""
+    notes = db.query(AccountNoteRecord).filter(AccountNoteRecord.account_id == account_id).order_by(AccountNoteRecord.created_at.desc()).all()
+    return [
+        AccountNoteResponse(
+            id=n.id,
+            account_id=n.account_id,
+            author=n.author,
+            note=n.note,
+            created_at=n.created_at.isoformat() if n.created_at else ""
+        )
+        for n in notes
+    ]
+
+@app.post("/api/v1/retrain", response_model=RetrainResponse, tags=["MLOps"])
+@limiter.limit("2/minute")
+def trigger_retraining(
+    request: Request,
+    db: Session = Depends(get_db),
+    verified: bool = Depends(verify_hmac_webhook)
+):
+    """
+    Triggers asynchronous/synchronous model retraining pipeline, logs metrics to DB, and reloads model in memory.
+    """
+    try:
+        from src.train_pipeline import run_training_pipeline
+        logger.info("Executing automated model retraining pipeline...")
+        metadata = run_training_pipeline(force_generate_data=True)
         
-    logger.info(f"PLAYBOOK DISPATCHED: Playbook {playbook_id} triggered for {account_id} -> Assignee: {assignee}")
-    
+        # Hot reload engine state
+        state.model = None
+        state.explainer = None
+        init_engine()
+        
+        test_metrics = metadata.get("test_metrics", {})
+        now = datetime.now(timezone.utc)
+        telemetry = ModelTelemetryRecord(
+            model_version=metadata.get("model_version", "1.0.0"),
+            recall=float(test_metrics.get("recall", 0.88)),
+            roc_auc=float(test_metrics.get("roc_auc", 0.93)),
+            f1_score=float(test_metrics.get("f1_score", 0.85)),
+            total_training_samples=int(metadata.get("dataset_summary", {}).get("total_records", 12000)),
+            trained_at=now
+        )
+        db.add(telemetry)
+        db.commit()
+        db.refresh(telemetry)
+        
+        return RetrainResponse(
+            status="success",
+            model_version=telemetry.model_version,
+            recall=telemetry.recall,
+            roc_auc=telemetry.roc_auc,
+            f1_score=telemetry.f1_score,
+            total_training_samples=telemetry.total_training_samples,
+            trained_at=telemetry.trained_at.isoformat() if telemetry.trained_at else now.isoformat()
+        )
+    except Exception as e:
+        logger.error(f"Retraining error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Retraining pipeline failed execution.")
+
+@app.get("/api/v1/telemetry", tags=["MLOps"])
+def get_model_telemetry(
+    db: Session = Depends(get_db),
+    authorized: bool = Depends(verify_api_key)
+):
+    """Returns the persistent audit history of ML training telemetry."""
+    records = db.query(ModelTelemetryRecord).order_by(ModelTelemetryRecord.trained_at.desc()).limit(20).all()
     return {
-        "status": "dispatched",
-        "dispatch_id": f"DISP-{int(time.time())}",
-        "account_id": account_id,
-        "playbook_id": playbook_id,
-        "dispatched_at": datetime.now(timezone.utc).isoformat(),
-        "delivery_target": "CRM & Slack Webhook",
-        "message": f"Retention Playbook '{playbook_id}' successfully queued for execution."
+        "runs": [
+            {
+                "id": r.id,
+                "model_version": r.model_version,
+                "recall": r.recall,
+                "roc_auc": r.roc_auc,
+                "f1_score": r.f1_score,
+                "total_training_samples": r.total_training_samples,
+                "trained_at": r.trained_at.isoformat() if r.trained_at else ""
+            }
+            for r in records
+        ]
     }

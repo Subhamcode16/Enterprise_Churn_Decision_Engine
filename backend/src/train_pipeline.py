@@ -119,7 +119,7 @@ def run_training_pipeline(force_generate_data: bool = False) -> None:
     sample_path = os.path.join(data_dir, "demo_accounts_sample.json")
     demo_sample.to_json(sample_path, orient="records", indent=2)
     print(f">> Curated 100 demo accounts saved to: {sample_path}")
-    print(">> PIPELINE RUN COMPLETE.")
+    return metadata
 
 if __name__ == "__main__":
     run_training_pipeline(force_generate_data=True)

@@ -67,3 +67,53 @@ def test_playbook_catalog():
         data = response.json()
         assert "playbooks" in data
         assert len(data["playbooks"]) >= 5
+
+def test_dispatch_and_list_playbooks():
+    with TestClient(app) as client:
+        dispatch_payload = {
+            "account_id": "ACC-TEST-999",
+            "company_name": "Audit Test Corp",
+            "playbook_id": "PB-ENGAGE-02",
+            "priority": "P0",
+            "assignee_role": "Customer Success",
+            "sla_hours": 4
+        }
+        post_res = client.post("/api/v1/playbooks/dispatch", json=dispatch_payload)
+        assert post_res.status_code == 200
+        data = post_res.json()
+        assert data["account_id"] == "ACC-TEST-999"
+        assert data["playbook_id"] == "PB-ENGAGE-02"
+        assert "id" in data
+
+        # Test listing
+        get_res = client.get("/api/v1/playbooks/dispatched")
+        assert get_res.status_code == 200
+        items = get_res.json()
+        assert len(items) >= 1
+        assert any(item["account_id"] == "ACC-TEST-999" for item in items)
+
+def test_account_notes_workflow():
+    with TestClient(app) as client:
+        note_payload = {
+            "author": "Retention Architect",
+            "note": "Scheduled emergency sponsor touchpoint for contract extension."
+        }
+        post_res = client.post("/api/v1/accounts/ACC-TEST-999/notes", json=note_payload)
+        assert post_res.status_code == 200
+        data = post_res.json()
+        assert data["account_id"] == "ACC-TEST-999"
+        assert data["author"] == "Retention Architect"
+
+        # Test retrieval
+        get_res = client.get("/api/v1/accounts/ACC-TEST-999/notes")
+        assert get_res.status_code == 200
+        notes = get_res.json()
+        assert len(notes) >= 1
+        assert notes[0]["note"] == "Scheduled emergency sponsor touchpoint for contract extension."
+
+def test_model_telemetry():
+    with TestClient(app) as client:
+        res = client.get("/api/v1/telemetry")
+        assert res.status_code == 200
+        data = res.json()
+        assert "runs" in data
