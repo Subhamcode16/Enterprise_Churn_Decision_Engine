@@ -154,6 +154,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Defense-in-Depth HTTP Security Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response: Response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
+# Maximum upload limits for DoS mitigation
+MAX_BATCH_UPLOAD_BYTES = 5 * 1024 * 1024  # 5 Megabytes
+MAX_BATCH_CSV_ROWS = 10_000
+
 # Optional API Key Authentication Header Checker
 API_SECRET_KEY = os.getenv("API_SECRET_KEY", "enterprise_churn_dev_key_2026")
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "churniq_secure_webhook_key_2026")
@@ -307,12 +322,20 @@ async def batch_predict_csv(
     """
     Ingests a CSV file of customer accounts, runs vectorized predictions, and returns aggregated risk metrics.
     """
-    if not file.filename.endswith(".csv"):
+    if not file.filename or not file.filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail="Uploaded file must be a .csv format.")
         
     try:
         contents = await file.read()
-        df = pd.read_csv(io.BytesIO(contents))
+        if len(contents) > MAX_BATCH_UPLOAD_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail=f"CSV file exceeds maximum upload limit of {MAX_BATCH_UPLOAD_BYTES // (1024*1024)}MB."
+            )
+
+        df = pd.read_csv(io.BytesIO(contents), nrows=MAX_BATCH_CSV_ROWS)
+        if len(df) == 0:
+            raise HTTPException(status_code=400, detail="Uploaded CSV contains no account records.")
         
         # Validate essential columns
         missing_cols = [c for c in ALL_MODEL_FEATURES if c not in df.columns]
@@ -368,7 +391,8 @@ async def batch_predict_csv(
         raise HTTPException(status_code=500, detail="Failed to parse and score CSV batch dataset.")
 
 @app.get("/api/v1/accounts/demo", tags=["Analytics"])
-def get_demo_accounts():
+@limiter.limit("60/minute")
+def get_demo_accounts(request: Request):
     """
     Returns the curated portfolio of accounts with pre-calculated risk metrics for instant UI exploration.
     """
@@ -428,7 +452,8 @@ def get_demo_accounts():
     }
 
 @app.get("/api/v1/playbooks", tags=["Playbooks"])
-def get_playbook_catalog():
+@limiter.limit("60/minute")
+def get_playbook_catalog(request: Request):
     """Returns the full master catalog of retention playbooks."""
     return {"playbooks": list(PLAYBOOK_CATALOG.values())}
 
