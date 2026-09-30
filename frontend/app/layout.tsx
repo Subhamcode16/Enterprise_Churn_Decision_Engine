@@ -4,7 +4,7 @@ import AppSidebar from "@/components/AppSidebar";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
 export const metadata: Metadata = {
-  title: "CHURNIQ • Enterprise Revenue Decision Engine",
+  title: "VALENCE AI • Enterprise Churn & Revenue Decision Engine",
   description: "Swiss Editorial & Studio Bento Enterprise Churn Decision Engine calibrated with XGBoost and TreeSHAP.",
 };
 

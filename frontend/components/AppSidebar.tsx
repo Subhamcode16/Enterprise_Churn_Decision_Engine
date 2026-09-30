@@ -61,11 +61,11 @@ export default function AppSidebar() {
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-base tracking-tight text-[#FAF8F5]">
-                CHURN<span className="text-amber-400">IQ</span>
+                VALENCE <span className="text-amber-400">AI</span>
               </span>
             </div>
             <span className="text-[10px] text-stone-400 font-medium tracking-wide">
-              Revenue Decision Shield
+              Enterprise Decision Engine
             </span>
           </div>
         </Link>
@@ -170,6 +170,7 @@ export default function AppSidebar() {
         <button 
           onClick={() => {
             playTick();
+            window.dispatchEvent(new CustomEvent("toggle-valence-copilot"));
             window.dispatchEvent(new CustomEvent("toggle-churniq-copilot"));
           }}
           title="Open AI Decision Copilot"

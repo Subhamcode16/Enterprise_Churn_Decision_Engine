@@ -136,7 +136,7 @@ export default function PlaybooksPage() {
     execution_context: {
       trigger: selectedPlaybook.title,
       protocol: selectedPlaybook.action_summary,
-      webhook_endpoint: "https://api.churniq.internal/v1/orchestrator/webhook"
+      webhook_endpoint: "https://api.valence.internal/v1/orchestrator/webhook"
     }
   }, null, 2) : "";
 

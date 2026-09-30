@@ -111,7 +111,7 @@ export default function SimulatorPage() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", `CHURNIQ_Renewal_Brief_${Date.now()}.md`);
+        link.setAttribute("download", `VALENCE_Renewal_Brief_${Date.now()}.md`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

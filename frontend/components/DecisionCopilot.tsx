@@ -72,7 +72,7 @@ export default function DecisionCopilot({
     const initialMsg: Message = {
       id: "init-" + account.account_id,
       sender: "agent",
-      text: `Hello Director. I am your **Decision Copilot**, calibrated with XGBoost & TreeSHAP.\n\nCurrently inspecting **${account.company_name}** (${account.account_id}). Current churn risk is **${(account.churn_probability * 100).toFixed(1)}%** with **${formatCurrency(account.mrr_at_risk)}** MRR exposed.`,
+      text: `Hello Director. I am your **VALENCE Decision Copilot**, calibrated with XGBoost & TreeSHAP.\n\nCurrently inspecting **${account.company_name}** (${account.account_id}). Current churn risk is **${(account.churn_probability * 100).toFixed(1)}%** with **${formatCurrency(account.mrr_at_risk)}** MRR exposed.`,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       card: {
         type: "playbook_recommendation",
@@ -258,7 +258,7 @@ export default function DecisionCopilot({
       <div className="p-4 sm:p-5 border-b border-[#EFECE4] flex items-center justify-between bg-white">
         <div className="flex items-center gap-2">
           <span className="text-sm font-serif font-bold text-stone-900 tracking-tight">
-            You AI Assistance
+            VALENCE AI Copilot
           </span>
         </div>
 

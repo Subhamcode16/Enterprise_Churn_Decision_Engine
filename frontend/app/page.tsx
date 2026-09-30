@@ -75,8 +75,10 @@ export default function DashboardPage() {
     const handleToggleCopilot = () => {
       setCopilotOpen((prev) => !prev);
     };
+    window.addEventListener("toggle-valence-copilot", handleToggleCopilot);
     window.addEventListener("toggle-churniq-copilot", handleToggleCopilot);
     return () => {
+      window.removeEventListener("toggle-valence-copilot", handleToggleCopilot);
       window.removeEventListener("toggle-churniq-copilot", handleToggleCopilot);
     };
   }, []);

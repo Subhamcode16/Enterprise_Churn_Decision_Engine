@@ -72,7 +72,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger("ChurnDecisionEngine")
+logger = logging.getLogger("ValenceDecisionEngine")
 
 # App State Container
 class EngineState:
@@ -88,7 +88,7 @@ state = EngineState()
 def init_engine():
     if state.model is not None:
         return
-    logger.info("Initializing Enterprise Churn Decision Engine models & explainer...")
+    logger.info("Initializing VALENCE Enterprise Decision Engine models & explainer...")
     backend_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     models_dir = os.path.join(backend_root, "models")
     data_dir = os.path.join(backend_root, "data")
@@ -130,12 +130,12 @@ async def lifespan(app: FastAPI):
     init_db()
     init_engine()
     yield
-    logger.info("Shutting down Decision Engine...")
+    logger.info("Shutting down VALENCE Decision Engine...")
 
 app = FastAPI(
-    title="Enterprise Churn & Revenue Decision Engine API",
-    version="1.0.0",
-    description="AI-driven churn prediction, SHAP attribution, revenue risk quantification, and retention playbook routing.",
+    title="VALENCE — Enterprise Churn & Revenue Decision Engine API",
+    version="1.1.0",
+    description="AI-driven churn prediction, TreeSHAP attribution, revenue risk quantification, and retention playbook routing.",
     lifespan=lifespan
 )
 
