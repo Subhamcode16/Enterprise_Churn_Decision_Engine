@@ -7,7 +7,7 @@ import AnimatedCounter from "@/components/AnimatedCounter";
 
 interface LiveTelemetryHeaderProps {
   onOpenCopilot: () => void;
-  copilotOpen: boolean;
+  copilotOpen?: boolean;
   onRefresh: () => void;
   loading: boolean;
   accountsCount: number;
@@ -16,7 +16,7 @@ interface LiveTelemetryHeaderProps {
 
 export default function LiveTelemetryHeader({
   onOpenCopilot,
-  copilotOpen,
+  copilotOpen = false,
   onRefresh,
   loading,
   accountsCount,

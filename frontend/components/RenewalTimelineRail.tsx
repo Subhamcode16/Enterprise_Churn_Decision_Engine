@@ -144,41 +144,6 @@ export default function RenewalTimelineRail({
           </div>
         </div>
       </div>
-
-      {/* Embedded Decision Copilot Card (Intelly Dark Card) */}
-      <div className="bg-[#141312] text-[#FAF8F5] rounded-2xl p-5 shadow-lg border border-[#2B2926] space-y-3.5 relative overflow-hidden group">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-stone-950 font-bold shadow-md">
-              <Bot className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-[#FAF8F5]">
-                ML Decision Copilot
-              </h4>
-              <p className="text-[10px] text-stone-400">
-                XGBoost & TreeSHAP Assistant
-              </p>
-            </div>
-          </div>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse" />
-        </div>
-
-        <p className="text-xs text-stone-300 leading-relaxed font-sans">
-          Ask for root-cause explainability, run counterfactual simulations, or dispatch automated retention protocols.
-        </p>
-
-        <button
-          onClick={() => {
-            playTick();
-            onOpenCopilot();
-          }}
-          className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-bold transition-all shadow-glowGold flex items-center justify-center gap-2 active:scale-[0.98]"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Launch Copilot Chat</span>
-        </button>
-      </div>
     </div>
   );
 }

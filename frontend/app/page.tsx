@@ -13,7 +13,6 @@ import ForceShapVisualizer from "@/components/ForceShapVisualizer";
 import ShapWaterfallChart from "@/components/ShapWaterfallChart";
 import AccountRadar from "@/components/AccountRadar";
 import RenewalTimelineRail from "@/components/RenewalTimelineRail";
-import DecisionCopilot from "@/components/DecisionCopilot";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import SkeletonPulse from "@/components/SkeletonPulse";
 import TextStateSwap from "@/components/TextStateSwap";
@@ -36,7 +35,6 @@ export default function DashboardPage() {
   const [prediction, setPrediction] = useState<SinglePredictionResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [predictLoading, setPredictLoading] = useState(false);
-  const [copilotOpen, setCopilotOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"shap" | "radar">("shap");
   const [selectedCohortTier, setSelectedCohortTier] = useState<string>("All");
   const [dispatchedPlaybooks, setDispatchedPlaybooks] = useState<Record<string, boolean>>({});
@@ -71,16 +69,6 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadData();
-
-    const handleToggleCopilot = () => {
-      setCopilotOpen((prev) => !prev);
-    };
-    window.addEventListener("toggle-valence-copilot", handleToggleCopilot);
-    window.addEventListener("toggle-churniq-copilot", handleToggleCopilot);
-    return () => {
-      window.removeEventListener("toggle-valence-copilot", handleToggleCopilot);
-      window.removeEventListener("toggle-churniq-copilot", handleToggleCopilot);
-    };
   }, []);
 
   // 0ms Instant Cache Fetching for TreeSHAP Predictions
@@ -111,6 +99,9 @@ export default function DashboardPage() {
   const handleSelectAccount = (account: AccountRecord) => {
     playTick();
     setSelectedAccount(account);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("select-copilot-account", { detail: account }));
+    }
   };
 
   const currentPlaybookId = selectedAccount ? resolvePrimaryPlaybook(selectedAccount) : "PB-SUPP-01";
@@ -134,8 +125,11 @@ export default function DashboardPage() {
       <div className="flex-1 min-w-0 space-y-6 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)]">
         {/* Live Telemetry Header Ribbon */}
         <LiveTelemetryHeader
-          onOpenCopilot={() => setCopilotOpen((prev) => !prev)}
-          copilotOpen={copilotOpen}
+          onOpenCopilot={() => {
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("toggle-valence-copilot"));
+            }
+          }}
           onRefresh={loadData}
           loading={loading}
           accountsCount={accounts.length || 100}
@@ -310,7 +304,9 @@ export default function DashboardPage() {
                     <button
                       onClick={() => {
                         playTick();
-                        setCopilotOpen(true);
+                        if (typeof window !== "undefined") {
+                          window.dispatchEvent(new CustomEvent("toggle-valence-copilot"));
+                        }
                       }}
                       className="px-3.5 py-2 rounded-xl bg-[#262422] hover:bg-[#33302C] text-stone-200 text-xs font-semibold flex items-center gap-1.5 transition-all duration-150 active:scale-[0.97]"
                     >
@@ -423,28 +419,15 @@ export default function DashboardPage() {
               accounts={accounts}
               onSelectAccount={handleSelectAccount}
               selectedAccountId={selectedAccount?.account_id}
-              onOpenCopilot={() => setCopilotOpen(true)}
+              onOpenCopilot={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("toggle-valence-copilot"));
+                }
+              }}
             />
           </div>
         </div>
       </div>
-
-      {/* Integrated Sliding Side Column: Decision Copilot Panel */}
-      <aside
-        className={`flex-shrink-0 sticky top-6 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] h-[calc(100vh-4rem)] ${
-          copilotOpen
-            ? "w-[380px] lg:w-[420px] xl:w-[450px] opacity-100 pl-6 pointer-events-auto"
-            : "w-0 opacity-0 pointer-events-none p-0 overflow-hidden"
-        }`}
-      >
-        <DecisionCopilot
-          isOpen={copilotOpen}
-          onClose={() => setCopilotOpen(false)}
-          account={selectedAccount}
-          playbooks={playbooks}
-          onExecutePlaybook={handleExecutePlaybook}
-        />
-      </aside>
     </div>
   );
 }

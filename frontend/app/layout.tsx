@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import AppSidebar from "@/components/AppSidebar";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
+import FloatingDecisionCopilot from "@/components/FloatingDecisionCopilot";
 
 export const metadata: Metadata = {
   title: "VALENCE AI • Enterprise Churn & Revenue Decision Engine",
@@ -34,6 +35,9 @@ export default function RootLayout({
               {children}
             </main>
           </div>
+
+          {/* Global Floating AI Decision Copilot */}
+          <FloatingDecisionCopilot />
         </SmoothScrollProvider>
       </body>
     </html>
