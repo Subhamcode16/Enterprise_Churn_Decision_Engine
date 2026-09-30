@@ -7,7 +7,7 @@ class SoundEngine {
 
   constructor() {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("churniq_sound_muted");
+      const saved = localStorage.getItem("valence_sound_muted") || localStorage.getItem("churniq_sound_muted");
       this.isMuted = saved === "true";
     }
   }
@@ -27,7 +27,7 @@ class SoundEngine {
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
     if (typeof window !== "undefined") {
-      localStorage.setItem("churniq_sound_muted", String(this.isMuted));
+      localStorage.setItem("valence_sound_muted", String(this.isMuted));
     }
     if (!this.isMuted) {
       this.playClick();

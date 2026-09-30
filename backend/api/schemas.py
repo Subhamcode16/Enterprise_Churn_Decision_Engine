@@ -126,3 +126,21 @@ class RetrainResponse(BaseModel):
     f1_score: float
     total_training_samples: int
     trained_at: str
+
+class UpdatePlaybookStatusInput(BaseModel):
+    status: str = Field(..., pattern="^(active|completed|escalated)$")
+
+class RenewalBriefResponse(BaseModel):
+    account_id: str
+    company_name: str
+    baseline_churn_prob: float
+    simulated_churn_prob: float
+    risk_delta: float
+    contract_mrr: float
+    baseline_mrr_at_risk: float
+    simulated_mrr_at_risk: float
+    mrr_retained_monthly: float
+    annual_arr_protected: float
+    recommended_mitigation_plan: List[str]
+    brief_markdown: str
+    generated_at: str

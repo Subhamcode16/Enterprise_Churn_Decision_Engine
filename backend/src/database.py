@@ -1,5 +1,5 @@
 """
-Database Persistence & Audit Trail Manager for CHURNIQ.
+Database Persistence & Audit Trail Manager for VALENCE AI.
 Supports PostgreSQL (Production) and SQLite (Local Development fallback).
 """
 
@@ -14,7 +14,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     # Local fallback to SQLite database in backend/data/
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    db_path = os.path.join(base_dir, "data", "churniq_audit.db")
+    db_path = os.path.join(base_dir, "data", "valence_audit.db")
     DATABASE_URL = f"sqlite:///{db_path}"
 
 # Fix for postgres:// prefix on some cloud providers

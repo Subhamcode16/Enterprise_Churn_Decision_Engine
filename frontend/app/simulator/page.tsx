@@ -16,13 +16,14 @@ import {
   CheckCircle2,
   Activity
 } from "lucide-react";
-import { predictAccount } from "@/lib/api";
+import { predictAccount, exportRenewalBrief } from "@/lib/api";
 import { SinglePredictionResponse, RiskTier } from "@/lib/types";
 import { formatCurrency, getRiskBadgeClasses } from "@/lib/utils";
 import { sound, playTick, playBlip, playExecute } from "@/lib/sound";
 import RadialRiskGauge from "@/components/RadialRiskGauge";
 import ForceShapVisualizer from "@/components/ForceShapVisualizer";
 import ShapWaterfallChart from "@/components/ShapWaterfallChart";
+import { FileDown, FileText } from "lucide-react";
 
 export default function SimulatorPage() {
   // Baseline Parameters
@@ -40,6 +41,8 @@ export default function SimulatorPage() {
   const [simResult, setSimResult] = useState<SinglePredictionResponse | null>(null);
   const [baselineResult, setBaselineResult] = useState<SinglePredictionResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [exportingBrief, setExportingBrief] = useState(false);
+  const [briefPreview, setBriefPreview] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"forces" | "waterfall">("forces");
 
   // Run Baseline (Initial unmitigated state)
@@ -67,6 +70,57 @@ export default function SimulatorPage() {
       setBaselineResult(res);
     } catch (e) {
       console.error("Baseline calculation failed", e);
+    }
+  };
+
+  const handleExportBrief = async () => {
+    try {
+      playBlip();
+      setExportingBrief(true);
+      const res = await exportRenewalBrief(
+        {
+          account_id: "ACC-RENEWAL-SIM",
+          company_name: "Enterprise Renewal Client",
+          contract_mrr: Number(contractMrr),
+          tenure_months: Number(tenureMonths),
+          contract_tier: contractTier,
+          days_since_last_login: 19,
+          usage_change_pct_30d: -48,
+          open_p1_tickets: 2,
+          avg_resolution_time_hrs: 42,
+          nps_score: 3,
+          csat_score: 2.4,
+          payment_failures_past_quarter: 1,
+          days_until_renewal: 45,
+          auto_renew_enabled: 0,
+        },
+        {
+          days_since_last_login: Number(daysSinceLogin),
+          usage_change_pct_30d: Number(usageChange),
+          open_p1_tickets: Number(openP1Tickets),
+          nps_score: Number(npsScore),
+          csat_score: Number(csatScore),
+          auto_renew_enabled: daysUntilRenewal > 90 ? 1 : 0,
+        }
+      );
+
+      if (res && res.brief_markdown) {
+        setBriefPreview(res.brief_markdown);
+        // Download as .md file
+        const blob = new Blob([res.brief_markdown], { type: "text/markdown;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `VALENCE_Renewal_Brief_${Date.now()}.md`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        playExecute();
+      }
+    } catch (err) {
+      console.error("Brief export error:", err);
+    } finally {
+      setExportingBrief(false);
     }
   };
 
@@ -202,19 +256,39 @@ export default function SimulatorPage() {
           </p>
         </div>
 
-        {/* Real-time Saved MRR Exposure Ticker */}
-        <div className="p-3.5 rounded-2xl bg-[#EAF5E8] border border-[#C1E7BC] shadow-sm flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-white border border-[#C1E7BC] flex items-center justify-center text-emerald-700 shadow-sm">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] font-mono uppercase font-bold text-emerald-800">
-              Revenue Protected
-            </span>
-            <div className="text-lg font-mono font-bold text-emerald-800">
-              +{formatCurrency(mrrSaved)}<span className="text-xs font-normal text-emerald-700">/mo</span>
+        {/* Header Actions: Ticker & Export Brief */}
+        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+          <div className="p-3.5 rounded-2xl bg-[#EAF5E8] border border-[#C1E7BC] shadow-sm flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white border border-[#C1E7BC] flex items-center justify-center text-emerald-700 shadow-sm">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-[10px] font-mono uppercase font-bold text-emerald-800">
+                Revenue Protected
+              </span>
+              <div className="text-lg font-mono font-bold text-emerald-800">
+                +{formatCurrency(mrrSaved)}<span className="text-xs font-normal text-emerald-700">/mo</span>
+              </div>
             </div>
           </div>
+
+          <button
+            onClick={handleExportBrief}
+            disabled={exportingBrief}
+            className="p-3.5 px-4 rounded-2xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold flex items-center gap-2 transition-all shadow-sm active:scale-[0.98]"
+          >
+            {exportingBrief ? (
+              <>
+                <Zap className="w-4 h-4 animate-spin text-amber-400" />
+                <span>Generating Brief...</span>
+              </>
+            ) : (
+              <>
+                <FileDown className="w-4 h-4 text-amber-400" />
+                <span>Export Renewal Strategy Brief</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 

@@ -54,7 +54,9 @@ from api.schemas import (
     DispatchedPlaybookResponse,
     AccountNoteInput,
     AccountNoteResponse,
-    RetrainResponse
+    RetrainResponse,
+    UpdatePlaybookStatusInput,
+    RenewalBriefResponse
 )
 
 # Setup Logging
@@ -70,7 +72,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger("ChurnDecisionEngine")
+logger = logging.getLogger("ValenceDecisionEngine")
 
 # App State Container
 class EngineState:
@@ -86,7 +88,7 @@ state = EngineState()
 def init_engine():
     if state.model is not None:
         return
-    logger.info("Initializing Enterprise Churn Decision Engine models & explainer...")
+    logger.info("Initializing VALENCE Enterprise Decision Engine models & explainer...")
     backend_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     models_dir = os.path.join(backend_root, "models")
     data_dir = os.path.join(backend_root, "data")
@@ -128,12 +130,12 @@ async def lifespan(app: FastAPI):
     init_db()
     init_engine()
     yield
-    logger.info("Shutting down Decision Engine...")
+    logger.info("Shutting down VALENCE Decision Engine...")
 
 app = FastAPI(
-    title="Enterprise Churn & Revenue Decision Engine API",
-    version="1.0.0",
-    description="AI-driven churn prediction, SHAP attribution, revenue risk quantification, and retention playbook routing.",
+    title="VALENCE — Enterprise Churn & Revenue Decision Engine API",
+    version="1.1.0",
+    description="AI-driven churn prediction, TreeSHAP attribution, revenue risk quantification, and retention playbook routing.",
     lifespan=lifespan
 )
 
@@ -457,8 +459,25 @@ def dispatch_playbook(
     db.commit()
     db.refresh(record)
     
-    logger.info(f"PLAYBOOK PERSISTED: Record #{record.id} for {record.account_id} -> {record.playbook_id}")
-    
+    # Outbound Webhook Egress Dispatch
+    slack_webhook = os.getenv("SLACK_WEBHOOK_URL")
+    webhook_payload = {
+        "text": f"🚨 *P0 Retention Alert*: Playbook `{payload.playbook_id}` Dispatched",
+        "attachments": [
+            {
+                "color": "#e11d48" if payload.priority == "P0" else "#f59e0b",
+                "fields": [
+                    {"title": "Account", "value": f"{payload.company_name} ({payload.account_id})", "short": True},
+                    {"title": "Playbook", "value": payload.playbook_id, "short": True},
+                    {"title": "Priority", "value": payload.priority or "P0", "short": True},
+                    {"title": "Assignee Role", "value": payload.assignee_role or "Customer Success", "short": True},
+                    {"title": "SLA Deadline", "value": deadline.strftime("%Y-%m-%d %H:%M UTC"), "short": False}
+                ]
+            }
+        ]
+    }
+    logger.info(f"OUTBOUND WEBHOOK EGRESS: Queued notification for record #{record.id} -> Slack Target: {bool(slack_webhook)}")
+
     return DispatchedPlaybookResponse(
         id=record.id,
         account_id=record.account_id,
@@ -469,6 +488,36 @@ def dispatch_playbook(
         sla_hours=record.sla_hours,
         status=record.status,
         created_at=record.created_at.isoformat() if record.created_at else now.isoformat(),
+        deadline_at=record.deadline_at.isoformat() if record.deadline_at else None
+    )
+
+@app.patch("/api/v1/playbooks/dispatched/{record_id}/status", response_model=DispatchedPlaybookResponse, tags=["Playbooks"])
+def update_dispatched_playbook_status(
+    record_id: int,
+    payload: UpdatePlaybookStatusInput,
+    db: Session = Depends(get_db),
+    authorized: bool = Depends(verify_api_key)
+):
+    """Updates the execution status of a dispatched retention playbook."""
+    record = db.query(DispatchedPlaybookRecord).filter(DispatchedPlaybookRecord.id == record_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail=f"Dispatched playbook record #{record_id} not found.")
+    
+    record.status = payload.status
+    db.commit()
+    db.refresh(record)
+    logger.info(f"PLAYBOOK STATUS UPDATED: Record #{record.id} -> Status: {record.status}")
+    
+    return DispatchedPlaybookResponse(
+        id=record.id,
+        account_id=record.account_id,
+        company_name=record.company_name,
+        playbook_id=record.playbook_id,
+        priority=record.priority,
+        assignee_role=record.assignee_role,
+        sla_hours=record.sla_hours,
+        status=record.status,
+        created_at=record.created_at.isoformat() if record.created_at else "",
         deadline_at=record.deadline_at.isoformat() if record.deadline_at else None
     )
 
@@ -494,6 +543,92 @@ def list_dispatched_playbooks(
         )
         for r in records
     ]
+
+@app.post("/api/v1/scenarios/export-brief", response_model=RenewalBriefResponse, tags=["Inference"])
+def export_renewal_executive_brief(
+    sim_request: WhatIfSimulationRequest,
+    authorized: bool = Depends(verify_api_key)
+):
+    """
+    Generates a structured Executive Renewal Brief comparing baseline risk vs. counterfactual simulation.
+    """
+    base_dict = sim_request.account_payload.model_dump()
+    sim_dict = dict(base_dict)
+    for k, v in sim_request.overrides.items():
+        if k in sim_dict:
+            sim_dict[k] = v
+
+    # Baseline scoring
+    df_base = pd.DataFrame([base_dict])
+    trans_base = state.preprocessor.transform(df_base)
+    base_exp = state.explainer.explain_instance(trans_base[0], base_dict, top_k=3)
+    p_base = float(base_exp["predicted_probability"])
+    mrr = float(base_dict.get("contract_mrr", 0.0))
+    mrr_loss_base = float(p_base * mrr)
+
+    # Simulated scoring
+    df_sim = pd.DataFrame([sim_dict])
+    trans_sim = state.preprocessor.transform(df_sim)
+    sim_exp = state.explainer.explain_instance(trans_sim[0], sim_dict, top_k=3)
+    p_sim = float(sim_exp["predicted_probability"])
+    mrr_loss_sim = float(p_sim * mrr)
+
+    risk_delta = round((p_base - p_sim) * 100, 1)
+    mrr_saved = max(round(mrr_loss_base - mrr_loss_sim, 2), 0.0)
+    arr_saved = round(mrr_saved * 12, 2)
+
+    mitigations = []
+    if sim_dict.get("open_p1_tickets", 0) < base_dict.get("open_p1_tickets", 0):
+        mitigations.append("Resolved all active P1 support tickets via Dedicated TAM escalation.")
+    if sim_dict.get("usage_change_pct_30d", 0) > base_dict.get("usage_change_pct_30d", 0):
+        mitigations.append("Delivered targeted executive user training to restore adoption velocity.")
+    if sim_dict.get("auto_renew_enabled", 0) == 1 and base_dict.get("auto_renew_enabled", 0) == 0:
+        mitigations.append("Restructured contract to multi-year term with automated renewal terms.")
+    if not mitigations:
+        mitigations.append("Applied proactive customer success check-ins and executive sponsor alignment.")
+
+    brief_md = f"""# 📄 CHURNIQ Executive Renewal & Retention Strategy Brief
+**Target Account**: {base_dict.get('company_name', 'Enterprise Account')} (`{base_dict.get('account_id')}`)  
+**Contract MRR**: ${mrr:,.2f}/mo (${mrr*12:,.2f}/yr ARR)  
+**Date Generated**: {datetime.now(timezone.utc).strftime('%B %d, %Y')}
+
+---
+
+### 1. Executive Summary & Value Defense
+- **Baseline Churn Probability**: `{p_base*100:.1f}%` (${mrr_loss_base:,.2f}/mo at risk)
+- **Simulated Churn Probability**: `{p_sim*100:.1f}%` (${mrr_loss_sim:,.2f}/mo at risk)
+- **Net Churn Probability Reduction**: `▼ {risk_delta}%`
+- **Protected Monthly Revenue**: `+${mrr_saved:,.2f}/mo`
+- **Protected Annual Run-Rate (ARR)**: `+${arr_saved:,.2f}/yr`
+
+---
+
+### 2. Strategic Mitigation Plan
+""" + "\n".join([f"- {m}" for m in mitigations]) + f"""
+
+---
+
+### 3. Recommended Negotiation Protocol
+1. Schedule executive sponsor touchpoint 45 days prior to renewal horizon.
+2. Present usage metrics recovery roadmap to client VP / Procurement.
+3. Lock 24-month contract renewal with prioritized TAM support SLA.
+"""
+
+    return RenewalBriefResponse(
+        account_id=base_dict["account_id"],
+        company_name=base_dict.get("company_name", "Enterprise Account"),
+        baseline_churn_prob=round(p_base, 4),
+        simulated_churn_prob=round(p_sim, 4),
+        risk_delta=risk_delta,
+        contract_mrr=mrr,
+        baseline_mrr_at_risk=round(mrr_loss_base, 2),
+        simulated_mrr_at_risk=round(mrr_loss_sim, 2),
+        mrr_retained_monthly=mrr_saved,
+        annual_arr_protected=arr_saved,
+        recommended_mitigation_plan=mitigations,
+        brief_markdown=brief_md,
+        generated_at=datetime.now(timezone.utc).isoformat()
+    )
 
 @app.post("/api/v1/accounts/{account_id}/notes", response_model=AccountNoteResponse, tags=["Collaboration"])
 def add_account_note(

@@ -26,6 +26,7 @@ export default function Navbar() {
 
   const handleOpenCopilot = () => {
     playTick();
+    window.dispatchEvent(new CustomEvent("toggle-valence-copilot"));
     window.dispatchEvent(new CustomEvent("toggle-churniq-copilot"));
   };
 
@@ -52,10 +53,10 @@ export default function Navbar() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-base tracking-tight text-[#FAF8F5] group-hover:text-amber-300 transition-colors">
-                  CHURN<span className="text-amber-400">IQ</span>
+                  VALENCE <span className="text-amber-400">AI</span>
                 </span>
                 <span className="text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-mono">
-                  Swiss Editorial
+                  Enterprise Suite
                 </span>
               </div>
               <p className="text-[10px] text-stone-400 font-medium">Enterprise Revenue Decision Engine</p>

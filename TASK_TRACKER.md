@@ -1,6 +1,6 @@
-# 🚀 CHURNIQ — Production Engineering & Deployment Task Tracker
+# 🚀 VALENCE AI — Production Engineering & Deployment Task Tracker
 
-> **System Status**: `PHASE 2 & PHASE 3: COMPLETED & DEPLOYMENT READY`  
+> **System Status**: `PHASE 2, 3 & 4: COMPLETED & DEPLOYMENT READY`  
 > **Repository**: `Enterprise_Churn_Decision_Engine`  
 > **Last Synced**: September 30, 2026
 
@@ -8,7 +8,7 @@
 
 ## 🧭 Executive Architecture & System Context
 
-CHURNIQ is an Enterprise Churn & Revenue Decision Engine designed for high-ACV B2B SaaS. It unifies:
+VALENCE AI is an Enterprise Churn & Revenue Decision Engine designed for high-ACV B2B SaaS. It unifies:
 1. **Calibrated Machine Learning (`v1.1.0`)**: XGBoost Classifier trained on 50,000 multi-tenant accounts with class weighting and L1/L2 regularization achieving **Recall = 0.8814 (at $P \ge 0.35$)**, **ROC-AUC = 0.8858**, and Brier calibration score `0.1323`.
 2. **Local Explainability**: TreeSHAP feature attributions decomposing individual risk scores into positive risk drivers and negative protective retention anchors.
 3. **Deterministic Rules & SLA Playbooks**: 6 automated intervention protocols bound to role assignees and SLA timers (e.g. `PB-SUPP-01`, `PB-ENGAGE-02`, `PB-EXEC-04`).
@@ -27,7 +27,7 @@ If you are an agent or developer resuming work after a hiatus, follow this proto
 2. **Quick Launch**:
    - Run `.\start-app.bat` from the root directory to verify both services.
    - Run integration tests: `python -c "import sys, os; sys.path.insert(0, os.getcwd()); from tests.test_api import *; test_health_endpoint(); test_predict_single_account(); test_demo_accounts_endpoint(); test_playbook_catalog(); test_dispatch_and_list_playbooks(); test_account_notes_workflow(); test_model_telemetry(); print('ALL 7 PASSED')"` from `backend/`.
-3. **Current Active Milestone**: Check **Phase 1, 2, and 3 Checklist** below. Update checklist items with `[x]` as they complete.
+3. **Current Active Milestone**: Check **Phase 1, 2, 3, and 4 Checklist** below. Update checklist items with `[x]` as they complete.
 4. **Rule Compliance**: Always ask 3-4 understanding questions and get explicit host confirmation (green signal) before executing new plans.
 
 ---
@@ -58,12 +58,20 @@ If you are an agent or developer resuming work after a hiatus, follow this proto
     └── [x] 2.4 Automated Retraining Webhook with HMAC-SHA256 Signature Verification (`/api/v1/retrain`)
 
 [x] PHASE 3: Containerization & Cloud Deployment
-    ├── [x] 3.1 Multi-Stage Production Dockerfile (`backend/Dockerfile` using Python 3.11-slim & non-root user `churniq`)
+    ├── [x] 3.1 Multi-Stage Production Dockerfile (`backend/Dockerfile` using Python 3.11-slim & non-root user `valence`)
     ├── [x] 3.2 Multi-Stage Frontend Dockerfile (`frontend/Dockerfile` using Node 20-alpine & standalone mode)
     ├── [x] 3.3 Docker Compose Stack (`docker-compose.yml` with backend, frontend, and PostgreSQL 16 services)
     ├── [x] 3.4 Render Cloud Deployment Blueprint (`render.yaml` with managed PostgreSQL DB & auto-train build step)
     ├── [x] 3.5 Vercel Frontend Deployment Config (`frontend/vercel.json` with security headers)
     └── [x] 3.6 Health & Liveness Probes (`/health`, `/api/v1/telemetry`)
+
+[x] PHASE 4: Enterprise Operations, Live SLA Timers & Webhook Egress
+    ├── [x] 4.1 Outbound Webhook Egress Dispatcher (`backend/api/main.py` -> Slack/CRM notifications)
+    ├── [x] 4.2 Executive Renewal Brief Export Endpoint (`POST /api/v1/scenarios/export-brief`)
+    ├── [x] 4.3 Live Dispatched Playbook Status Patching (`PATCH /api/v1/playbooks/dispatched/{id}/status`)
+    ├── [x] 4.4 Live SLA Countdown Rails & Workflows Tracker (`frontend/app/playbooks/page.tsx`)
+    ├── [x] 4.5 One-Click Executive Renewal Strategy Brief Generator (`frontend/app/simulator/page.tsx`)
+    └── [x] 4.6 Comprehensive Enterprise Operations & Value Engine Guide (`README.md`)
 ```
 
 ---
@@ -73,13 +81,13 @@ If you are an agent or developer resuming work after a hiatus, follow this proto
 | Variable | Scope | Purpose | Example Value |
 | :--- | :--- | :--- | :--- |
 | `ENVIRONMENT` | Backend | Environment flag | `production` / `development` |
-| `DATABASE_URL` | Backend | PostgreSQL / SQLite connection string | `postgresql://churniq_user:pass@db:5432/churniq_db` |
-| `CORS_ORIGINS` | Backend | CORS allowlist (comma-separated) | `http://localhost:3000,https://churniq.vercel.app` |
-| `API_SECRET_KEY` | Backend | API Key Header for authenticated endpoints | `enterprise_churn_dev_key_2026` |
-| `WEBHOOK_SECRET` | Backend | HMAC Secret for retraining trigger | `churniq_secure_webhook_key_2026` |
+| `DATABASE_URL` | Backend | PostgreSQL / SQLite connection string | `postgresql://valence_user:pass@db:5432/valence_db` |
+| `CORS_ORIGINS` | Backend | CORS allowlist (comma-separated) | `http://localhost:3000,https://valence.vercel.app` |
+| `API_SECRET_KEY` | Backend | API Key Header for authenticated endpoints | `enterprise_valence_dev_key_2026` |
+| `WEBHOOK_SECRET` | Backend | HMAC Secret for retraining trigger | `valence_secure_webhook_key_2026` |
 | `RATE_LIMIT_PREDICT` | Backend | Rate limit for single prediction | `60/minute` |
 | `RATE_LIMIT_BATCH` | Backend | Rate limit for batch CSV predictions | `10/minute` |
-| `NEXT_PUBLIC_API_URL`| Frontend | Backend API base URL | `https://churniq-api.onrender.com` / `http://localhost:8000` |
+| `NEXT_PUBLIC_API_URL`| Frontend | Backend API base URL | `https://valence-api.onrender.com` / `http://localhost:8000` |
 
 ---
 
