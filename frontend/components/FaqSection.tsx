@@ -4,9 +4,9 @@ import { useState } from "react";
 import { 
   Plus, 
   Minus, 
-  Sparkles, 
-  ArrowRight
+  ArrowUpRight
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { playTick } from "@/lib/sound";
 
 interface FaqItem {
@@ -84,8 +84,8 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
   };
 
   return (
-    <section className="w-full max-w-4xl mx-auto mt-28 mb-40 px-4 sm:px-6">
-      {/* Editorial Header - Pure Typography, No Generic AI Badges */}
+    <section className="w-full max-w-4xl mx-auto mt-40 sm:mt-48 mb-48 px-4 sm:px-6">
+      {/* Editorial Header - Pure Typography */}
       <div className="flex flex-col items-center text-center space-y-3 pb-12">
         <h3 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#051F20] tracking-tight">
           Frequently Asked Questions
@@ -103,11 +103,11 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
                 playTick();
                 onOpenConnectModal();
               }}
-              className="px-5 py-2.5 rounded-full bg-[#051F20] hover:bg-[#0B2B26] text-white text-xs font-bold font-sans flex items-center justify-center gap-2 shadow-xs hover:shadow-md transition-all active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-mono text-stone-500 hover:text-[#235347] transition-colors cursor-pointer group"
             >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Launch Data Ingestion Vault</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>Need to ingest live enterprise telemetry?</span>
+              <span className="font-bold underline underline-offset-4 decoration-emerald-500/40 group-hover:decoration-emerald-700">Open Data Vault</span>
+              <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>
           </div>
         )}
@@ -134,7 +134,7 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
         ))}
       </div>
 
-      {/* Editorial Hairline Accordion List (Zero Badges, Pure Typography) */}
+      {/* Editorial Hairline Accordion List with Elastic Motion */}
       <div className="border-t border-[#051F20]/15 divide-y divide-[#051F20]/10">
         {filteredFaqs.map((faq) => {
           const isOpen = openFaqId === faq.id;
@@ -181,14 +181,41 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
                 </div>
               </button>
 
-              {/* Expanding Answer Body */}
-              {isOpen && (
-                <div className="px-3 sm:px-5 pl-12 sm:pl-16 pb-7 pr-8 sm:pr-12 text-xs sm:text-sm text-stone-600 leading-relaxed font-sans animate-in fade-in slide-in-from-top-2 duration-200">
-                  <p className="max-w-2xl text-stone-700">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
+              {/* Expanding Answer Body with Elastic Spring Motion */}
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    key="content"
+                    initial={{ height: 0, opacity: 0, y: -6 }}
+                    animate={{ 
+                      height: "auto", 
+                      opacity: 1, 
+                      y: 0,
+                      transition: {
+                        height: { type: "spring", stiffness: 320, damping: 28, restDelta: 0.5 },
+                        opacity: { duration: 0.25, ease: "easeOut" },
+                        y: { type: "spring", stiffness: 400, damping: 25 }
+                      }
+                    }}
+                    exit={{ 
+                      height: 0, 
+                      opacity: 0, 
+                      y: -6,
+                      transition: {
+                        height: { duration: 0.2, ease: "easeInOut" },
+                        opacity: { duration: 0.12 }
+                      }
+                    }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-3 sm:px-5 pl-12 sm:pl-16 pb-7 pr-8 sm:pr-12 text-xs sm:text-sm text-stone-600 leading-relaxed font-sans">
+                      <p className="max-w-2xl text-stone-700">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
