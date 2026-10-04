@@ -5,8 +5,7 @@ import {
   Plus, 
   Minus, 
   Sparkles, 
-  ArrowRight,
-  HelpCircle
+  ArrowRight
 } from "lucide-react";
 import { playTick } from "@/lib/sound";
 
@@ -14,7 +13,6 @@ interface FaqItem {
   id: string;
   index: string;
   category: "product" | "data" | "security" | "troubleshooting";
-  tag: string;
   question: string;
   answer: string;
 }
@@ -24,7 +22,6 @@ const FAQS: FaqItem[] = [
     id: "what-is-valence",
     index: "01",
     category: "product",
-    tag: "Core Engine",
     question: "What is VALENCE and how does it predict enterprise churn?",
     answer: "VALENCE is an autonomous B2B retention intelligence engine. It continuously evaluates customer telemetry (MRR, usage velocity, open P1 tickets, NPS sentiment) using calibrated XGBoost gradient-boosted decision trees. Rather than calculating arbitrary 1–100 health scores, VALENCE computes real-time churn probability, calculates exact dollar loss exposure ($MRR × Churn Probability), and assigns TreeSHAP mathematical feature attributions."
   },
@@ -32,7 +29,6 @@ const FAQS: FaqItem[] = [
     id: "how-to-connect-data",
     index: "02",
     category: "data",
-    tag: "Data Ingestion",
     question: "How do I connect and upload my company dataset?",
     answer: "Click 'Connect Company Data' in the header navigation. You can either drag & drop a standard billing CSV/XLSX export or click 'Load Sample CSV' for instant testing. Alternatively, navigate to the 'Cloud Connectors' tab to initiate 1-click OAuth synchronization with Stripe Billing (for MRR & invoice failures) or Salesforce CRM (for accounts & support SLAs)."
   },
@@ -40,7 +36,6 @@ const FAQS: FaqItem[] = [
     id: "csv-schema-requirements",
     index: "03",
     category: "data",
-    tag: "Schema Specs",
     question: "What CSV schema headers does the ML inference pipeline expect?",
     answer: "The engine natively recognizes standard telemetry headers including: 'company_name', 'contract_mrr', 'tenure_months', 'contract_tier', 'days_since_last_login', 'usage_change_pct_30d', 'open_p1_tickets', and 'nps_score'. Our flexible header normalizer auto-detects common aliases (e.g. 'mrr' -> 'contract_mrr', 'tenure' -> 'tenure_months') with an interactive dropdown inspector to override mappings prior to scoring."
   },
@@ -48,7 +43,6 @@ const FAQS: FaqItem[] = [
     id: "data-encryption-security",
     index: "04",
     category: "security",
-    tag: "AES-256 Vault",
     question: "How is company data encrypted and isolated?",
     answer: "All uploaded datasets and ingested telemetry are encrypted at rest using AES-256 GCM in an isolated tenant vault partition (e.g. org_live_2026_val). Raw customer data is never shared across tenant boundaries or used to train public models. The system complies with SOC 2 Type II strict access control standards."
   },
@@ -56,7 +50,6 @@ const FAQS: FaqItem[] = [
     id: "treeshap-attributions",
     index: "05",
     category: "product",
-    tag: "Explainability",
     question: "What are TreeSHAP attributions and how do they explain churn drivers?",
     answer: "TreeSHAP (SHapley Additive exPlanations) is a game-theoretic approach that breaks down the machine learning prediction into exact positive and negative feature contributions. For each enterprise account, VALENCE calculates which specific factors are driving risk up (e.g. +0.28 from open P1 tickets) or anchoring retention down (e.g. -0.14 from high contract tenure), enabling Customer Success teams to take targeted, evidence-based actions."
   },
@@ -64,7 +57,6 @@ const FAQS: FaqItem[] = [
     id: "troubleshooting-upload",
     index: "06",
     category: "troubleshooting",
-    tag: "Troubleshooting",
     question: "What should I do if my CSV columns don't auto-detect or if upload times out?",
     answer: "If your column headers have custom names, use the interactive column mapping chips in the upload modal to manually route your source fields to the target XGBoost features. If an upload times out, verify your file is under 5MB and encoded in UTF-8. You can also download our verified template with the 'Download .CSV' button in the modal to inspect the standard structure."
   }
@@ -92,14 +84,9 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
   };
 
   return (
-    <section className="w-full max-w-4xl mx-auto mt-24 mb-36 px-4 sm:px-6">
-      {/* Editorial Header - Directly on Canvas */}
-      <div className="flex flex-col items-center text-center space-y-4 pb-12">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DAF1DE]/60 border border-[#8EB69B]/40 text-[#163832] text-xs font-mono font-bold shadow-2xs">
-          <HelpCircle className="w-3.5 h-3.5 text-[#235347]" />
-          <span>Architecture & System Intelligence</span>
-        </div>
-
+    <section className="w-full max-w-4xl mx-auto mt-28 mb-40 px-4 sm:px-6">
+      {/* Editorial Header - Pure Typography, No Generic AI Badges */}
+      <div className="flex flex-col items-center text-center space-y-3 pb-12">
         <h3 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#051F20] tracking-tight">
           Frequently Asked Questions
         </h3>
@@ -147,7 +134,7 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
         ))}
       </div>
 
-      {/* Editorial Hairline Accordion List (No Bento Box, Pure Seamless Canvas) */}
+      {/* Editorial Hairline Accordion List (Zero Badges, Pure Typography) */}
       <div className="border-t border-[#051F20]/15 divide-y divide-[#051F20]/10">
         {filteredFaqs.map((faq) => {
           const isOpen = openFaqId === faq.id;
@@ -172,23 +159,16 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
                     {faq.index}
                   </span>
 
-                  <div className="space-y-1.5">
-                    {/* Category Tag */}
-                    <div className="inline-block text-[10px] font-mono uppercase tracking-widest text-[#235347] font-bold bg-[#DAF1DE]/40 px-2 py-0.5 rounded">
-                      {faq.tag}
-                    </div>
-
-                    {/* Question Title */}
-                    <div className={`text-base sm:text-lg font-serif font-bold transition-colors leading-snug ${
-                      isOpen ? "text-[#051F20]" : "text-stone-800 group-hover:text-[#051F20]"
-                    }`}>
-                      {faq.question}
-                    </div>
+                  {/* Question Title */}
+                  <div className={`text-base sm:text-lg font-serif font-bold transition-colors leading-snug ${
+                    isOpen ? "text-[#051F20]" : "text-stone-800 group-hover:text-[#051F20]"
+                  }`}>
+                    {faq.question}
                   </div>
                 </div>
 
                 {/* Kinetic [+] / [−] Trigger Button */}
-                <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300 mt-1 ${
+                <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300 mt-0.5 ${
                   isOpen 
                     ? "bg-[#051F20] text-emerald-300 border-[#051F20] rotate-180 scale-105" 
                     : "bg-white border-[#E2EAE4] text-stone-500 group-hover:border-[#8EB69B] group-hover:text-stone-800 shadow-2xs"

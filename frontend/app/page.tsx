@@ -195,9 +195,9 @@ export default function DashboardPage() {
     : false;
 
   return (
-    <div className="w-full flex flex-row items-start pb-16">
+    <div className="w-full flex flex-row items-start pb-20">
       {/* Main Dashboard Canvas - Dynamically shrinks when Copilot is open */}
-      <div className="flex-1 min-w-0 space-y-6 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)]">
+      <div className="flex-1 min-w-0 space-y-8 lg:space-y-10 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)]">
         {/* Live Telemetry Header Ribbon with Workspace Banner */}
         <LiveTelemetryHeader
           onOpenCopilot={() => {
@@ -216,20 +216,22 @@ export default function DashboardPage() {
           onOpenConnectModal={() => setIsConnectModalOpen(true)}
         />
 
-        {/* 4 Expressive Pastel Bento Metric Cards */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-36 bg-white border border-[#E2EAE4] p-5 rounded-[28px] space-y-3">
-                <SkeletonPulse className="h-3 w-28 rounded" />
-                <SkeletonPulse className="h-7 w-36 rounded" />
-                <SkeletonPulse className="h-3 w-20 rounded" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          summary && <PastelBentoMetrics summary={summary} />
-        )}
+        {/* 4 Expressive Pastel Bento Metric Cards with Dedicated Top Breathing Room */}
+        <div className="pt-2">
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-36 bg-white border border-[#E2EAE4] p-5 rounded-[28px] space-y-3">
+                  <SkeletonPulse className="h-3 w-28 rounded" />
+                  <SkeletonPulse className="h-7 w-36 rounded" />
+                  <SkeletonPulse className="h-3 w-20 rounded" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            summary && <PastelBentoMetrics summary={summary} />
+          )}
+        </div>
 
         {/* Portfolio Risk Migration Flow & Cohort Health Matrix */}
         {summary && (
