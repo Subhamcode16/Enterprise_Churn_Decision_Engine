@@ -8,6 +8,7 @@ import PastelBentoMetrics from "@/components/PastelBentoMetrics";
 import LiveTelemetryHeader from "@/components/LiveTelemetryHeader";
 import CohortMigrationMatrix from "@/components/CohortMigrationMatrix";
 import ConnectDataModal from "@/components/ConnectDataModal";
+import AddAccountModal from "@/components/AddAccountModal";
 import RiskTable from "@/components/RiskTable";
 import RadialRiskGauge from "@/components/RadialRiskGauge";
 import ForceShapVisualizer from "@/components/ForceShapVisualizer";
@@ -50,6 +51,7 @@ export default function DashboardPage() {
   const [hasConnectedData, setHasConnectedData] = useState(false);
   const [connectedSource, setConnectedSource] = useState<string | null>(null);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
 
   // Client-side instant prediction cache (0ms lag when switching accounts)
   const predictionCache = useRef<Record<string, SinglePredictionResponse>>({});
@@ -190,6 +192,31 @@ export default function DashboardPage() {
     }));
   };
 
+  const handleAccountAdded = (newAccount: AccountRecord, predictionResult?: SinglePredictionResponse) => {
+    playExecute();
+    setAccounts((prev) => [newAccount, ...prev]);
+    setSelectedAccount(newAccount);
+    if (predictionResult) {
+      predictionCache.current[newAccount.account_id] = predictionResult;
+      setPrediction(predictionResult);
+    }
+    if (summary) {
+      setSummary((prev) => {
+        if (!prev) return prev;
+        const score = newAccount.churn_probability ?? 0;
+        const isCrit = score >= 0.75;
+        const isHigh = score >= 0.5 && score < 0.75;
+        return {
+          ...prev,
+          total_accounts: prev.total_accounts + 1,
+          total_mrr_at_risk: score >= 0.5 ? prev.total_mrr_at_risk + newAccount.contract_mrr : prev.total_mrr_at_risk,
+          critical_risk_count: isCrit ? prev.critical_risk_count + 1 : prev.critical_risk_count,
+          high_risk_count: isHigh ? prev.high_risk_count + 1 : prev.high_risk_count,
+        };
+      });
+    }
+  };
+
   const isCurrentDispatched = selectedAccount 
     ? dispatchedPlaybooks[`${selectedAccount.account_id}-${currentPlaybookId}`] 
     : false;
@@ -214,6 +241,7 @@ export default function DashboardPage() {
           connectedSource={connectedSource}
           onToggleMode={handleToggleMode}
           onOpenConnectModal={() => setIsConnectModalOpen(true)}
+          onOpenAddAccountModal={() => setIsAddAccountOpen(true)}
         />
 
         {/* 4 Expressive Pastel Bento Metric Cards with Dedicated Top Breathing Room */}
@@ -570,6 +598,13 @@ export default function DashboardPage() {
         isOpen={isConnectModalOpen}
         onClose={() => setIsConnectModalOpen(false)}
         onDataConnected={handleDataConnected}
+      />
+
+      {/* Single Account Direct Scorer Modal */}
+      <AddAccountModal
+        isOpen={isAddAccountOpen}
+        onClose={() => setIsAddAccountOpen(false)}
+        onAccountAdded={handleAccountAdded}
       />
     </div>
   );

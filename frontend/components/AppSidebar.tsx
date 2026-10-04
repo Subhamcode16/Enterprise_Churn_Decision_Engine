@@ -22,9 +22,16 @@ import {
 import { useEffect, useState } from "react";
 import { getHealthStatus } from "@/lib/api";
 import { sound, playTick } from "@/lib/sound";
+import { useAuth } from "@/lib/auth";
 
-export default function AppSidebar() {
+interface AppSidebarProps {
+  onOpenProfile?: () => void;
+  onOpenAuth?: () => void;
+}
+
+export default function AppSidebar({ onOpenProfile, onOpenAuth }: AppSidebarProps = {}) {
   const pathname = usePathname();
+  const { user, isAuthenticated } = useAuth();
   const [isHealthy, setIsHealthy] = useState<boolean | null>(null);
   const [isMuted, setIsMuted] = useState(false);
 
@@ -166,19 +173,33 @@ export default function AppSidebar() {
 
       {/* User / Executive Avatar Footer */}
       <div className="pt-4 border-t border-[#E2EAE4] flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-[#0B2B26] flex items-center justify-center text-[#DAF1DE] font-bold text-xs shadow-2xs">
-            ED
+        <button
+          type="button"
+          onClick={() => {
+            playTick();
+            if (isAuthenticated) {
+              if (onOpenProfile) onOpenProfile();
+              else window.dispatchEvent(new CustomEvent("open-valence-profile"));
+            } else {
+              if (onOpenAuth) onOpenAuth();
+              else window.dispatchEvent(new CustomEvent("open-valence-auth"));
+            }
+          }}
+          className="flex items-center gap-3 text-left hover:bg-white/70 p-1.5 -ml-1.5 rounded-2xl transition-all active:scale-95 group"
+          title={isAuthenticated ? "Open Profile & Security Console" : "Sign In to Valence Live"}
+        >
+          <div className="w-9 h-9 rounded-2xl bg-[#0B2B26] flex items-center justify-center text-[#DAF1DE] font-bold text-xs shadow-2xs group-hover:scale-105 transition-transform">
+            {user?.name ? user.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() : "ED"}
           </div>
-          <div>
-            <div className="text-xs font-semibold text-[#051F20]">
-              Executive Desk
+          <div className="min-w-0">
+            <div className="text-xs font-semibold text-[#051F20] truncate group-hover:text-[#235347]">
+              {user?.name || "Executive Desk"}
             </div>
-            <div className="text-[10px] text-stone-500">
-              VP Revenue Retention
+            <div className="text-[10px] text-stone-500 font-mono truncate">
+              {isAuthenticated ? (user?.role?.toUpperCase() || "OPERATOR") : "Sign In / Vault Auth"}
             </div>
           </div>
-        </div>
+        </button>
 
         <button 
           onClick={() => {

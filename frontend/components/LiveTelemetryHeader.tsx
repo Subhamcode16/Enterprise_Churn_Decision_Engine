@@ -18,6 +18,7 @@ interface LiveTelemetryHeaderProps {
   connectedSource?: string | null;
   onToggleMode?: (mode: "demo" | "live") => void;
   onOpenConnectModal?: () => void;
+  onOpenAddAccountModal?: () => void;
 }
 
 const DATE_PRESETS = [
@@ -59,6 +60,7 @@ export default function LiveTelemetryHeader({
   connectedSource = null,
   onToggleMode,
   onOpenConnectModal,
+  onOpenAddAccountModal,
 }: LiveTelemetryHeaderProps) {
   const [latency, setLatency] = useState(12);
   const [isDateOpen, setIsDateOpen] = useState(false);
@@ -278,11 +280,15 @@ export default function LiveTelemetryHeader({
             )}
           </div>
 
-          {/* Reference Add Account / Refresh Button */}
+          {/* Single Account Direct Scorer Modal Trigger */}
           <button
             onClick={() => {
               playTick();
-              onRefresh();
+              if (onOpenAddAccountModal) {
+                onOpenAddAccountModal();
+              } else {
+                onRefresh();
+              }
             }}
             disabled={loading}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white hover:bg-[#F4F8F5] border border-[#E2EAE4] text-[#051F20] text-xs font-bold shadow-2xs transition-all active:scale-95"

@@ -3,7 +3,7 @@ VALENCE Authentication Endpoints
 Operator & Executive registration, JWT login, and session validation.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
