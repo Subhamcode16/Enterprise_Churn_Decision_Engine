@@ -2,7 +2,6 @@ import "./globals.css";
 import type { Metadata } from "next";
 import AppSidebar from "@/components/AppSidebar";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
-import FloatingDecisionCopilot from "@/components/FloatingDecisionCopilot";
 
 export const metadata: Metadata = {
   title: "VALENCE AI • Enterprise Churn & Revenue Decision Engine",
@@ -24,20 +23,17 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-[#F6F4EE] text-stone-900 antialiased selection:bg-amber-400 selection:text-stone-950 font-sans">
+      <body className="min-h-screen bg-[#F4F8F5] text-[#051F20] antialiased selection:bg-[#DAF1DE] selection:text-[#051F20] font-sans">
         <SmoothScrollProvider>
-          <div className="min-h-screen flex flex-row">
-            {/* Iconic Dark Charcoal Sidebar */}
+          <div className="min-h-screen flex flex-row bg-[#F4F8F5]">
+            {/* Unified Vertical Sidebar */}
             <AppSidebar />
 
             {/* Main Studio Canvas */}
-            <main className="flex-1 min-w-0 bg-[#F6F4EE] p-6 lg:p-8 xl:p-10 overflow-y-auto">
+            <main className="flex-1 min-w-0 bg-[#F4F8F5] p-5 lg:p-6 xl:p-8 overflow-y-auto">
               {children}
             </main>
           </div>
-
-          {/* Global Floating AI Decision Copilot */}
-          <FloatingDecisionCopilot />
         </SmoothScrollProvider>
       </body>
     </html>

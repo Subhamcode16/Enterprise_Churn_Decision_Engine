@@ -210,3 +210,71 @@ export async function uploadBatchCsv(file: File): Promise<BatchResponse> {
 
   return response.json();
 }
+
+export async function chatWithCopilot(
+  query: string,
+  account: Partial<AccountRecord> | null,
+  playbooks: Playbook[] = [],
+  history: { sender: string; text: string }[] = []
+): Promise<{ text: string; card?: any; source?: string }> {
+  try {
+    return await fetchWithAuth("/api/copilot/chat", {
+      method: "POST",
+      body: JSON.stringify({
+        query,
+        account_id: account?.account_id,
+        account_data: account,
+        playbooks,
+        history,
+      }),
+    });
+  } catch (err) {
+    console.warn("Copilot backend API unreachable, using calibrated local Jev decision engine:", err);
+    throw err;
+  }
+}
+
+export async function getWorkspaceStatus() {
+  try {
+    return await fetchWithAuth("/api/v1/workspace/status");
+  } catch (err) {
+    return { has_connected_data: false, mode: "demo", source: null, connected_accounts_count: 0 };
+  }
+}
+
+export async function setWorkspaceMode(mode: "demo" | "live") {
+  return await fetchWithAuth("/api/v1/workspace/mode", {
+    method: "POST",
+    body: JSON.stringify({ mode }),
+  });
+}
+
+export async function importWorkspaceData(file?: File, connector?: "stripe" | "salesforce") {
+  const url = `${API_BASE_URL}/api/v1/workspace/import${connector ? `?connector=${connector}` : ""}`;
+  const formData = new FormData();
+  if (file) {
+    formData.append("file", file);
+  }
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "X-API-Key": API_SECRET_KEY,
+    },
+    body: file ? formData : undefined,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || "Failed to import company data.");
+  }
+
+  return response.json();
+}
+
+export async function resetDemoWorkspace() {
+  return await fetchWithAuth("/api/v1/workspace/reset-demo", {
+    method: "POST",
+  });
+}
+

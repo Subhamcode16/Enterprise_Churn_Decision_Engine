@@ -10,10 +10,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        canvas: "#F6F4EE",
+        canvas: "#F4F8F5",
         card: "#FFFFFF",
-        cardBorder: "#E8E5DD",
-        sidebar: "#141312",
+        cardBorder: "#E2EAE4",
+        sidebar: "#0B2B26",
+        forest: {
+          950: "#051F20", // Deep obsidian pine (headers)
+          900: "#0B2B26", // Dark emerald teal (sidebar & dark elements)
+          800: "#163832", // Deep sage evergreen
+          700: "#235347", // Pine forest accent (primary hero green)
+          400: "#8EB69B", // Soft mint sage (bars, accents)
+          100: "#DAF1DE", // Crisp pale mint foam (badges, specular)
+          50: "#F4F8F5",  // Ultra-clean canvas
+        },
         bento: {
           canary: "#FFF7D1",
           canaryBorder: "#FFE885",

@@ -144,3 +144,55 @@ class RenewalBriefResponse(BaseModel):
     recommended_mitigation_plan: List[str]
     brief_markdown: str
     generated_at: str
+
+class CopilotCardMetric(BaseModel):
+    label: str
+    value: str
+    color: Optional[str] = None
+
+class CopilotCardAction(BaseModel):
+    label: str
+    actionId: str
+    variant: Optional[str] = "primary"
+
+class CopilotCard(BaseModel):
+    type: str
+    title: str
+    metrics: Optional[List[CopilotCardMetric]] = None
+    actions: Optional[List[CopilotCardAction]] = None
+
+class CopilotChatMessage(BaseModel):
+    sender: str
+    text: str
+
+class CopilotChatRequest(BaseModel):
+    query: str
+    account_id: Optional[str] = None
+    account_data: Optional[Dict[str, Any]] = None
+    playbooks: Optional[List[Dict[str, Any]]] = None
+    history: Optional[List[CopilotChatMessage]] = None
+
+class CopilotChatResponse(BaseModel):
+    text: str
+    card: Optional[CopilotCard] = None
+    confidence_score: Optional[float] = 0.96
+    source: str
+    generated_at: str
+
+class WorkspaceStatusResponse(BaseModel):
+    has_connected_data: bool
+    mode: str
+    source: Optional[str] = None
+    connected_accounts_count: int
+
+class WorkspaceModeInput(BaseModel):
+    mode: str
+
+class ConnectDataImportResponse(BaseModel):
+    success: bool
+    mode: str
+    source: str
+    accounts_imported: int
+    summary: Dict[str, Any]
+    accounts: List[Dict[str, Any]]
+

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import { 
   Activity, 
   BarChart3, 
@@ -44,10 +45,11 @@ export default function AppSidebar() {
     { name: "What-If Simulator", href: "/simulator", icon: Sliders },
     { name: "Batch Processor", href: "/batch", icon: UploadCloud },
     { name: "Playbooks Catalog", href: "/playbooks", icon: BookOpen },
+    { name: "Integrations & Settings", href: "/settings", icon: Settings, badge: "Hub" },
   ];
 
   return (
-    <aside className="w-64 bg-[#141312] text-stone-200 shrink-0 min-h-screen flex flex-col justify-between p-5 border-r border-[#262422] select-none">
+    <aside className="w-64 bg-[#F4F8F5] text-[#051F20] shrink-0 min-h-screen flex flex-col justify-between p-5 border-r border-[#E2EAE4] select-none">
       <div className="space-y-7">
         {/* Brandmark / Logo */}
         <Link 
@@ -55,16 +57,16 @@ export default function AppSidebar() {
           onClick={() => sound.playClick(600)}
           className="flex items-center gap-3 px-2 group"
         >
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 flex items-center justify-center text-stone-950 shadow-glowGold group-hover:scale-105 transition-transform">
-            <Activity className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#235347] via-[#163832] to-[#0B2B26] flex items-center justify-center text-[#DAF1DE] shadow-sm group-hover:scale-105 transition-transform">
+            <Activity className="w-5 h-5 text-[#DAF1DE]" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-base tracking-tight text-[#FAF8F5]">
-                VALENCE <span className="text-amber-400">AI</span>
+              <span className="font-extrabold text-base tracking-tight text-[#051F20]">
+                VALENCE <span className="text-[#235347]">AI</span>
               </span>
             </div>
-            <span className="text-[10px] text-stone-400 font-medium tracking-wide">
+            <span className="text-[10px] text-stone-500 font-medium tracking-wide">
               Enterprise Decision Engine
             </span>
           </div>
@@ -72,7 +74,7 @@ export default function AppSidebar() {
 
         {/* General Navigation Section */}
         <div className="space-y-1.5">
-          <div className="px-3 text-[10px] font-mono uppercase tracking-widest text-stone-500 font-semibold mb-2">
+          <div className="px-3 text-[10px] font-mono uppercase tracking-widest text-stone-400 font-semibold mb-2">
             Intelligence Suite
           </div>
 
@@ -86,18 +88,29 @@ export default function AppSidebar() {
                   href={item.href}
                   prefetch={true}
                   onClick={() => sound.playClick(750)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 ${
+                  className={`relative flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-medium transition-colors duration-150 ${
                     isActive
-                      ? "bg-[#2A2825] text-[#FAF8F5] shadow-sm font-semibold border border-[#3A3733]"
-                      : "text-stone-400 hover:text-stone-200 hover:bg-[#1E1D1B]"
+                      ? "text-[#051F20] font-bold"
+                      : "text-stone-600 hover:text-[#051F20] hover:bg-white/60"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-amber-400" : "text-stone-400"}`} />
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNavLiquidGlass"
+                      className="absolute inset-0 liquid-glass-active z-0"
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                  <div className="relative z-10 flex items-center gap-3">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-[#235347]" : "text-stone-400"}`} />
                     <span>{item.name}</span>
                   </div>
                   {item.badge && (
-                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    <span className={`relative z-10 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                      isActive 
+                        ? "bg-[#235347] text-white shadow-2xs" 
+                        : "bg-white text-stone-600 border border-[#E2EAE4]"
+                    }`}>
                       {item.badge}
                     </span>
                   )}
@@ -109,25 +122,25 @@ export default function AppSidebar() {
 
         {/* System & Telemetry Controls */}
         <div className="space-y-1.5">
-          <div className="px-3 text-[10px] font-mono uppercase tracking-widest text-stone-500 font-semibold mb-2">
+          <div className="px-3 text-[10px] font-mono uppercase tracking-widest text-stone-400 font-semibold mb-2">
             Decision Engine
           </div>
 
-          {/* Model Status Tile */}
-          <div className="mx-1 p-3 rounded-xl bg-[#1C1B19] border border-[#2B2926] space-y-2">
+          {/* Model Status Tile with Frosted Glass Texture */}
+          <div className="mx-1 p-3.5 rounded-2xl bg-white/90 backdrop-blur-md border border-[#E2EAE4] space-y-2 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono text-stone-400">ML Calibrated</span>
+              <span className="text-[10px] font-mono font-medium text-stone-500">ML Calibrated</span>
               <span
                 className={`w-2 h-2 rounded-full ${
                   isHealthy === true
-                    ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"
+                    ? "bg-[#235347] shadow-[0_0_8px_rgba(35,83,71,0.6)]"
                     : isHealthy === false
-                    ? "bg-amber-400"
-                    : "bg-amber-400 animate-ping"
+                    ? "bg-amber-500"
+                    : "bg-[#235347] animate-ping"
                 }`}
               />
             </div>
-            <div className="text-[11px] font-mono text-stone-200 font-bold">
+            <div className="text-[11px] font-mono text-[#051F20] font-bold">
               {isHealthy === true ? "XGBoost + SHAP Live" : "Local Cache Active"}
             </div>
             <div className="text-[10px] text-stone-500 font-sans">
@@ -138,10 +151,10 @@ export default function AppSidebar() {
           {/* Audio Synthesizer Toggle */}
           <button
             onClick={toggleSound}
-            className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs text-stone-400 hover:text-stone-200 hover:bg-[#1E1D1B] transition-colors"
+            className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs text-stone-600 hover:text-[#051F20] hover:bg-white/60 transition-colors"
           >
             <div className="flex items-center gap-3">
-              {isMuted ? <VolumeX className="w-4 h-4 text-stone-500" /> : <Volume2 className="w-4 h-4 text-amber-400" />}
+              {isMuted ? <VolumeX className="w-4 h-4 text-stone-400" /> : <Volume2 className="w-4 h-4 text-[#235347]" />}
               <span>Tactile UI Audio</span>
             </div>
             <span className="text-[10px] font-mono font-bold text-stone-500">
@@ -152,16 +165,16 @@ export default function AppSidebar() {
       </div>
 
       {/* User / Executive Avatar Footer */}
-      <div className="pt-4 border-t border-[#262422] flex items-center justify-between">
+      <div className="pt-4 border-t border-[#E2EAE4] flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-stone-700 to-stone-600 flex items-center justify-center text-[#FAF8F5] font-bold text-xs shadow-inner">
+          <div className="w-9 h-9 rounded-2xl bg-[#0B2B26] flex items-center justify-center text-[#DAF1DE] font-bold text-xs shadow-2xs">
             ED
           </div>
           <div>
-            <div className="text-xs font-semibold text-[#FAF8F5]">
+            <div className="text-xs font-semibold text-[#051F20]">
               Executive Desk
             </div>
-            <div className="text-[10px] text-stone-400">
+            <div className="text-[10px] text-stone-500">
               VP Revenue Retention
             </div>
           </div>
@@ -174,7 +187,7 @@ export default function AppSidebar() {
             window.dispatchEvent(new CustomEvent("toggle-churniq-copilot"));
           }}
           title="Open AI Decision Copilot"
-          className="p-2 rounded-lg bg-[#22201E] hover:bg-[#2A2825] text-amber-400 transition-colors"
+          className="p-2 rounded-xl bg-white hover:bg-[#DAF1DE] border border-[#E2EAE4] text-[#235347] transition-all shadow-2xs active:scale-95 cursor-pointer"
         >
           <Bot className="w-4 h-4" />
         </button>

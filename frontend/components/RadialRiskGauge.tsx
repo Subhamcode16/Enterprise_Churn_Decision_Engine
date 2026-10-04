@@ -25,28 +25,28 @@ export default function RadialRiskGauge({
     switch (riskTier) {
       case "Critical":
         return {
-          glow: "rgba(239, 68, 68, 0.25)",
-          text: "text-rose-600 font-bold",
-          gradient: "from-red-500 to-rose-600",
+          glow: "rgba(190, 18, 60, 0.2)",
+          text: "text-rose-700 font-bold",
+          gradient: "from-red-500 to-rose-700",
         };
       case "High":
         return {
-          glow: "rgba(249, 115, 22, 0.25)",
-          text: "text-amber-700 font-bold",
-          gradient: "from-orange-500 to-amber-600",
+          glow: "rgba(140, 58, 39, 0.2)",
+          text: "text-[#8C3A27] font-bold",
+          gradient: "from-orange-500 to-[#8C3A27]",
         };
       case "Medium":
         return {
-          glow: "rgba(245, 158, 11, 0.25)",
-          text: "text-stone-700 font-bold",
-          gradient: "from-amber-500 to-yellow-500",
+          glow: "rgba(35, 83, 71, 0.2)",
+          text: "text-[#235347] font-bold",
+          gradient: "from-[#8EB69B] to-[#235347]",
         };
       case "Low":
       default:
         return {
-          glow: "rgba(16, 185, 129, 0.25)",
-          text: "text-emerald-700 font-bold",
-          gradient: "from-emerald-400 to-teal-500",
+          glow: "rgba(35, 83, 71, 0.25)",
+          text: "text-[#235347] font-bold",
+          gradient: "from-[#DAF1DE] to-[#235347]",
         };
     }
   }, [riskTier]);
@@ -61,10 +61,10 @@ export default function RadialRiskGauge({
       >
         <defs>
           <linearGradient id="editorialGaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#10B981" />
-            <stop offset="40%" stopColor="#F59E0B" />
-            <stop offset="70%" stopColor="#F97316" />
-            <stop offset="100%" stopColor="#EF4444" />
+            <stop offset="0%" stopColor="#8EB69B" />
+            <stop offset="40%" stopColor="#235347" />
+            <stop offset="72%" stopColor="#D97706" />
+            <stop offset="100%" stopColor="#BE123C" />
           </linearGradient>
         </defs>
 
@@ -72,7 +72,7 @@ export default function RadialRiskGauge({
         <path
           d={`M ${strokeWidth / 2} ${size / 2} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${size / 2}`}
           fill="none"
-          stroke="#E8E5DD"
+          stroke="#E2EAE4"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
         />
@@ -99,7 +99,7 @@ export default function RadialRiskGauge({
               cx={cx}
               cy={cy}
               r={5.5}
-              fill="#141312"
+              fill="#051F20"
               stroke="#FFFFFF"
               strokeWidth={2}
               className="drop-shadow-md transition-all duration-700 cubic-bezier(0.22, 1, 0.36, 1)"
@@ -110,7 +110,7 @@ export default function RadialRiskGauge({
 
       {/* Probability Readout (High-Contrast Bold Dark Numbers with Animated Counter) */}
       <div className="absolute top-[36%] flex flex-col items-center">
-        <span className="text-3xl font-mono font-bold text-stone-900 tracking-tighter">
+        <span className="text-3xl font-mono font-bold text-[#051F20] tracking-tighter">
           <AnimatedCounter value={clampedProb * 100} decimals={1} suffix="%" duration={700} />
         </span>
         <span className={`text-[10px] uppercase font-mono tracking-wider ${colorConfig.text}`}>

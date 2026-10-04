@@ -169,3 +169,37 @@ def test_export_renewal_brief():
         assert data["risk_delta"] > 0
         assert "brief_markdown" in data
         assert len(data["recommended_mitigation_plan"]) >= 1
+
+def test_workspace_lifecycle():
+    with TestClient(app) as client:
+        # 1. Check default status
+        status_res = client.get("/api/v1/workspace/status")
+        assert status_res.status_code == 200
+        status_data = status_res.json()
+        assert "mode" in status_data
+
+        # 2. Test connector simulation import (Stripe)
+        import_res = client.post("/api/v1/workspace/import", data={"source": "stripe"})
+        assert import_res.status_code == 200
+        import_data = import_res.json()
+        assert import_data["success"] is True
+        assert import_data["mode"] == "live"
+        assert import_data["accounts_imported"] > 0
+        assert len(import_data["accounts"]) > 0
+
+        # 3. Verify accounts/demo now serves live accounts
+        demo_res = client.get("/api/v1/accounts/demo")
+        assert demo_res.status_code == 200
+        assert len(demo_res.json()["accounts"]) == import_data["accounts_imported"]
+
+        # 4. Toggle back to demo
+        mode_res = client.post("/api/v1/workspace/mode", json={"mode": "demo"})
+        assert mode_res.status_code == 200
+        assert mode_res.json()["mode"] == "demo"
+
+        # 5. Reset demo
+        reset_res = client.post("/api/v1/workspace/reset-demo")
+        assert reset_res.status_code == 200
+        assert reset_res.json()["mode"] == "demo"
+        assert reset_res.json()["has_connected_data"] is False
+
