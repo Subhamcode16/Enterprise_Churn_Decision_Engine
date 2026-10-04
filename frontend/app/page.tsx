@@ -509,11 +509,11 @@ export default function DashboardPage() {
                 setIsCopilotOpen(true);
               }}
             />
-
-            {/* Interactive Knowledge Base FAQ Section */}
-            <FaqSection onOpenConnectModal={() => setIsConnectModalOpen(true)} />
           </div>
         </div>
+
+        {/* Full-Width Centered Knowledge Base FAQ Section */}
+        <FaqSection onOpenConnectModal={() => setIsConnectModalOpen(true)} />
       </div>
 
       {/* Fluid Spring Slide-Over Decision Copilot */}

@@ -4,14 +4,7 @@ import { useState } from "react";
 import { 
   HelpCircle, 
   ChevronDown, 
-  ChevronUp, 
   Sparkles, 
-  FileSpreadsheet, 
-  ShieldCheck, 
-  Activity, 
-  Zap, 
-  AlertCircle,
-  Lock,
   ArrowRight
 } from "lucide-react";
 import { playTick } from "@/lib/sound";
@@ -91,114 +84,118 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
   };
 
   return (
-    <div className="w-full mt-10 mb-8 rounded-[32px] bg-white border border-[#E2EAE4] p-6 sm:p-9 shadow-[0_16px_48px_-12px_rgba(5,31,32,0.06)] relative overflow-hidden">
-      {/* Subtle Background Glow */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#DAF1DE]/30 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+    <section className="w-full max-w-5xl mx-auto mt-20 mb-28 px-4 sm:px-6">
+      <div className="rounded-[32px] bg-white border border-[#E2EAE4] p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(5,31,32,0.07)] relative overflow-hidden">
+        {/* Subtle Ambient Radial Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-b from-[#DAF1DE]/40 via-emerald-50/20 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-      {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-[#F0F4F1] relative z-10">
-        <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-mono font-bold shadow-2xs">
+        {/* Center-Aligned Header */}
+        <div className="flex flex-col items-center text-center space-y-3 pb-8 border-b border-[#F0F4F1] relative z-10">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-mono font-bold shadow-2xs">
             <HelpCircle className="w-3.5 h-3.5 text-emerald-600" />
             <span>Knowledge Base & Architecture FAQ</span>
           </div>
-          <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#051F20] tracking-tight">
+
+          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-[#051F20] tracking-tight">
             Frequently Asked Questions
           </h3>
-          <p className="text-xs sm:text-sm text-stone-500 max-w-xl">
+
+          <p className="text-xs sm:text-sm text-stone-500 max-w-xl leading-relaxed">
             Everything you need to know about the VALENCE autonomous churn prediction engine, TreeSHAP explainability, and secure enterprise telemetry ingestion.
           </p>
-        </div>
 
-        {onOpenConnectModal && (
-          <button
-            type="button"
-            onClick={() => {
-              playTick();
-              onOpenConnectModal();
-            }}
-            className="px-4 py-2.5 rounded-full bg-[#051F20] hover:bg-[#0B2B26] text-white text-xs font-bold font-sans flex items-center justify-center gap-2 shadow-xs hover:shadow-sm transition-all active:scale-95 cursor-pointer shrink-0"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Launch Ingestion Modal</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        )}
-      </div>
-
-      {/* Filter Category Pills */}
-      <div className="flex flex-wrap gap-2 pt-6 pb-6 relative z-10">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            onClick={() => {
-              playTick();
-              setActiveCategory(cat.id);
-            }}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all duration-200 cursor-pointer ${
-              activeCategory === cat.id
-                ? "bg-[#051F20] text-white font-bold shadow-xs"
-                : "bg-[#F4F8F5] text-stone-600 hover:text-stone-900 border border-[#E2EAE4] hover:bg-stone-100"
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Collapsible Bento Accordion List */}
-      <div className="space-y-3 relative z-10">
-        {filteredFaqs.map((faq) => {
-          const isOpen = openFaqId === faq.id;
-
-          return (
-            <div
-              key={faq.id}
-              className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
-                isOpen
-                  ? "bg-gradient-to-b from-[#F4F8F5]/80 via-white to-white border-[#8EB69B]/80 shadow-2xs"
-                  : "bg-white border-[#E2EAE4] hover:border-[#8EB69B]/50 hover:bg-[#F4F8F5]/40"
-              }`}
-            >
+          {onOpenConnectModal && (
+            <div className="pt-2">
               <button
                 type="button"
-                onClick={() => toggleFaq(faq.id)}
-                className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer select-none"
+                onClick={() => {
+                  playTick();
+                  onOpenConnectModal();
+                }}
+                className="px-5 py-2.5 rounded-full bg-[#051F20] hover:bg-[#0B2B26] text-white text-xs font-bold font-sans flex items-center justify-center gap-2 shadow-xs hover:shadow-sm transition-all active:scale-95 cursor-pointer"
               >
-                <div className="flex items-center gap-3">
-                  <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 ${
-                    isOpen 
-                      ? "bg-[#051F20] text-emerald-300" 
-                      : "bg-stone-100 text-stone-500"
-                  }`}>
-                    {faq.tag}
-                  </span>
-                  <span className={`text-sm sm:text-base font-sans font-bold transition-colors ${
-                    isOpen ? "text-[#051F20]" : "text-stone-800"
-                  }`}>
-                    {faq.question}
-                  </span>
-                </div>
-
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 ${
-                  isOpen ? "bg-[#DAF1DE] text-[#051F20] rotate-180" : "bg-stone-100 text-stone-400"
-                }`}>
-                  <ChevronDown className="w-4 h-4" />
-                </div>
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Launch Data Connection Modal</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
-
-              {isOpen && (
-                <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-stone-600 leading-relaxed font-sans border-t border-[#F0F4F1] animate-in fade-in duration-200">
-                  <p className="max-w-3xl pt-2">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
             </div>
-          );
-        })}
+          )}
+        </div>
+
+        {/* Center-Aligned Filter Category Pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-6 pb-6 relative z-10">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => {
+                playTick();
+                setActiveCategory(cat.id);
+              }}
+              className={`px-4 py-1.5 rounded-full text-xs font-mono transition-all duration-200 cursor-pointer ${
+                activeCategory === cat.id
+                  ? "bg-[#051F20] text-white font-bold shadow-xs"
+                  : "bg-[#F4F8F5] text-stone-600 hover:text-stone-900 border border-[#E2EAE4] hover:bg-stone-100"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Wide Center Collapsible Bento Accordions */}
+        <div className="space-y-3 relative z-10 max-w-4xl mx-auto">
+          {filteredFaqs.map((faq) => {
+            const isOpen = openFaqId === faq.id;
+
+            return (
+              <div
+                key={faq.id}
+                className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                  isOpen
+                    ? "bg-gradient-to-b from-[#F4F8F5]/80 via-white to-white border-[#8EB69B]/80 shadow-2xs"
+                    : "bg-white border-[#E2EAE4] hover:border-[#8EB69B]/50 hover:bg-[#F4F8F5]/40"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleFaq(faq.id)}
+                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer select-none"
+                >
+                  <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider shrink-0 ${
+                      isOpen 
+                        ? "bg-[#051F20] text-emerald-300" 
+                        : "bg-stone-100 text-stone-500"
+                    }`}>
+                      {faq.tag}
+                    </span>
+                    <span className={`text-sm sm:text-base font-sans font-bold transition-colors ${
+                      isOpen ? "text-[#051F20]" : "text-stone-800"
+                    }`}>
+                      {faq.question}
+                    </span>
+                  </div>
+
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 ${
+                    isOpen ? "bg-[#DAF1DE] text-[#051F20] rotate-180" : "bg-stone-100 text-stone-400"
+                  }`}>
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </button>
+
+                {isOpen && (
+                  <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-stone-600 leading-relaxed font-sans border-t border-[#F0F4F1] animate-in fade-in duration-200">
+                    <p className="pt-2">
+                      {faq.answer}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
