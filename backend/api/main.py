@@ -178,6 +178,11 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
 
+# Include Modular API Routers
+from api.auth_routes import router as auth_router
+app.include_router(auth_router)
+
+
 # Maximum upload limits for DoS mitigation
 MAX_BATCH_UPLOAD_BYTES = 5 * 1024 * 1024  # 5 Megabytes
 MAX_BATCH_CSV_ROWS = 10_000
