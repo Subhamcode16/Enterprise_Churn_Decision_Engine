@@ -93,18 +93,18 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
   };
 
   return (
-    <section className="w-full max-w-6xl mx-auto mt-40 sm:mt-48 mb-48 px-4 sm:px-6 font-sans">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+    <section className="w-full mt-40 sm:mt-48 mb-48 px-1 sm:px-2 font-sans">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start w-full">
         
         {/* ============================================================== */}
-        {/* LEFT COLUMN: Sticky Editorial Headline, Search & Categories    */}
+        {/* LEFT COLUMN (4 Cols): Sticky Editorial Title, Search & Filters */}
         {/* ============================================================== */}
-        <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-7">
+        <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-7">
           <div className="space-y-3">
             <h3 className="text-4xl sm:text-5xl font-serif font-bold text-[#051F20] tracking-tight leading-[1.1]">
               Frequently Asked Questions
             </h3>
-            <p className="text-xs sm:text-sm text-stone-500 leading-relaxed max-w-sm">
+            <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">
               Deep-dive into the retention engine, TreeSHAP attribution formulas, and multi-tenant security architecture.
             </p>
           </div>
@@ -132,7 +132,7 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
           </div>
 
           {/* Category Filter Switchers */}
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <div className="text-[10px] font-mono text-stone-400 uppercase tracking-wider font-semibold">
               Filter By Topic
             </div>
@@ -187,9 +187,9 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
         </div>
 
         {/* ============================================================== */}
-        {/* RIGHT COLUMN: Interactive Hairline Accordion Flow              */}
+        {/* RIGHT COLUMN (8 Cols): Full-Width Hairline Accordion Flow     */}
         {/* ============================================================== */}
-        <div className="lg:col-span-7 border-t border-[#051F20]/15 divide-y divide-[#051F20]/10">
+        <div className="lg:col-span-8 border-t border-[#051F20]/15 divide-y divide-[#051F20]/10 w-full">
           {filteredFaqs.length === 0 ? (
             <div className="py-12 text-center text-xs font-mono text-stone-400 space-y-2">
               <p>No questions matched your search &quot;{searchQuery}&quot;.</p>
@@ -210,20 +210,20 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
               return (
                 <div
                   key={faq.id}
-                  className={`group transition-all duration-200 ${
+                  className={`group transition-all duration-200 w-full ${
                     isOpen 
-                      ? "border-l-2 border-[#235347] bg-[#F4F8F5]/40 pl-3 sm:pl-4" 
-                      : "border-l-2 border-transparent hover:bg-white/40 pl-3 sm:pl-4"
+                      ? "border-l-2 border-[#235347] bg-[#F4F8F5]/40 pl-3 sm:pl-5" 
+                      : "border-l-2 border-transparent hover:bg-white/40 pl-3 sm:pl-5"
                   }`}
                 >
                   <button
                     type="button"
                     onClick={() => toggleFaq(faq.id)}
-                    className="w-full py-5 pr-2 sm:pr-4 text-left flex items-start justify-between gap-4 cursor-pointer select-none"
+                    className="w-full py-5 pr-2 sm:pr-4 text-left flex items-start justify-between gap-6 cursor-pointer select-none"
                   >
-                    <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="flex items-start gap-4 sm:gap-6 flex-1">
                       {/* Large Editorial Index Numeral */}
-                      <span className={`text-base font-serif font-bold transition-colors pt-0.5 ${
+                      <span className={`text-base font-serif font-bold transition-colors pt-0.5 shrink-0 ${
                         isOpen ? "text-[#235347]" : "text-stone-400 group-hover:text-stone-700"
                       }`}>
                         {faq.index}
@@ -276,10 +276,10 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
                             opacity: { duration: 0.12 }
                           }
                         }}
-                        className="overflow-hidden"
+                        className="overflow-hidden w-full"
                       >
-                        <div className="pl-7 sm:pl-8 pb-6 pr-4 sm:pr-8 text-xs sm:text-sm text-stone-600 leading-relaxed font-sans">
-                          <p className="max-w-xl text-stone-700">
+                        <div className="pl-8 sm:pl-10 pb-6 pr-4 sm:pr-10 text-xs sm:text-sm text-stone-600 leading-relaxed font-sans">
+                          <p className="max-w-3xl text-stone-700">
                             {faq.answer}
                           </p>
                         </div>
