@@ -2,7 +2,21 @@
 
 import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import { Eye, EyeOff, ShieldCheck, Sparkles, X, ArrowRight, Lock, CheckCircle2, AlertCircle } from "lucide-react";
+import { 
+  Eye, 
+  EyeOff, 
+  ShieldCheck, 
+  Sparkles, 
+  X, 
+  ArrowRight, 
+  Lock, 
+  CheckCircle2, 
+  AlertCircle,
+  Zap,
+  TrendingDown,
+  Activity,
+  Check
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { setStoredAuth, AuthUser } from "@/lib/auth";
 import { playTick, playExecute, playBlip } from "@/lib/sound";
@@ -25,7 +39,7 @@ interface AuthSectionThreeProps {
 export default function AuthSectionThree({
   onSuccess,
   onClose,
-  initialMode = "register",
+  initialMode = "login",
   isModal = false,
 }: AuthSectionThreeProps) {
   const [mode, setMode] = useState<"login" | "register">(initialMode);
@@ -40,6 +54,20 @@ export default function AuthSectionThree({
   const [role, setRole] = useState<"admin" | "operator" | "executive">("executive");
   const [noMarketingEmails, setNoMarketingEmails] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(true);
+
+  const handleQuickDemoFill = (targetRole: "executive" | "operator") => {
+    playTick();
+    setMode("login");
+    if (targetRole === "executive") {
+      setEmail("director.retention@valence-enterprise.ai");
+      setPassword("ValenceSecure2026!");
+      setRole("executive");
+    } else {
+      setEmail("lead.operator@valence-enterprise.ai");
+      setPassword("ValenceSecure2026!");
+      setRole("operator");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,31 +163,45 @@ export default function AuthSectionThree({
       <div className={`grid min-h-[calc(100vh-1.5rem)] gap-6 lg:grid-cols-[0.94fr_1.06fr] ${isModal ? "min-h-0 h-full" : ""}`}>
         
         {/* Left Side - Auth Form */}
-        <div className="relative flex min-h-[760px] items-center justify-center rounded-2xl border border-[#E2EAE4] bg-white px-6 py-10 shadow-xs dark:border-white/5 dark:bg-[#0a0a0c] lg:min-h-0 lg:px-12 lg:py-16 xl:px-16">
+        <div className="relative flex min-h-[760px] items-center justify-center rounded-2xl border border-[#E2EAE4] bg-white px-6 py-8 shadow-xs dark:border-white/5 dark:bg-[#0a0a0c] lg:min-h-0 lg:px-12 lg:py-12 xl:px-16">
           
           {/* Modal Dismiss Button */}
           {onClose && (
             <button
               type="button"
               onClick={() => { playTick(); onClose(); }}
-              className="absolute top-6 right-6 p-2 rounded-full bg-[#F4F8F5] hover:bg-[#E2EAE4] text-stone-500 hover:text-[#051F20] transition-colors active:scale-95 z-20 cursor-pointer"
+              className="absolute top-5 right-5 p-2 rounded-full bg-[#F4F8F5] hover:bg-[#E2EAE4] text-stone-500 hover:text-[#051F20] transition-colors active:scale-95 z-20 cursor-pointer"
               title="Close Authentication"
             >
               <X className="w-5 h-5" />
             </button>
           )}
 
-          <div className="mx-auto w-full max-w-[460px]">
+          <div className="mx-auto w-full max-w-[460px] py-4">
             {/* Header & Mode Switcher */}
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#DAF1DE]/70 text-[#0B2B26] text-[11px] font-mono font-bold tracking-wide mb-3 border border-[#235347]/15">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#235347]" />
-                <span>VALENCE • SOC-2 TYPE II VAULT</span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DAF1DE]/70 text-[#0B2B26] text-[10px] font-mono font-bold tracking-wide border border-[#235347]/15">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#235347]" />
+                  <span>VALENCE • SOC-2 TYPE II VAULT</span>
+                </div>
+
+                {/* Quick Demo Helper Trigger */}
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemoFill("executive")}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#235347] text-[10px] font-mono font-bold border border-emerald-200/60 transition-all active:scale-95 cursor-pointer"
+                  title="Auto-fill verified demo credentials"
+                >
+                  <Zap className="w-3 h-3 text-emerald-600" />
+                  <span>Demo Fill</span>
+                </button>
               </div>
+
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-[#051F20] dark:text-white">
                 {mode === "register" ? "Create an account" : "Sign in to Workspace"}
               </h1>
-              <p className="mt-2 text-xs text-stone-500 font-sans">
+              <p className="mt-1.5 text-xs text-stone-500 font-sans leading-relaxed">
                 {mode === "register" 
                   ? "Initialize dedicated ML telemetry vault and TreeSHAP retention engine." 
                   : "Access calibrated XGBoost models, live playbooks, and renewal briefs."}
@@ -167,37 +209,37 @@ export default function AuthSectionThree({
             </div>
 
             {/* Mode Switcher Tabs */}
-            <div className="mt-6 flex p-1 rounded-xl bg-[#F4F8F5] border border-[#E2EAE4]">
-              <button
-                type="button"
-                onClick={() => { playTick(); setMode("register"); setError(null); }}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
-                  mode === "register"
-                    ? "bg-white text-[#051F20] shadow-2xs"
-                    : "text-stone-500 hover:text-[#051F20]"
-                }`}
-              >
-                Create Account
-              </button>
+            <div className="mt-5 flex p-1 rounded-xl bg-[#F4F8F5] border border-[#E2EAE4]">
               <button
                 type="button"
                 onClick={() => { playTick(); setMode("login"); setError(null); }}
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
                   mode === "login"
-                    ? "bg-white text-[#051F20] shadow-2xs"
+                    ? "bg-white text-[#051F20] shadow-2xs font-semibold"
                     : "text-stone-500 hover:text-[#051F20]"
                 }`}
               >
                 Sign In
               </button>
+              <button
+                type="button"
+                onClick={() => { playTick(); setMode("register"); setError(null); }}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                  mode === "register"
+                    ? "bg-white text-[#051F20] shadow-2xs font-semibold"
+                    : "text-stone-500 hover:text-[#051F20]"
+                }`}
+              >
+                Create Account
+              </button>
             </div>
 
             {/* Social Signup Buttons */}
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 sm:gap-4">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 sm:gap-4">
               <button
                 type="button"
                 onClick={() => { playTick(); setEmail("google.sso@enterprise.com"); }}
-                className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-xs font-semibold text-[#051F20] transition-colors hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 active:scale-98 cursor-pointer"
+                className="flex h-10 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-xs font-semibold text-[#051F20] transition-colors hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 active:scale-98 cursor-pointer"
               >
                 <GoogleIcon />
                 <span className="whitespace-nowrap">{mode === "register" ? "Sign up with Google" : "Google SSO"}</span>
@@ -205,14 +247,14 @@ export default function AuthSectionThree({
               <button
                 type="button"
                 onClick={() => { playTick(); setEmail("apple.sso@enterprise.com"); }}
-                className="flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-xs font-semibold text-[#051F20] transition-colors hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 active:scale-98 cursor-pointer"
+                className="flex h-10 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-xs font-semibold text-[#051F20] transition-colors hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 active:scale-98 cursor-pointer"
               >
                 <AppleIcon />
                 <span className="whitespace-nowrap">{mode === "register" ? "Sign up with Apple" : "Apple Work ID"}</span>
               </button>
             </div>
 
-            <div className="my-6 flex items-center gap-4 text-xs font-medium text-stone-400 dark:text-white/30">
+            <div className="my-5 flex items-center gap-4 text-xs font-medium text-stone-400 dark:text-white/30">
               <div className="h-px flex-1 bg-stone-200 dark:bg-white/10" />
               <span>or enterprise email</span>
               <div className="h-px flex-1 bg-stone-200 dark:bg-white/10" />
@@ -225,10 +267,10 @@ export default function AuthSectionThree({
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3.5">
               {mode === "register" && (
                 <>
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <InputField
                       label="First name"
                       value={firstName}
@@ -256,7 +298,7 @@ export default function AuthSectionThree({
                           key={r}
                           type="button"
                           onClick={() => { playTick(); setRole(r); }}
-                          className={`py-2 px-2 text-center text-xs font-bold rounded-xl border capitalize transition-all ${
+                          className={`py-1.5 px-2 text-center text-xs font-bold rounded-xl border capitalize transition-all ${
                             role === r
                               ? "bg-[#0B2B26] text-[#DAF1DE] border-[#0B2B26] shadow-2xs"
                               : "bg-white text-stone-600 border-[#E2EAE4] hover:bg-[#F4F8F5]"
@@ -287,7 +329,7 @@ export default function AuthSectionThree({
               />
 
               {mode === "register" && (
-                <div className="space-y-3 pt-2 text-xs leading-5 text-stone-600 dark:text-white/40 sm:text-[13px]">
+                <div className="space-y-2.5 pt-1 text-xs leading-5 text-stone-600 dark:text-white/40 sm:text-[13px]">
                   <CheckboxLine
                     checked={noMarketingEmails}
                     onChange={(e) => setNoMarketingEmails(e.target.checked)}
@@ -306,7 +348,7 @@ export default function AuthSectionThree({
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#0B2B26] bg-[#0B2B26] text-sm font-bold text-[#DAF1DE] shadow-md transition-all hover:bg-[#163832] active:scale-98 disabled:opacity-50 cursor-pointer"
+                className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#0B2B26] bg-[#0B2B26] text-sm font-bold text-[#DAF1DE] shadow-md transition-all hover:bg-[#163832] active:scale-98 disabled:opacity-50 cursor-pointer"
               >
                 {loading ? (
                   <span className="flex items-center gap-2 font-mono text-xs">
@@ -324,8 +366,8 @@ export default function AuthSectionThree({
           </div>
         </div>
 
-        {/* Right Side - Marketing Testimonial and Mockup */}
-        <div className="relative flex min-h-[720px] flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-[#0B2B26] via-[#051F20] to-[#163832] p-8 text-white sm:p-12 lg:min-h-0 lg:p-16 border border-[#235347]/40 shadow-xl">
+        {/* Right Side - Marketing Testimonial and Realistic UI Mockup */}
+        <div className="relative flex min-h-[720px] flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-[#0B2B26] via-[#051F20] to-[#163832] p-8 text-white sm:p-12 lg:min-h-0 lg:p-14 border border-[#235347]/40 shadow-xl">
           {/* Background Shader / Refraction Layer */}
           <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen">
             {FlutedGlassComponent ? (
@@ -356,7 +398,7 @@ export default function AuthSectionThree({
           </div>
 
           <div className="relative z-10 h-full w-full flex flex-col justify-between">
-            <div className="max-w-[460px] lg:pt-6">
+            <div className="max-w-[460px] lg:pt-2">
               {/* Executive Testimonial Avatar */}
               <motion.div
                 initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
@@ -388,42 +430,42 @@ export default function AuthSectionThree({
                   delay: 0.12,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="mt-6 text-2xl font-light leading-snug tracking-[-0.035em] text-white/95 sm:text-3xl lg:text-[32px]"
+                className="mt-5 text-2xl font-light leading-snug tracking-[-0.035em] text-white/95 sm:text-3xl lg:text-[30px]"
               >
                 “Every retention signal and TreeSHAP attribution has the mathematical precision our board demands.”
               </motion.blockquote>
 
-              {/* Real-Time Telemetry Stats */}
+              {/* Apple-Style Frosted Glass Telemetry Metrics */}
               <div className="mt-6 grid grid-cols-3 gap-3">
-                <div className="p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15">
-                  <div className="text-[10px] font-mono text-[#DAF1DE] uppercase font-semibold">Sub-50ms</div>
-                  <div className="text-sm font-bold text-white mt-0.5">TreeSHAP</div>
+                <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/40 transition-all shadow-xs group">
+                  <div className="text-[10px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">Sub-50ms</div>
+                  <div className="text-sm font-bold text-white mt-1 group-hover:text-emerald-300 transition-colors">TreeSHAP</div>
                 </div>
-                <div className="p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15">
-                  <div className="text-[10px] font-mono text-[#DAF1DE] uppercase font-semibold">0.886</div>
-                  <div className="text-sm font-bold text-white mt-0.5">ROC-AUC</div>
+                <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/40 transition-all shadow-xs group">
+                  <div className="text-[10px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">0.886</div>
+                  <div className="text-sm font-bold text-white mt-1 group-hover:text-emerald-300 transition-colors">ROC-AUC</div>
                 </div>
-                <div className="p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15">
-                  <div className="text-[10px] font-mono text-[#DAF1DE] uppercase font-semibold">NIST PBKDF2</div>
-                  <div className="text-sm font-bold text-white mt-0.5">Encrypted</div>
+                <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/40 transition-all shadow-xs group">
+                  <div className="text-[10px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">NIST PBKDF2</div>
+                  <div className="text-sm font-bold text-white mt-1 group-hover:text-emerald-300 transition-colors">Encrypted</div>
                 </div>
               </div>
             </div>
 
-            {/* Angled Live Dashboard Mockup Window */}
-            <div className="mt-8 w-full translate-y-[15%] overflow-hidden rounded-2xl border border-white/20 bg-black/60 p-2.5 shadow-[0_30px_90px_rgba(0,0,0,0.6)] backdrop-blur-xl sm:translate-y-[12%] lg:absolute lg:left-[8%] lg:-bottom-24 lg:mt-0 lg:w-[105%] lg:max-w-none lg:origin-bottom-left lg:translate-y-0 lg:-rotate-2 xl:left-[10%] xl:-bottom-[130px] xl:w-[108%] 2xl:-bottom-[150px] 2xl:w-[110%]">
+            {/* Authentic Live-Rendered Valence UI Mockup Frame */}
+            <div className="mt-8 w-full translate-y-[8%] overflow-hidden rounded-2xl border border-white/20 bg-black/70 p-3 shadow-[0_30px_90px_rgba(0,0,0,0.7)] backdrop-blur-2xl sm:translate-y-[6%] lg:absolute lg:left-[6%] lg:-bottom-20 lg:mt-0 lg:w-[105%] lg:max-w-none lg:origin-bottom-left lg:translate-y-0 lg:-rotate-2 xl:left-[8%] xl:-bottom-[120px] xl:w-[106%] 2xl:-bottom-[130px] 2xl:w-[108%]">
               <motion.div
-                initial={{ opacity: 0, y: 50, filter: "blur(10px)" }}
+                initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 transition={{
                   duration: 1,
                   delay: 0.22,
                   ease: [0.16, 1, 0.3, 1],
                 }}
-                className="overflow-hidden rounded-xl border border-white/15 bg-[#051F20]"
+                className="overflow-hidden rounded-xl border border-white/15 bg-[#051F20] text-white p-4 space-y-3"
               >
                 {/* Window Chrome Header */}
-                <div className="flex items-center justify-between border-b border-white/15 bg-black/50 px-4 py-2.5 select-none">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2.5 select-none">
                   <div className="flex items-center gap-1.5">
                     <div className="size-2.5 rounded-full bg-rose-500/80" />
                     <div className="size-2.5 rounded-full bg-amber-500/80" />
@@ -432,17 +474,77 @@ export default function AuthSectionThree({
                       valence-ai.io/intelligence • live-cluster
                     </span>
                   </div>
-                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-500/30">
-                    LIVE TELEMETRY
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/30 font-bold">
+                    TREE SHAP CALIBRATED
                   </span>
                 </div>
 
-                {/* Mockup Preview Content Image with High Contrast & Polish */}
-                <img
-                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80"
-                  alt="Valence Live Decision Engine Hub"
-                  className="h-64 sm:h-72 w-full object-cover object-top opacity-90 brightness-95 contrast-110"
-                />
+                {/* Account Card & Risk Header */}
+                <div className="flex items-center justify-between pt-1">
+                  <div>
+                    <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <span>Acme Global Systems</span>
+                      <span className="text-[10px] font-mono text-stone-400 font-normal">($48,500 MRR)</span>
+                    </div>
+                    <div className="text-[10px] text-stone-400 font-mono mt-0.5">
+                      Account ID: ACC-8941 • 36m Vintage
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-950/80 border border-rose-500/40 text-rose-400 text-[10px] font-mono font-bold">
+                      <TrendingDown className="w-3 h-3" />
+                      84.2% CHURN RISK
+                    </span>
+                  </div>
+                </div>
+
+                {/* Live TreeSHAP Attribution Force Bars */}
+                <div className="space-y-2 pt-1">
+                  <div className="text-[9px] font-mono uppercase tracking-wider text-stone-400 flex items-center justify-between">
+                    <span>Key Risk Attribution Drivers</span>
+                    <span className="text-emerald-400">SHAP Impact Value</span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="p-2 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="size-2 rounded-full bg-rose-500" />
+                        <span className="font-mono text-[11px] text-stone-200">Open P1 Blocking Incident (2 tickets)</span>
+                      </div>
+                      <span className="font-mono text-[11px] text-rose-400 font-bold">+0.32</span>
+                    </div>
+
+                    <div className="p-2 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="size-2 rounded-full bg-amber-500" />
+                        <span className="font-mono text-[11px] text-stone-200">30-Day Usage Contraction (-28.4%)</span>
+                      </div>
+                      <span className="font-mono text-[11px] text-amber-400 font-bold">+0.24</span>
+                    </div>
+
+                    <div className="p-2 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="size-2 rounded-full bg-emerald-500" />
+                        <span className="font-mono text-[11px] text-stone-200">Multi-Year Enterprise Agreement (3 yrs)</span>
+                      </div>
+                      <span className="font-mono text-[11px] text-emerald-400 font-bold">-0.18</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dispatched Playbook Capsule */}
+                <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <div>
+                      <div className="text-[11px] font-bold text-[#DAF1DE]">PB-EXEC-01 • VP Revenue Intervention</div>
+                      <div className="text-[9px] text-stone-400 font-mono">Automated SLA: 4 Hours • TAM Assigned</div>
+                    </div>
+                  </div>
+                  <span className="text-[9px] font-mono font-bold text-emerald-300 bg-emerald-900/80 px-2 py-0.5 rounded">
+                    DISPATCHED
+                  </span>
+                </div>
               </motion.div>
             </div>
           </div>
@@ -478,7 +580,7 @@ function InputField({
       <label className="text-xs font-bold text-[#051F20] dark:text-white/60">
         {label}
       </label>
-      <div className="relative flex h-11 items-center rounded-xl border border-stone-200 bg-white px-3.5 focus-within:border-[#235347] focus-within:ring-2 focus-within:ring-[#DAF1DE] transition-all dark:border-white/10 dark:bg-white/5">
+      <div className="relative flex h-10 items-center rounded-xl border border-stone-200 bg-white px-3.5 focus-within:border-[#235347] focus-within:ring-2 focus-within:ring-[#DAF1DE] transition-all dark:border-white/10 dark:bg-white/5">
         <input
           type={
             type === "password" ? (showPassword ? "text" : "password") : type
@@ -519,7 +621,7 @@ function CheckboxLine({
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <label className="flex items-start gap-3 cursor-pointer select-none">
+    <label className="flex items-start gap-2.5 cursor-pointer select-none">
       <span className="relative mt-0.5 size-4 shrink-0">
         <input
           type="checkbox"
