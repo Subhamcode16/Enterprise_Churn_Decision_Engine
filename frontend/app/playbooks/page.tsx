@@ -90,13 +90,13 @@ export default function PlaybooksPage() {
   const getPriorityBadge = (p: string) => {
     switch (p) {
       case "P0":
-        return "bg-rose-100 text-rose-800 border-rose-200";
+        return "bg-rose-50 text-rose-800 border-rose-200";
       case "P1":
-        return "bg-amber-100 text-amber-800 border-amber-200";
+        return "bg-[#FAF0E6] text-[#8C3A27] border-[#E8C4B8]";
       case "P2":
-        return "bg-stone-100 text-stone-700 border-stone-200";
+        return "bg-[#DAF1DE] text-[#0B2B26] border-[#8EB69B]/40";
       default:
-        return "bg-stone-100 text-stone-700 border-stone-200";
+        return "bg-[#DAF1DE] text-[#051F20] border-[#8EB69B]/60";
     }
   };
 
@@ -149,26 +149,26 @@ export default function PlaybooksPage() {
   return (
     <div className="w-full space-y-7 pb-16 font-sans">
       {/* Editorial Page Header */}
-      <div className="pb-4 border-b border-[#E8E5DD]">
+      <div className="pb-4 border-b border-[#E2EAE4]">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-stone-500">
+              <span className="w-2 h-2 rounded-full bg-[#235347]"></span>
+              <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-[#163832]/60">
                 Decision Intelligence Protocol
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#051F20] tracking-tight">
               Retention Playbook Master Catalog
             </h1>
-            <p className="mt-1 text-xs sm:text-sm text-stone-600 max-w-2xl leading-relaxed">
+            <p className="mt-1 text-xs sm:text-sm text-[#163832]/70 max-w-2xl leading-relaxed">
               Deterministic, SLA-bound intervention workflows mapped automatically to root-cause SHAP drivers and expected MRR loss.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="px-3.5 py-1.5 rounded-xl bg-white border border-[#E8E5DD] text-stone-800 text-xs font-mono font-semibold shadow-sm">
-              <span className="text-amber-600 font-bold">{playbooks.length}</span> Active Workflows
+            <div className="px-3.5 py-1.5 rounded-full bg-white border border-[#E2EAE4] text-[#051F20] text-xs font-mono font-semibold shadow-xs">
+              <span className="text-[#235347] font-bold">{playbooks.length}</span> Active Workflows
             </div>
           </div>
         </div>
@@ -184,10 +184,10 @@ export default function PlaybooksPage() {
                   playTick();
                   setActiveFilter(f.id);
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer ${
                   activeFilter === f.id
-                    ? "bg-[#141312] text-[#FAF8F5] shadow-sm font-bold"
-                    : "bg-white text-stone-600 hover:text-stone-900 border border-[#E8E5DD]"
+                    ? "bg-[#235347] text-white shadow-xs font-bold"
+                    : "bg-white text-[#163832]/70 hover:text-[#051F20] border border-[#E2EAE4]"
                 }`}
               >
                 {f.label}
@@ -203,22 +203,22 @@ export default function PlaybooksPage() {
               placeholder="Search playbooks or roles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-[#E8E5DD] focus:border-stone-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none transition-colors"
+              className="w-full bg-white border border-[#E2EAE4] focus:border-[#235347] rounded-full pl-8 pr-3 py-1.5 text-xs text-[#051F20] placeholder:text-stone-400 focus:outline-none transition-colors shadow-2xs"
             />
           </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="p-16 text-center text-stone-400">
-          <Zap className="w-6 h-6 mx-auto text-amber-500 animate-spin mb-3" />
+        <div className="p-16 text-center text-[#163832]/50">
+          <Zap className="w-6 h-6 mx-auto text-[#235347] animate-spin mb-3" />
           <p className="text-xs font-mono">Loading playbook orchestrator catalog...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-7">
           {/* Playbook Cards Grid (Left 7 Columns - White Bento Cards) */}
           <div className="lg:col-span-7 space-y-3.5">
-            <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-stone-500 px-1 font-bold">
+            <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-[#163832]/60 px-1 font-bold">
               <span>Catalog Entries ({filteredPlaybooks.length})</span>
               <span>Click to inspect payload</span>
             </div>
@@ -230,47 +230,47 @@ export default function PlaybooksPage() {
                   <div
                     key={pb.playbook_id}
                     onClick={() => handleSelectPlaybook(pb)}
-                    className={`cursor-pointer p-5 rounded-2xl border transition-all duration-200 text-left relative overflow-hidden ${
+                    className={`cursor-pointer p-5 rounded-[28px] border transition-all duration-200 text-left relative overflow-hidden ${
                       isSelected
-                        ? "bg-[#FFFDF7] border-amber-400 shadow-md ring-2 ring-amber-400/30"
-                        : "bg-white border-[#E8E5DD] hover:border-stone-400 hover:shadow-sm"
+                        ? "bg-[#DAF1DE]/30 border-[#235347] shadow-sm ring-1 ring-[#235347]/20"
+                        : "bg-white border-[#E2EAE4] hover:border-[#8EB69B]/60 hover:shadow-xs"
                     }`}
                   >
                     {/* Active Accent Bar */}
                     {isSelected && (
-                      <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-amber-500" />
+                      <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-[#235347]" />
                     )}
 
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${getPriorityBadge(pb.priority)}`}>
+                        <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border ${getPriorityBadge(pb.priority)}`}>
                           {pb.priority}
                         </span>
-                        <span className="text-xs font-mono font-bold text-stone-900">
+                        <span className="text-xs font-mono font-bold text-[#051F20]">
                           {pb.playbook_id}
                         </span>
                       </div>
-                      <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#FAF8F5] border border-[#E8E5DD] text-stone-600 font-medium">
+                      <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#F4F8F5] border border-[#E2EAE4] text-[#163832]/70 font-medium">
                         {pb.category}
                       </span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-stone-900 mb-1.5">
+                    <h3 className="text-sm font-bold text-[#051F20] mb-1.5">
                       {pb.title}
                     </h3>
 
-                    <p className="text-xs text-stone-600 leading-relaxed bg-[#FAF8F5] p-3 rounded-xl border border-[#EFECE4] mb-3 font-sans">
+                    <p className="text-xs text-[#163832]/80 leading-relaxed bg-[#F4F8F5] p-3 rounded-2xl border border-[#E2EAE4] mb-3 font-sans">
                       {pb.action_summary}
                     </p>
 
-                    <div className="flex items-center justify-between text-xs text-stone-600 pt-2 border-t border-[#F0ECE1]">
+                    <div className="flex items-center justify-between text-xs text-[#163832]/70 pt-2 border-t border-[#E2EAE4]">
                       <div className="flex items-center gap-1.5">
-                        <UserCheck className="w-3.5 h-3.5 text-stone-500" />
-                        <span>Owner: <strong className="text-stone-900 font-semibold">{pb.assignee_role}</strong></span>
+                        <UserCheck className="w-3.5 h-3.5 text-[#235347]" />
+                        <span>Owner: <strong className="text-[#051F20] font-semibold">{pb.assignee_role}</strong></span>
                       </div>
                       <div className="flex items-center gap-1.5 font-mono">
-                        <Clock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>SLA: <strong className="text-amber-700 font-bold">{pb.sla_hours}h</strong></span>
+                        <Clock className="w-3.5 h-3.5 text-[#235347]" />
+                        <span>SLA: <strong className="text-[#235347] font-bold">{pb.sla_hours}h</strong></span>
                       </div>
                     </div>
                   </div>
@@ -278,8 +278,8 @@ export default function PlaybooksPage() {
               })}
 
               {filteredPlaybooks.length === 0 && (
-                <div className="p-12 text-center rounded-2xl bg-white border border-[#E8E5DD] text-stone-500">
-                  <BookOpen className="w-8 h-8 mx-auto text-stone-400 mb-2" />
+                <div className="p-12 text-center rounded-[28px] bg-white border border-[#E2EAE4] text-[#163832]/60">
+                  <BookOpen className="w-8 h-8 mx-auto text-[#235347] mb-2" />
                   <p className="text-xs font-medium">No playbooks found matching filter or query.</p>
                 </div>
               )}
@@ -289,62 +289,62 @@ export default function PlaybooksPage() {
           {/* Webhook & Orchestrator Inspector (Right 5 Columns) */}
           <div className="lg:col-span-5">
             <div className="sticky top-20 space-y-4">
-              <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-stone-500 px-1 font-bold">
+              <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-[#163832]/60 px-1 font-bold">
                 <span>Webhook Dispatch Inspector</span>
-                <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-[#235347] font-semibold flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-[#235347] animate-pulse"></span>
                   Ready
                 </span>
               </div>
 
               {selectedPlaybook ? (
-                <div className="p-6 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm space-y-5">
+                <div className="p-6 rounded-[28px] bg-white border border-[#E2EAE4] shadow-[0_4px_24px_-2px_rgba(5,31,32,0.03)] space-y-5">
                   {/* Header info */}
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-amber-600">
+                      <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-[#235347]">
                         Active Target
                       </span>
-                      <span className="text-xs font-mono text-stone-500 font-bold">
+                      <span className="text-xs font-mono text-[#163832]/60 font-bold">
                         {selectedPlaybook.playbook_id}
                       </span>
                     </div>
-                    <h2 className="text-base font-serif font-bold text-stone-900 mt-1">
+                    <h2 className="text-base font-serif font-bold text-[#051F20] mt-1">
                       {selectedPlaybook.title}
                     </h2>
                   </div>
 
                   {/* Dispatch Route Info */}
-                  <div className="p-3.5 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] space-y-2 text-xs">
-                    <div className="flex justify-between items-center text-stone-600">
+                  <div className="p-3.5 rounded-2xl bg-[#F4F8F5] border border-[#E2EAE4] space-y-2 text-xs">
+                    <div className="flex justify-between items-center text-[#163832]/70">
                       <span>Method & Route</span>
-                      <span className="font-mono text-emerald-700 font-bold">POST /v1/orchestrator/dispatch</span>
+                      <span className="font-mono text-[#235347] font-bold">POST /v1/orchestrator/dispatch</span>
                     </div>
-                    <div className="flex justify-between items-center text-stone-600">
+                    <div className="flex justify-between items-center text-[#163832]/70">
                       <span>Assigned Department</span>
-                      <span className="text-stone-900 font-semibold">{selectedPlaybook.assignee_role}</span>
+                      <span className="text-[#051F20] font-semibold">{selectedPlaybook.assignee_role}</span>
                     </div>
-                    <div className="flex justify-between items-center text-stone-600">
+                    <div className="flex justify-between items-center text-[#163832]/70">
                       <span>Resolution Target</span>
-                      <span className="font-mono text-amber-700 font-bold">{selectedPlaybook.sla_hours} Hours Maximum</span>
+                      <span className="font-mono text-[#235347] font-bold">{selectedPlaybook.sla_hours} Hours Maximum</span>
                     </div>
                   </div>
 
                   {/* Live JSON Payload Inspector */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1.5 text-xs text-stone-700 font-semibold">
-                        <Terminal className="w-3.5 h-3.5 text-stone-900" />
+                      <div className="flex items-center gap-1.5 text-xs text-[#051F20] font-semibold">
+                        <Terminal className="w-3.5 h-3.5 text-[#235347]" />
                         <span>Simulated Webhook Payload</span>
                       </div>
                       <button
                         onClick={handleCopyPayload}
-                        className="flex items-center gap-1 text-[11px] text-stone-500 hover:text-stone-900 transition-colors font-medium"
+                        className="flex items-center gap-1 text-[11px] text-[#163832]/60 hover:text-[#051F20] transition-colors font-medium cursor-pointer"
                       >
                         {copiedPayload ? (
                           <>
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            <span className="text-emerald-700 font-bold">Copied</span>
+                            <CheckCircle2 className="w-3 h-3 text-[#235347]" />
+                            <span className="text-[#235347] font-bold">Copied</span>
                           </>
                         ) : (
                           <>
@@ -355,7 +355,7 @@ export default function PlaybooksPage() {
                       </button>
                     </div>
 
-                    <pre className="p-4 rounded-xl bg-[#141312] text-[#FAF8F5] text-[11px] font-mono overflow-x-auto max-h-[260px] leading-relaxed shadow-inner">
+                    <pre className="p-4 rounded-2xl bg-[#0B2B26] text-[#DAF1DE] text-[11px] font-mono overflow-x-auto max-h-[260px] leading-relaxed shadow-inner border border-[#163832]">
                       {currentPayloadJson}
                     </pre>
                   </div>
@@ -365,20 +365,20 @@ export default function PlaybooksPage() {
                     <button
                       onClick={handleSimulateDispatch}
                       disabled={dispatchStatus === "dispatching"}
-                      className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm ${
+                      className={`w-full py-3 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer ${
                         dispatchStatus === "dispatched"
-                          ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                          : "bg-amber-500 hover:bg-amber-400 text-stone-950 active:scale-[0.99]"
+                          ? "bg-[#DAF1DE] text-[#051F20] border border-[#8EB69B]/60 font-bold"
+                          : "bg-[#235347] hover:bg-[#163832] text-white active:scale-[0.99] border border-[#8EB69B]/40"
                       }`}
                     >
                       {dispatchStatus === "dispatching" ? (
                         <>
-                          <Zap className="w-4 h-4 animate-spin text-stone-950" />
+                          <Zap className="w-4 h-4 animate-spin text-white" />
                           <span>Dispatching Webhook Signal...</span>
                         </>
                       ) : dispatchStatus === "dispatched" ? (
                         <>
-                          <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                          <CheckCircle2 className="w-4 h-4 text-[#051F20]" />
                           <span>Intervention Dispatched to {selectedPlaybook.assignee_role}</span>
                         </>
                       ) : (
@@ -391,7 +391,7 @@ export default function PlaybooksPage() {
                   </div>
                 </div>
               ) : (
-                <div className="p-8 text-center rounded-2xl bg-white border border-[#E8E5DD] text-stone-400 text-xs">
+                <div className="p-8 text-center rounded-[28px] bg-white border border-[#E2EAE4] text-[#163832]/50 text-xs">
                   Select a playbook from the list to view its schema payload.
                 </div>
               )}
@@ -399,33 +399,33 @@ export default function PlaybooksPage() {
           </div>
 
           {/* Active Dispatched Workflows & SLA Timers Section */}
-          <div className="mt-12 p-6 rounded-2xl bg-white border border-[#E8E5DD] shadow-sm">
+          <div className="mt-12 p-6 rounded-[28px] bg-white border border-[#E2EAE4] shadow-[0_4px_24px_-2px_rgba(5,31,32,0.03)]">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-rose-600" />
+                <div className="w-7 h-7 rounded-xl bg-[#DAF1DE] border border-[#8EB69B]/40 flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-[#0B2B26]" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-stone-950 tracking-tight">Active Dispatched Retention Workflows</h3>
-                  <p className="text-[11px] text-stone-500">Live operational audit trail and SLA resolution tracker</p>
+                  <h3 className="text-sm font-bold text-[#051F20] tracking-tight">Active Dispatched Retention Workflows</h3>
+                  <p className="text-[11px] text-[#163832]/60">Live operational audit trail and SLA resolution tracker</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-stone-100 text-stone-700 border border-stone-200">
+                <span className="px-3 py-1 rounded-full text-[10px] font-bold font-mono bg-[#DAF1DE] text-[#0B2B26] border border-[#8EB69B]/40">
                   {dispatchedList.filter(d => d.status === "active").length} Active Workflows
                 </span>
               </div>
             </div>
 
             {dispatchedList.length === 0 ? (
-              <div className="p-8 text-center rounded-xl bg-[#FAF8F5] border border-dashed border-[#E5E2DA] text-stone-400 text-xs">
+              <div className="p-8 text-center rounded-2xl bg-[#F4F8F5] border border-dashed border-[#E2EAE4] text-[#163832]/50 text-xs">
                 No dispatched retention playbooks recorded yet. Trigger one from the catalog above or from the main dashboard copilot.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-[#EFECE4] text-[11px] text-stone-400 font-medium">
+                    <tr className="border-b border-[#E2EAE4] text-[11px] text-[#163832]/60 font-medium">
                       <th className="pb-3 pl-2">Account ID</th>
                       <th className="pb-3">Company Name</th>
                       <th className="pb-3">Playbook</th>
@@ -436,33 +436,33 @@ export default function PlaybooksPage() {
                       <th className="pb-3 pr-2 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#F6F4EE]">
+                  <tbody className="divide-y divide-[#E2EAE4]/60">
                     {dispatchedList.map((item) => (
-                      <tr key={item.id} className="hover:bg-[#FAF8F5] transition-colors">
-                        <td className="py-3 pl-2 font-mono font-bold text-stone-900">{item.account_id}</td>
-                        <td className="py-3 font-medium text-stone-800">{item.company_name}</td>
-                        <td className="py-3 font-mono text-stone-600">{item.playbook_id}</td>
+                      <tr key={item.id} className="hover:bg-[#F4F8F5] transition-colors">
+                        <td className="py-3 pl-2 font-mono font-bold text-[#051F20]">{item.account_id}</td>
+                        <td className="py-3 font-medium text-[#051F20]">{item.company_name}</td>
+                        <td className="py-3 font-mono text-[#163832]/70">{item.playbook_id}</td>
                         <td className="py-3">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono border ${
-                            item.priority === "P0" ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-amber-50 text-amber-700 border-amber-200"
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-mono border ${
+                            item.priority === "P0" ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-[#FAF0E6] text-[#8C3A27] border-[#E8C4B8]"
                           }`}>
                             {item.priority}
                           </span>
                         </td>
-                        <td className="py-3 text-stone-600">{item.assignee_role}</td>
+                        <td className="py-3 text-[#163832]/70">{item.assignee_role}</td>
                         <td className="py-3">
-                          <div className="flex items-center gap-1 text-[11px] font-mono font-semibold text-rose-700">
+                          <div className="flex items-center gap-1 text-[11px] font-mono font-semibold text-[#8C3A27]">
                             <Clock className="w-3 h-3" />
                             <span>{item.sla_hours}h Max</span>
                           </div>
                         </td>
                         <td className="py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                             item.status === "completed"
-                              ? "bg-emerald-100 text-emerald-800"
+                              ? "bg-[#DAF1DE] text-[#051F20] border border-[#8EB69B]/40"
                               : item.status === "escalated"
                               ? "bg-rose-100 text-rose-800"
-                              : "bg-amber-100 text-amber-800 animate-pulse"
+                              : "bg-[#DAF1DE]/80 text-[#0B2B26] border border-[#8EB69B]/40 animate-pulse"
                           }`}>
                             {item.status}
                           </span>
@@ -472,19 +472,19 @@ export default function PlaybooksPage() {
                             <div className="flex items-center justify-end gap-1.5">
                               <button
                                 onClick={() => handleStatusChange(item.id, "completed")}
-                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-xs"
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#235347] hover:bg-[#163832] text-white transition-all shadow-xs cursor-pointer"
                               >
                                 Resolve
                               </button>
                               <button
                                 onClick={() => handleStatusChange(item.id, "escalated")}
-                                className="px-2 py-1 rounded-lg text-[10px] font-bold bg-stone-100 hover:bg-rose-50 text-stone-700 hover:text-rose-700 transition-all border border-stone-200"
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[#F4F8F5] hover:bg-rose-50 text-[#051F20] hover:text-rose-700 transition-all border border-[#E2EAE4] cursor-pointer"
                               >
                                 Escalate
                               </button>
                             </div>
                           ) : (
-                            <span className="text-[11px] text-stone-400 font-mono">Archived</span>
+                            <span className="text-[11px] text-[#163832]/50 font-mono">Archived</span>
                           )}
                         </td>
                       </tr>

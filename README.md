@@ -1,7 +1,7 @@
 <div align="center">
 
 # ⚡ VALENCE
-### Autonomous B2B Enterprise Churn & Revenue Decision Engine
+### Autonomous B2B Enterprise Churn Intelligence & Retention Decision Engine
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111.0-009688.svg?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2.5-black.svg?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org)
@@ -9,20 +9,20 @@
 [![SHAP](https://img.shields.io/badge/TreeSHAP-Explainability-blueviolet.svg?style=flat-square)](https://shap.readthedocs.io)
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-3776AB.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6.svg?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com)
-[![Strix Security](https://img.shields.io/badge/Strix_Security-Verified_A--Rating-emerald.svg?style=flat-square&logo=shield)](https://usestrix.com)
+[![AES-256 Vault](https://img.shields.io/badge/Security-AES--256_GCM_Vault-emerald.svg?style=flat-square&logo=shield)](https://usestrix.com)
 [![License](https://img.shields.io/badge/License-MIT-gray.svg?style=flat-square)](LICENSE)
 
 <p align="center">
   <strong>Stop Enterprise Churn Before It Happens.</strong><br/>
-  Autonomous revenue risk quantification, sub-50ms TreeSHAP financial attribution, and SLA-governed retention playbook orchestration.
+  Autonomous revenue risk quantification, sub-50ms TreeSHAP financial attribution, 3-stage vault data ingestion, and SLA-governed retention playbook orchestration.
 </p>
 
-[Explore Capabilities](#-core-capabilities) •
+[Explore Features](#-core-capabilities) •
 [System Architecture](#-system-architecture) •
-[Enterprise Integrations](#-enterprise-integrations--ecosystem) •
+[3-Stage Ingestion Engine](#-3-stage-enterprise-vault-ingestion) •
 [1-Click Quickstart](#-quick-start-guide) •
-[Security & Hardening](#-security-architecture--compliance)
+[API Reference](#-api-endpoints) •
+[Security & Compliance](#-security-architecture--compliance)
 
 ---
 
@@ -30,18 +30,18 @@
 
 ## 📌 Executive Summary
 
-Enterprise SaaS retention is fundamentally broken when managed through reactive quarterly reviews and opaque health scores. **VALENCE** bridges the divide between machine learning telemetry and frontline revenue execution. 
+Enterprise SaaS retention fails when managed through reactive quarterly reviews and opaque 1–100 health scores. **VALENCE** bridges the gap between machine learning telemetry and frontline revenue execution.
 
-By combining **calibrated gradient-boosted decision trees (XGBoost)** with **TreeSHAP local feature attribution**, VALENCE calculates exact dollar exposure on every enterprise contract in real time, diagnoses root-cause risk drivers, and automatically dispatches SLA-enforced retention playbooks to Customer Success and Executive teams.
+By pairing **calibrated gradient-boosted decision trees (XGBoost)** with **TreeSHAP local feature attribution**, VALENCE calculates exact dollar exposure on every enterprise contract in real time, isolates root-cause risk drivers, and automatically orchestrates SLA-enforced retention playbooks for Customer Success and Executive leaders.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │  VALENCE DECISION LOOP AT A GLANCE                                     │
 │                                                                        │
-│  [ Product Telemetry & CRM ]  ──►  [ Real-Time TreeSHAP Inference ]   │
+│  [ Enterprise Telemetry / CSV / CRM ] ──► [ Real-Time TreeSHAP ]       │
 │                                                   │                    │
 │                                                   ▼                    │
-│  [ Executive Renewal Briefs ] ◄──  [ P0 SLA Playbook Dispatcher ]      │
+│  [ Executive Renewal Briefs ] ◄───────── [ P0 SLA Playbook Dispatch ]  │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -66,7 +66,7 @@ flowchart TD
         CRM[Salesforce / HubSpot CRM]
         BILL[Stripe Billing & Contracts]
         LOGS[Product Usage & Login Telemetry]
-        SUPP[Zendesk / Jira P1 Tickets]
+        CSV[CSV / Spreadsheet Vault Upload]
     end
 
     subgraph Core Engine [VALENCE ML & Decision Core]
@@ -76,9 +76,9 @@ flowchart TD
         RULES[Deterministic SLA Playbook Engine]
     end
 
-    subgraph Persistence [Persistence & Audit Layer]
-        SQL[(PostgreSQL / SQLite Audit DB)]
-        MEM[(FastAPI Engine State)]
+    subgraph Persistence [Tenant Vault & Audit Layer]
+        SQL[(SQLite / PostgreSQL Audit DB)]
+        VAULT[(AES-256 GCM Isolated Tenant Vault)]
     end
 
     subgraph Action Egress [Automated Action & Workflows]
@@ -91,89 +91,96 @@ flowchart TD
     CRM --> PIPE
     BILL --> PIPE
     LOGS --> PIPE
-    SUPP --> PIPE
+    CSV --> PIPE
 
     PIPE --> XGB
     XGB --> SHAP
     SHAP --> RULES
     RULES --> SQL
-    RULES --> MEM
+    RULES --> VAULT
 
     RULES --> SLACK
     RULES --> CRM_OUT
     RULES --> BRIEF
-    MEM --> DASH
+    RULES --> DASH
 ```
 
 ---
 
-## 🌟 Core Capabilities
+## 🚀 Core Capabilities
 
-### 1. Real-Time Portfolio Risk Radar & Financial Quantification
-- Evaluates contract portfolio health across **Critical ($P \ge 80\%$)**, **High ($P \ge 60\%$)**, **Medium ($P \ge 30\%$)**, and **Low** risk tiers.
-- Computes aggregated **Financial Exposure ($MRR at Risk)** across all active contracts in milliseconds.
+### 1. Calibrated Machine Learning Inference
+- **Model**: Regularized XGBoost (`colsample_bytree=0.8`, `subsample=0.8`, `max_depth=4`, `scale_pos_weight=2.5`).
+- **Calibration**: Isotonic regression ensures output probabilities represent true empirical churn rates.
+- **Dynamic Thresholding**: Multi-tier classification into `Critical Risk` ($P \ge 0.70$), `High Risk` ($0.45 \le P < 0.70$), `Moderate Risk` ($0.25 \le P < 0.45$), and `Healthy` ($P < 0.25$).
 
-### 2. TreeSHAP Local Explainability & Force Dynamics
-- Generates transparent, audited attribution charts showing exactly which parameters push risk up or down.
-- Provides actionable plain-English clinical insights (e.g., *"30-day usage dropped by 42%, strongly elevating churn risk"*).
+### 2. Real-Time TreeSHAP Feature Attribution
+- Computes game-theoretic Shapley values locally in under **50ms**.
+- Renders interactive waterfall charts and force plots displaying exact feature weights (e.g., $+0.28$ risk from unresolved P1 tickets, $-0.14$ protection from 36-month contract tenure).
 
-### 3. Interactive Counterfactual "What-If" Simulator
-- Revenue leaders can adjust simulation levers (e.g., resolving open P1 tickets, restoring user engagement, enabling auto-renew).
-- Instantly re-scores the contract and calculates **Protected ARR** and **Net Churn Reduction Delta**.
+### 3. 3-Stage Enterprise Vault Ingestion
+- **Stage 1 (Idle)**: Full-width tabbed ingestion with drag-and-drop dropzone, sample dataset staging, direct `.csv` template download, and **Interactive Column Re-Mapper** with confidence scoring.
+- **Stage 2 (Processing HUD)**: Live telemetry stream with pulsing radar waveform, progress tracking, and authentic terminal log ticker streaming microsecond TreeSHAP calculations.
+- **Stage 3 (Success Impact)**: Executive summary with **KokonutUI 3D Tilt Cards** with specular glare and an expandable **Pre-Dashboard Top-At-Risk Watchlist Drawer**.
 
-### 4. SLA-Governed Playbook Dispatch & Outbound Egress
-- Master catalog of curated retention playbooks (e.g., `PB-EXEC-01` Executive Sponsor Intervention, `PB-TECH-03` Dedicated TAM Escalation, `PB-COMM-04` Contract Restructure).
-- Automatically calculates countdown deadlines based on target SLA hours (2h–72h) and queues outbound webhook payloads.
-
-### 5. Instant Executive Renewal Brief Generator
-- One-click export of structured **Executive Renewal & Retention Strategy Briefs** comparing baseline risk vs. counterfactual mitigations for C-level and procurement discussions.
-
----
-
-## 🔌 Enterprise Integrations & Ecosystem
-
-VALENCE integrates across your modern enterprise revenue tech stack:
-
-| System | Integration Mechanism | Workflow Purpose |
-|---|---|---|
-| **Salesforce / HubSpot** | REST API & Webhooks | Syncs account contracts, renewal dates, MRR, and logs dispatched retention tasks directly onto account records. |
-| **Stripe Billing** | Webhook Ingestion | Tracks billing failures, subscription tier migrations, and uncollected invoices. |
-| **Zendesk / Jira** | Event Telemetry | Streams open P1/P2 support ticket counts and resolution time SLAs into feature arrays. |
-| **Slack / Microsoft Teams** | Outbound Webhooks | Broadcasts critical P0 churn alerts and playbook assignments directly into `#revenue-defense` channels. |
-| **Snowflake / BigQuery** | Vectorized Batch CSV | Ingests bulk enterprise data lakes (up to 10,000 rows/run) for daily automated risk recalculation. |
+### 4. Automated SLA Playbook Orchestrator
+- Matches account risk signatures to targeted intervention playbooks:
+  - **Technical Distress**: Deploys Dedicated TAM & Engineering Sprint (4-hour SLA).
+  - **Pricing & Contraction**: Triggers Multi-Year Restructure & Usage Credit (24-hour SLA).
+  - **Adoption Decay**: Schedules Exec Sponsor Alignment & Product Deep-Dive (48-hour SLA).
+- Full webhook egress to Slack channels, CRM task queues, and PDF executive renewal briefs.
 
 ---
 
-## 🚀 Quick Start Guide
+## ⚡ 3-Stage Enterprise Vault Ingestion
 
-### Option A: One-Click Startup (Recommended for Local Dev)
+```
+┌───────────────────────────┐      ┌───────────────────────────┐      ┌───────────────────────────┐
+│     STAGE 1: IDLE         │      │    STAGE 2: TELEMETRY     │      │     STAGE 3: SUCCESS      │
+│                           │      │                           │      │                           │
+│ • Drag & Drop CSV / XLSX  │ ──►  │ • Schema Normalization    │ ──►  │ • KokonutUI 3D Tilt Cards │
+│ • 1-Click Cloud OAuth     │      │ • TreeSHAP Log Stream     │      │ • Top-at-Risk Watchlist   │
+│ • Column Re-Mapper Chip   │      │ • AES-256 Vault Lock      │      │ • 1-Click Workspace Enter │
+└───────────────────────────┘      └───────────────────────────┘      └───────────────────────────┘
+```
 
-The repository includes an automated dual-server startup script for Windows:
+---
+
+## 🛠️ Quick Start Guide
+
+### Prerequisites
+- **Python**: 3.11, 3.12, or 3.13
+- **Node.js**: 18.x or 20.x
+- **Package Managers**: `pip` and `npm`
+
+### 1-Click Startup (Recommended for Windows)
+The project includes a self-healing launcher script that automatically cleans orphaned ports (`3000`, `8000`), installs dependencies, and launches both services:
 
 ```powershell
-# Stop any processes on ports 8000/3000, then run:
 .\start-app.bat
 ```
-*This launches the FastAPI Backend (`http://127.0.0.1:8000`) and Next.js 14 Cockpit (`http://localhost:3000`) in synchronized terminal windows.*
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-### Option B: Manual Setup
+### Manual Step-by-Step Setup
 
-#### 1. Backend Setup
+#### Backend Setup
 ```bash
 cd backend
 python -m venv venv
+
 # Windows:
 .\venv\Scripts\activate
-# Linux/macOS:
+# macOS/Linux:
 source venv/bin/activate
 
 pip install -r requirements.txt
 python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-#### 2. Frontend Setup
+#### Frontend Setup
 ```bash
 cd frontend
 npm install
@@ -182,131 +189,27 @@ npm run dev
 
 ---
 
-### Option C: Docker Compose Deployment
+## 📡 API Endpoints
 
-Deploy the full production stack with zero local environment dependencies:
-
-```bash
-# Clone and enter directory
-git clone https://github.com/your-org/Enterprise_churn_engine.git
-cd Enterprise_churn_engine
-
-# Start unified stack
-docker compose up --build -d
-
-# Check running status
-docker compose ps
-```
-
-### Active Services & Ports
-
-| Service | Port | Endpoint / URL | Purpose |
-|---|---|---|---|
-| **VALENCE UI** | `3000` | `http://localhost:3000` | Next.js 14 Luxury Executive Cockpit |
-| **VALENCE Gateway** | `8000` | `http://localhost:8000` | FastAPI Inference & Decision API |
-| **API Docs (Swagger)** | `8000` | `http://localhost:8000/docs` | Interactive OpenAPI Specification |
-| **Health Check** | `8000` | `http://localhost:8000/health` | Model Readiness & System Telemetry |
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/accounts/demo` | Returns sample portfolio accounts and executive summary metrics. |
+| `POST` | `/api/predict` | Runs instant XGBoost + TreeSHAP prediction on a single account payload. |
+| `POST` | `/api/workspace/import` | Ingests and normalizes enterprise CSV or OAuth cloud telemetry into tenant vault. |
+| `GET` | `/api/workspace/status` | Returns active workspace partition state (`demo` vs `live`). |
+| `POST` | `/api/playbooks/{id}/execute` | Executes an SLA playbook, commits to audit log, and triggers webhooks. |
+| `GET` | `/api/health` | Service health check and telemetry status. |
 
 ---
 
-## ⚙️ Environment Variables Reference
+## 🔒 Security Architecture & Compliance
 
-Create a `.env` file in the `backend/` directory or configure these variables in your deployment dashboard:
-
-| Variable | Required | Default | Description |
-|---|:---:|---|---|
-| `ENVIRONMENT` | ✅ | `development` | Environment mode (`development` or `production`). |
-| `PORT` | ❌ | `8000` | Port for FastAPI Gateway. |
-| `API_SECRET_KEY` | ✅ | *(Generated)* | Server-to-server API secret for route authentication. |
-| `FRONTEND_URL` | ✅ | `http://localhost:3000` | Production domain for CORS allowlisting. |
-| `CORS_ORIGINS` | ✅ | `http://localhost:3000` | Comma-delimited list of permitted CORS origins. |
-| `DATABASE_URL` | ❌ | `sqlite:///backend/data/valence_audit.db` | PostgreSQL connection string or SQLite local fallback. |
-| `SLACK_WEBHOOK_URL`| ❌ | `None` | Target webhook URL for P0 playbook dispatch alerts. |
-| `RATE_LIMIT_PREDICT`| ❌ | `60/minute` | SlowAPI throttling limit for single account inference. |
-| `RATE_LIMIT_BATCH` | ❌ | `10/minute` | SlowAPI throttling limit for batch CSV ingestion. |
+- **AES-256 GCM Vault Isolation**: Customer data is partitioned per tenant identifier (`org_live_2026_val`) with hardware-accelerated encryption at rest.
+- **Strict Input Validation**: Pydantic schemas enforce type safety and reject out-of-bounds telemetry parameters.
+- **Rate Limiting**: AI and ingestion endpoints are protected by token bucket rate limiters.
+- **Zero Data Leakage**: Raw telemetry is processed locally without sending proprietary datasets to third-party public models.
 
 ---
 
-## 🛡️ Security Architecture & Compliance
-
-VALENCE is audited and verified against **OWASP Top 10 (2025/2026)** and **OWASP API Security Top 10** using the **Strix AI Security Framework**:
-
-> [!NOTE]
-> **Strix Audit Score: A- (88/100) — Verified Safe**
-> - **0% SQL Injection Risk**: 100% of database queries execute through parameterized SQLAlchemy ORM statements.
-> - **0% XSS Vulnerability**: Zero `dangerouslySetInnerHTML` instances across the React virtual DOM tree.
-> - **Defense-in-Depth HTTP Headers**: Automated middleware enforces `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection: 1; mode=block`, and HSTS.
-> - **DoS & Memory Protection**: 5MB upload ceilings and 10,000 row limits on CSV batch ingestion.
-> - **Timing-Safe Webhooks**: Model retraining webhooks verified via constant-time SHA-256 HMAC comparisons (`hmac.compare_digest`).
-
----
-
-## 📁 Repository Structure
-
-```
-Enterprise_churn_engine/
-├── backend/
-│   ├── api/
-│   │   ├── main.py               # FastAPI Gateway & Decision Engine endpoints
-│   │   └── schemas.py            # Pydantic V2 request & response contracts
-│   ├── src/
-│   │   ├── pipeline.py           # Feature engineering & RobustScaler transformers
-│   │   ├── model.py              # Calibrated XGBoost classifier (JSON serialization)
-│   │   ├── explainer.py          # TreeSHAP local & global attribution engine
-│   │   ├── rules_engine.py       # Retention playbook matcher & SLA routing
-│   │   ├── database.py           # SQLAlchemy audit tables & SQLite/PostgreSQL layer
-│   │   └── train_pipeline.py     # Automated synthetic data generation & retraining
-│   ├── models/                   # Serialized model weights & metadata
-│   ├── data/                     # Demo accounts sample & SQLite audit store
-│   └── tests/                    # Pytest test suite (100% pass rate)
-├── frontend/
-│   ├── app/                      # Next.js 14 App Router pages
-│   ├── components/               # Swiss-luxury aesthetic component library
-│   │   ├── AccountInspector.tsx  # Slide-over account diagnostic drawer
-│   │   ├── ShapWaterfallChart.tsx# Visual SHAP force-bar breakdown
-│   │   ├── ForceShapVisualizer.tsx# Dynamic TreeSHAP attribution visualizer
-│   │   ├── DecisionCopilot.tsx   # AI Decision Copilot slide-in panel
-│   │   └── FloatingDecisionCopilot.tsx # Interactive floating launch trigger
-│   └── lib/                      # API client, Web Audio feedback & types
-├── docker-compose.yml            # Multi-container orchestration
-├── start-app.bat                 # Windows 1-click dual-server launcher
-├── PRD.md                        # Product Requirements Document
-├── TRD.md                        # Technical Requirements Document
-└── SECURITY_AND_RISK.md          # Threat modeling & security controls
-```
-
----
-
-## 🛣️ Product Roadmap
-
-- [x] **v1.0**: XGBoost Churn Classifier + TreeSHAP Local Explainability.
-- [x] **v1.1**: Persistent Retention Playbook Dispatcher, SLA Deadlines, and Outbound Webhooks.
-- [x] **v1.2**: Interactive Floating Decision Copilot with Swiss Luxury Dark Aesthetics.
-- [x] **v1.3**: Strix AI White-Box Security Hardening, DoS Limits, and HTTP Security Middleware.
-- [ ] **v2.0**: Native Two-Way Salesforce & HubSpot AppExchange Packages.
-- [ ] **v2.1**: Multi-Tenant Org Partitioning with Role-Based Access Control (RBAC).
-- [ ] **v2.2**: Autonomous LLM-Generated Email Drafts for CS Account Executives.
-
----
-
-## 🤝 Contributing
-
-We welcome contributions to VALENCE! Please follow standard pull request hygiene:
-
-1. Fork the repository (`git checkout -b feature/amazing-feature`).
-2. Commit your changes (`git commit -m 'feat: add amazing feature'`).
-3. Verify test pass rate (`pytest` in backend & `npm run build` in frontend).
-4. Push to the branch (`git push origin feature/amazing-feature`).
-5. Open a Pull Request for review.
-
-> [!IMPORTANT]
-> Never commit `.env` files, API keys, or database credentials. Ensure all sensitive configurations are kept server-side.
-
----
-
-## 📄 License & Disclaimer
-
-> [!CAUTION]
-> **Financial & Retention Disclaimer**: VALENCE provides predictive decision support based on statistical models and telemetry. All retention actions, contract restructures, and financial interventions should be reviewed by authorized revenue personnel.
-
-Distributed under the **MIT License**. Copyright © 2026 VALENCE Decision Systems.
+## 📄 License
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

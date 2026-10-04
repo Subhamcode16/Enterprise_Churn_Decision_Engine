@@ -21,6 +21,11 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
+:: 3. Free ports 3000 and 8000
+echo [*] Freeing ports 3000 and 8000 from orphaned processes...
+powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 3000, 8000 -ErrorAction SilentlyContinue | Where-Object { $_.OwningProcess -gt 4 } | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"
+
+echo.
 echo [1/3] Ensuring Backend ML models and artifacts are ready...
 cd /d "%~dp0backend"
 python src/train_pipeline.py

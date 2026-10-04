@@ -35,29 +35,29 @@ export function resolvePrimaryPlaybook(account: AccountRecord): string {
 export function getRiskBadgeClasses(tier: RiskTier): string {
   switch (tier) {
     case "Critical":
-      return "bg-rose-500/15 text-rose-400 border border-rose-500/30 animate-pulse";
+      return "bg-rose-100 text-rose-800 border border-rose-200";
     case "High":
-      return "bg-amber-500/15 text-amber-400 border border-amber-500/30";
+      return "bg-[#FAF0E6] text-[#8C3A27] border border-[#8C3A27]/30";
     case "Medium":
-      return "bg-stone-500/15 text-stone-300 border border-stone-500/30";
+      return "bg-[#E2EAE4] text-[#163832] border border-[#8EB69B]/30";
     case "Low":
-      return "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
+      return "bg-[#DAF1DE] text-[#0B2B26] border border-[#8EB69B]/40";
     default:
-      return "bg-stone-800 text-stone-400 border border-stone-700";
+      return "bg-[#F4F8F5] text-[#051F20] border border-[#E2EAE4]";
   }
 }
 
 export function getRiskColorHex(tier: RiskTier): string {
   switch (tier) {
     case "Critical":
-      return "#EF4444";
+      return "#BE123C";
     case "High":
-      return "#F59E0B";
+      return "#8C3A27";
     case "Medium":
-      return "#78716C";
+      return "#235347";
     case "Low":
-      return "#10B981";
+      return "#163832";
     default:
-      return "#57534E";
+      return "#051F20";
   }
 }

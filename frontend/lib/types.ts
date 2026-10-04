@@ -98,3 +98,11 @@ export interface BatchResponse {
   accounts: BatchItem[];
   generated_at: string;
 }
+
+export interface WorkspaceStatus {
+  has_connected_data: boolean;
+  mode: "demo" | "live";
+  source: "csv" | "stripe" | "salesforce" | null;
+  connected_accounts_count: number;
+}
+

@@ -45,10 +45,10 @@ export default function AccountRadar({ account }: AccountRadarProps) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="p-2.5 rounded-xl bg-white border border-[#E8E5DD] shadow-lg text-xs">
-          <span className="font-semibold text-stone-900">{data.subject}: </span>
-          <span className="font-mono font-bold text-amber-600">{data.value}/100</span>
-          <span className="text-stone-500 text-[10px] ml-1.5">(Target: {data.benchmark})</span>
+        <div className="p-2.5 rounded-xl bg-white border border-[#E2EAE4] shadow-md text-xs">
+          <span className="font-semibold text-[#051F20]">{data.subject}: </span>
+          <span className="font-mono font-bold text-[#235347]">{data.value}/100</span>
+          <span className="text-[#163832]/60 text-[10px] ml-1.5">(Target: {data.benchmark})</span>
         </div>
       );
     }
@@ -59,15 +59,15 @@ export default function AccountRadar({ account }: AccountRadarProps) {
     <div className="w-full h-[220px]">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
-          <PolarGrid stroke="#E8E5DD" />
-          <PolarAngleAxis dataKey="subject" stroke="#57534E" fontSize={11} tickLine={false} />
+          <PolarGrid stroke="#E2EAE4" />
+          <PolarAngleAxis dataKey="subject" stroke="#163832" fontSize={11} tickLine={false} />
           <Tooltip content={<CustomRadarTooltip />} />
           <Radar
             name={account.company_name}
             dataKey="value"
-            stroke="#F59E0B"
-            fill="#F59E0B"
-            fillOpacity={0.3}
+            stroke="#235347"
+            fill="#8EB69B"
+            fillOpacity={0.35}
           />
         </RadarChart>
       </ResponsiveContainer>

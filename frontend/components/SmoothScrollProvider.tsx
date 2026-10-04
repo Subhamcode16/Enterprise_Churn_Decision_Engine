@@ -17,6 +17,9 @@ export default function SmoothScrollProvider({
       gestureOrientation: "vertical",
       smoothWheel: true,
       touchMultiplier: 1.5,
+      prevent: (node) => 
+        node.hasAttribute("data-lenis-prevent") || 
+        Boolean(node.closest && node.closest("[data-lenis-prevent]")),
     });
 
     let animationFrameId: number;

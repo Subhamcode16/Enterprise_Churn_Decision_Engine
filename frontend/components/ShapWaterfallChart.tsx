@@ -20,20 +20,20 @@ export default function ShapWaterfallChart({
   const maxAbsShap = Math.max(...drivers.map((d) => Math.abs(d.shap_value)), 0.5);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans">
       {/* Summary Header */}
-      <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#FAF8F5] border border-[#EFECE4] text-xs">
+      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-[#E2EAE4] text-xs shadow-2xs">
         <div>
           <span className="text-stone-500">Baseline Margin: </span>
-          <span className="font-mono font-bold text-stone-800">{baseValue.toFixed(3)}</span>
+          <span className="font-mono font-bold text-[#051F20]">{baseValue.toFixed(3)}</span>
         </div>
         <div>
           <span className="text-stone-500">Account Margin: </span>
-          <span className="font-mono font-bold text-stone-900">{totalMargin.toFixed(3)}</span>
+          <span className="font-mono font-bold text-[#051F20]">{totalMargin.toFixed(3)}</span>
         </div>
         <div>
           <span className="text-stone-500">P(Churn): </span>
-          <span className="font-mono font-bold text-rose-600">
+          <span className="font-mono font-bold text-[#8C3A27]">
             {(predictedProbability * 100).toFixed(1)}%
           </span>
         </div>
@@ -48,20 +48,20 @@ export default function ShapWaterfallChart({
           return (
             <div
               key={index}
-              className="p-3 rounded-xl bg-white border border-[#E8E5DD] hover:border-stone-400 transition-all text-xs space-y-1.5"
+              className="p-3.5 rounded-2xl bg-white border border-[#E2EAE4] hover:border-[#8EB69B] transition-all text-xs space-y-2 shadow-2xs"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {isRisk ? (
-                    <TrendingUp className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    <TrendingUp className="w-3.5 h-3.5 text-[#8C3A27] shrink-0" />
                   ) : (
-                    <TrendingDown className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <TrendingDown className="w-3.5 h-3.5 text-[#235347] shrink-0" />
                   )}
-                  <span className="font-semibold text-stone-900">
+                  <span className="font-semibold text-[#051F20]">
                     {driver.display_name}
                   </span>
                   {driver.value !== null && (
-                    <span className="px-1.5 py-0.5 rounded bg-stone-100 border border-stone-200 text-[10px] font-mono text-stone-700">
+                    <span className="px-2 py-0.5 rounded-full bg-[#F4F8F5] border border-[#E2EAE4] text-[10px] font-mono text-[#163832]/70">
                       val: {driver.value}
                     </span>
                   )}
@@ -69,25 +69,27 @@ export default function ShapWaterfallChart({
 
                 <span
                   className={`font-mono font-bold text-xs ${
-                    isRisk ? "text-rose-600" : "text-emerald-700"
+                    isRisk ? "text-[#8C3A27]" : "text-[#235347]"
                   }`}
                 >
                   {isRisk ? `+${driver.shap_value.toFixed(3)}` : driver.shap_value.toFixed(3)} SHAP
                 </span>
               </div>
 
-              {/* Bar */}
-              <div className="h-2 rounded-full bg-[#F0ECE1] overflow-hidden">
+              {/* Hatched Pill Bar (Matching Reference Pattern) */}
+              <div className="h-2.5 rounded-full bg-[#E2EAE4]/60 overflow-hidden flex">
                 <div
-                  className={`h-full rounded-full ${
-                    isRisk ? "bg-rose-500" : "bg-emerald-500"
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    isRisk 
+                      ? "bg-[#8C3A27] shadow-2xs" 
+                      : "bg-[#235347] pattern-diagonal-stripes"
                   }`}
-                  style={{ width: `${Math.max(widthPct, 4)}%` }}
+                  style={{ width: `${Math.max(widthPct, 6)}%` }}
                 />
               </div>
 
               {/* Feature Insight Note */}
-              <p className="text-[11px] text-stone-500 leading-snug">
+              <p className="text-[11px] text-[#163832]/60 leading-snug">
                 {driver.insight}
               </p>
             </div>

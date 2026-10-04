@@ -53,38 +53,43 @@ export default function KpiMetrics({ summary }: KpiMetricsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-sans">
       {cards.map((card, idx) => {
         const Icon = card.icon;
         return (
           <div
             key={idx}
-            style={{
-              boxShadow: `0 10px 30px -10px ${card.glowColor}`,
-            }}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#1E1C1A] via-[#161514] to-[#100F0E] p-5 border ${card.borderColor} backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:border-stone-600`}
+            className="relative overflow-hidden rounded-2xl bg-[#FFFFFF] p-5 border border-[#E8E5DD] shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-amber-300 hover:shadow-md"
           >
             {/* Top Row */}
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 font-mono">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 font-mono">
                 {card.title}
               </span>
-              <div className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-300">
-                <Icon className="w-4 h-4 text-amber-400" />
+              <div className="p-2 rounded-xl bg-[#FAF8F5] border border-[#E8E5DD] text-stone-800 shadow-xs">
+                <Icon className="w-4 h-4 text-amber-600" />
               </div>
             </div>
 
             {/* Value & Badge */}
             <div className="mt-3.5 flex items-baseline justify-between gap-2">
-              <div className="text-2xl sm:text-3xl font-mono font-extrabold text-stone-100 tracking-tight">
+              <div className="text-2xl sm:text-3xl font-mono font-extrabold text-stone-950 tracking-tight">
                 {card.value}
               </div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${card.badgeColor}`}>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                idx === 0 
+                  ? "bg-rose-100 text-rose-800 border-rose-200"
+                  : idx === 1 
+                  ? "bg-amber-100 text-amber-900 border-amber-200"
+                  : idx === 2
+                  ? "bg-amber-100 text-amber-800 border-amber-200"
+                  : "bg-emerald-100 text-emerald-800 border-emerald-200"
+              }`}>
                 {card.badge}
               </span>
             </div>
 
-            <p className="mt-2 text-xs text-stone-400 font-medium">
+            <p className="mt-2 text-xs text-stone-500 font-medium">
               {card.subtext}
             </p>
           </div>

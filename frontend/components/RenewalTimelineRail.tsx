@@ -44,47 +44,51 @@ export default function RenewalTimelineRail({
 
   return (
     <div className="space-y-6 font-sans">
-      {/* Calendar Timeline Widget (Intelly & Finexy style) */}
-      <div className="bg-[#FFFFFF] border border-[#E8E5DD] rounded-2xl p-5 shadow-sm space-y-4">
+      {/* Calendar Timeline Widget (Forest Emerald Aesthetic) */}
+      <div className="bg-white border border-[#E2EAE4] rounded-[28px] p-5 shadow-[0_4px_24px_-2px_rgba(5,31,32,0.03)] space-y-4">
         {/* Month Selector Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 text-stone-600" />
-            <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wider font-mono">
+            <div className="w-7 h-7 rounded-xl bg-[#DAF1DE] border border-[#8EB69B]/40 flex items-center justify-center text-[#0B2B26]">
+              <CalendarIcon className="w-3.5 h-3.5" />
+            </div>
+            <h3 className="text-xs font-bold text-[#051F20] uppercase tracking-wider font-mono">
               Renewal Horizon
             </h3>
           </div>
-          <div className="flex items-center gap-1 text-[11px] font-mono font-semibold text-stone-700 bg-stone-100 px-2 py-0.5 rounded-lg border border-stone-200">
-            <span>Q3 2026 Horizon</span>
+          <div className="flex items-center gap-1 text-[11px] font-mono font-semibold text-[#051F20] bg-[#F4F8F5] px-2.5 py-1 rounded-full border border-[#E2EAE4]">
+            <span>Q3 Horizon</span>
           </div>
         </div>
 
         {/* Mini Day Strip with Active P0 Horizon Highlighting */}
-        <div className="grid grid-cols-7 gap-1 text-center py-2 border-y border-[#F0ECE1]">
+        <div className="grid grid-cols-7 gap-1 text-center py-2.5 border-y border-[#E2EAE4]">
           {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-            <span key={i} className="text-[10px] font-mono text-stone-400 font-bold">
+            <span key={i} className="text-[10px] font-mono text-[#163832]/50 font-bold">
               {d}
             </span>
           ))}
           {[24, 25, 26, 27, 28, 29, 30].map((day, idx) => (
             <div
               key={idx}
-              className={`py-1 rounded-md text-xs font-mono font-medium transition-all ${
+              className={`py-1.5 rounded-xl text-xs font-mono font-medium transition-all flex flex-col items-center justify-center ${
                 day === 30
-                  ? "bg-[#141312] text-[#FAF8F5] font-bold shadow-sm"
+                  ? "bg-[#235347] text-white font-bold shadow-xs scale-105"
                   : day === 28
-                  ? "bg-[#FFE8E8] text-[#8E2424] font-bold"
-                  : "text-stone-600 hover:bg-stone-100"
+                  ? "bg-rose-50 text-rose-700 font-bold border border-rose-200/60"
+                  : "text-[#163832]/70 hover:bg-[#F4F8F5]"
               }`}
             >
-              {day}
+              <span>{day}</span>
+              {day === 28 && <span className="w-1 h-1 rounded-full bg-rose-500 mt-0.5" />}
+              {day === 30 && <span className="w-1 h-1 rounded-full bg-[#DAF1DE] mt-0.5" />}
             </div>
           ))}
         </div>
 
         {/* Timeline Items */}
         <div className="space-y-2.5 pt-1">
-          <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase tracking-wider text-stone-400 px-0.5">
+          <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase tracking-wider text-[#163832]/60 px-0.5">
             <span>Expiring Contracts</span>
             <span>Horizon</span>
           </div>
@@ -100,17 +104,17 @@ export default function RenewalTimelineRail({
                     playTick();
                     onSelectAccount(acc);
                   }}
-                  className={`cursor-pointer p-3 rounded-xl border transition-all text-xs flex items-center justify-between group ${
+                  className={`cursor-pointer p-3.5 rounded-2xl border transition-all text-xs flex items-center justify-between group ${
                     isSelected
-                      ? "bg-[#FFF9EA] border-[#FFE28A] shadow-sm ring-1 ring-[#FFE28A]"
-                      : "bg-[#FBF9F5] border-[#EFECE4] hover:border-stone-400 hover:bg-white"
+                      ? "bg-[#DAF1DE]/40 border-[#235347] shadow-xs ring-1 ring-[#235347]/20"
+                      : "bg-[#F4F8F5] border-[#E2EAE4] hover:border-[#8EB69B]/60 hover:bg-white"
                   }`}
                 >
                   <div className="space-y-0.5 min-w-0 pr-2">
-                    <div className="font-semibold text-stone-900 truncate max-w-[135px]">
+                    <div className="font-semibold text-[#051F20] truncate max-w-[135px]">
                       {acc.company_name}
                     </div>
-                    <div className="text-[10px] text-stone-500 font-mono">
+                    <div className="text-[10px] text-[#163832]/70 font-mono">
                       {formatCurrency(acc.contract_mrr)} • {acc.contract_tier}
                     </div>
                   </div>
@@ -118,20 +122,20 @@ export default function RenewalTimelineRail({
                   <div className="text-right flex flex-col items-end gap-1 shrink-0">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                       acc.risk_tier === "Critical" 
-                        ? "bg-rose-100 text-rose-700 border border-rose-200" 
-                        : "bg-amber-100 text-amber-800 border border-amber-200"
+                        ? "bg-rose-50 text-rose-700 border border-rose-200" 
+                        : "bg-[#DAF1DE] text-[#0B2B26] border border-[#8EB69B]/40"
                     }`}>
                       {acc.days_until_renewal}d left
                     </span>
 
                     {isDispatched ? (
-                      <span className="text-[9px] font-mono text-emerald-700 font-bold flex items-center gap-0.5">
+                      <span className="text-[9px] font-mono text-[#235347] font-bold flex items-center gap-0.5">
                         <CheckCircle2 className="w-2.5 h-2.5" /> Sent
                       </span>
                     ) : (
                       <button
                         onClick={(e) => handleQuickDispatch(e, acc.account_id)}
-                        className="text-[9px] font-mono text-stone-500 hover:text-stone-950 font-semibold underline"
+                        className="text-[9px] font-mono text-[#235347] hover:text-[#051F20] font-semibold underline cursor-pointer"
                         title="Fast-dispatch protocol"
                       >
                         ⚡ Escalate
