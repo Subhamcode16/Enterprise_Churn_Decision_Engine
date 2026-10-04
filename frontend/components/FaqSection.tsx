@@ -93,13 +93,13 @@ export default function FaqSection({ onOpenConnectModal }: { onOpenConnectModal?
   };
 
   return (
-    <section className="w-full mt-40 sm:mt-48 mb-48 px-1 sm:px-2 font-sans">
+    <section className="w-full mt-64 lg:mt-72 pt-20 mb-56 px-1 sm:px-2 font-sans border-t border-[#051F20]/15">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start w-full">
         
         {/* ============================================================== */}
         {/* LEFT COLUMN (4 Cols): Sticky Editorial Title, Search & Filters */}
         {/* ============================================================== */}
-        <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-7">
+        <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-7">
           <div className="space-y-3">
             <h3 className="text-4xl sm:text-5xl font-serif font-bold text-[#051F20] tracking-tight leading-[1.1]">
               Frequently Asked Questions
