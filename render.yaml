@@ -22,6 +22,10 @@ services:
         value: "https://valence-frontend.vercel.app,http://localhost:3000"
       - key: API_SECRET_KEY
         generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SESSION_SECRET
+        generateValue: true
       - key: WEBHOOK_SECRET
         generateValue: true
       - key: RATE_LIMIT_PREDICT
