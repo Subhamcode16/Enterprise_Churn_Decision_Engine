@@ -50,6 +50,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(String(100), default="default_tenant", index=True, nullable=False)
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     salt = Column(String(64), nullable=False)
@@ -65,6 +66,7 @@ class TenantVault(Base):
     __tablename__ = "tenant_vaults"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True, nullable=True)
     tenant_id = Column(String(100), index=True, nullable=False)
     data_source = Column(String(50), nullable=False)  # csv, stripe, salesforce
     records_count = Column(Integer, default=0, nullable=False)
@@ -74,10 +76,12 @@ class TenantVault(Base):
 
 
 class DispatchedPlaybookRecord(Base):
-    """Audit Trail for SLA Retention Actions"""
+    """Audit Trail for SLA Retention Actions Partitioned by User/Tenant"""
     __tablename__ = "dispatched_playbooks"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True, nullable=True)
+    tenant_id = Column(String(100), default="default_tenant", index=True, nullable=False)
     account_id = Column(String(100), index=True, nullable=False)
     company_name = Column(String(255), nullable=False)
     playbook_id = Column(String(50), nullable=False)
@@ -90,13 +94,31 @@ class DispatchedPlaybookRecord(Base):
 
 
 class AccountNoteRecord(Base):
-    """Collaborative Notes on Enterprise Accounts"""
+    """Collaborative Notes on Enterprise Accounts Partitioned by User/Tenant"""
     __tablename__ = "account_notes"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True, nullable=True)
+    tenant_id = Column(String(100), default="default_tenant", index=True, nullable=False)
     account_id = Column(String(100), index=True, nullable=False)
     author = Column(String(255), default="CS Lead", nullable=False)
     note = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+
+class CustomUserAccountRecord(Base):
+    """Per-User Custom / Uploaded Accounts Partition"""
+    __tablename__ = "custom_user_accounts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    tenant_id = Column(String(100), default="default_tenant", index=True, nullable=False)
+    account_id = Column(String(100), index=True, nullable=False)
+    company_name = Column(String(255), nullable=False)
+    contract_mrr = Column(Float, nullable=False)
+    raw_payload = Column(Text, nullable=False)
+    churn_probability = Column(Float, nullable=True)
+    risk_tier = Column(String(50), nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
 
@@ -118,6 +140,8 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=True)
+    tenant_id = Column(String(100), default="default_tenant", nullable=False)
     user_email = Column(String(255), nullable=True)
     action = Column(String(100), nullable=False)
     resource = Column(String(255), nullable=False)
@@ -128,6 +152,43 @@ class AuditLog(Base):
 # Initialize Database Tables
 def init_db():
     Base.metadata.create_all(bind=engine)
+    # Auto-migration for SQLite schema updates if table existed prior to column additions
+    if DATABASE_URL.startswith("sqlite"):
+        try:
+            with engine.connect() as conn:
+                # users table
+                res = conn.exec_driver_sql("PRAGMA table_info(users)").fetchall()
+                user_cols = [r[1] for r in res]
+                if "tenant_id" not in user_cols and len(user_cols) > 0:
+                    conn.exec_driver_sql("ALTER TABLE users ADD COLUMN tenant_id VARCHAR(100) DEFAULT 'default_tenant'")
+
+                # dispatched_playbooks table
+                res = conn.exec_driver_sql("PRAGMA table_info(dispatched_playbooks)").fetchall()
+                pb_cols = [r[1] for r in res]
+                if "user_id" not in pb_cols and len(pb_cols) > 0:
+                    conn.exec_driver_sql("ALTER TABLE dispatched_playbooks ADD COLUMN user_id INTEGER")
+                if "tenant_id" not in pb_cols and len(pb_cols) > 0:
+                    conn.exec_driver_sql("ALTER TABLE dispatched_playbooks ADD COLUMN tenant_id VARCHAR(100) DEFAULT 'default_tenant'")
+
+                # account_notes table
+                res = conn.exec_driver_sql("PRAGMA table_info(account_notes)").fetchall()
+                notes_cols = [r[1] for r in res]
+                if "user_id" not in notes_cols and len(notes_cols) > 0:
+                    conn.exec_driver_sql("ALTER TABLE account_notes ADD COLUMN user_id INTEGER")
+                if "tenant_id" not in notes_cols and len(notes_cols) > 0:
+                    conn.exec_driver_sql("ALTER TABLE account_notes ADD COLUMN tenant_id VARCHAR(100) DEFAULT 'default_tenant'")
+
+                # audit_logs table
+                res = conn.exec_driver_sql("PRAGMA table_info(audit_logs)").fetchall()
+                audit_cols = [r[1] for r in res]
+                if "user_id" not in audit_cols and len(audit_cols) > 0:
+                    conn.exec_driver_sql("ALTER TABLE audit_logs ADD COLUMN user_id INTEGER")
+                if "tenant_id" not in audit_cols and len(audit_cols) > 0:
+                    conn.exec_driver_sql("ALTER TABLE audit_logs ADD COLUMN tenant_id VARCHAR(100) DEFAULT 'default_tenant'")
+                
+                conn.commit()
+        except Exception:
+            pass
 
 
 def get_db() -> Generator[Session, None, None]:

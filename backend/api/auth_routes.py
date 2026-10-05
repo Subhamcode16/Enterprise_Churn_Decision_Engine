@@ -63,6 +63,7 @@ def register_user(request: Request, req: RegisterRequest, db: Session = Depends(
     hashed = hash_password(req.password, salt)
 
     user = User(
+        tenant_id="default_tenant",
         email=req.email.lower(),
         hashed_password=hashed,
         salt=salt,
@@ -77,6 +78,8 @@ def register_user(request: Request, req: RegisterRequest, db: Session = Depends(
 
     # Log audit event
     audit = AuditLog(
+        user_id=user.id,
+        tenant_id=user.tenant_id,
         user_email=user.email,
         action="USER_REGISTERED",
         resource=f"/api/auth/register?role={user.role}",
@@ -123,6 +126,8 @@ def login_user(request: Request, req: LoginRequest, db: Session = Depends(get_db
 
     # Log audit event
     audit = AuditLog(
+        user_id=user.id,
+        tenant_id=user.tenant_id or "default_tenant",
         user_email=user.email,
         action="USER_LOGIN_SUCCESS",
         resource="/api/auth/login",

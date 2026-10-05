@@ -123,6 +123,26 @@ def get_current_user(
     return user
 
 
+def get_optional_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme),
+    db: Session = Depends(get_db)
+) -> Optional[User]:
+    """FastAPI Dependency: Attempts to resolve User from Bearer Token if present, returns None otherwise"""
+    if not credentials or not credentials.credentials:
+        return None
+    try:
+        payload = decode_access_token(credentials.credentials)
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        user = db.query(User).filter(User.id == int(user_id)).first()
+        if not user or not user.is_active:
+            return None
+        return user
+    except Exception:
+        return None
+
+
 def require_admin_role(current_user: User = Depends(get_current_user)) -> User:
     """FastAPI Dependency: Restricts endpoint exclusively to admin role"""
     if current_user.role != "admin":

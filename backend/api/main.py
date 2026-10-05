@@ -38,10 +38,13 @@ from src.rules_engine import determine_risk_tier, compute_financial_exposure, ma
 from src.database import (
     init_db,
     get_db,
+    User,
     DispatchedPlaybookRecord,
     AccountNoteRecord,
+    CustomUserAccountRecord,
     ModelTelemetryRecord
 )
+from src.auth import get_optional_current_user
 from api.schemas import (
     AccountInputSchema,
     SinglePredictionResponse,
@@ -407,13 +410,30 @@ async def batch_predict_csv(
 
 @app.get("/api/v1/accounts/demo", tags=["Analytics"])
 @limiter.limit("60/minute")
-def get_demo_accounts(request: Request):
+def get_demo_accounts(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user)
+):
     """
-    Returns the active portfolio (demo baseline or connected live company accounts)
+    Returns the active portfolio (demo baseline or user-specific connected accounts)
     with pre-calculated risk metrics for instant UI exploration.
     """
-    is_live = state.workspace_mode == "live" and state.has_connected_data and bool(state.live_accounts)
-    source_accounts = state.live_accounts if is_live else state.demo_accounts
+    # Check if logged-in user has custom persistent workspace accounts
+    user_custom_records = []
+    if current_user:
+        user_custom_records = db.query(CustomUserAccountRecord).filter(
+            CustomUserAccountRecord.user_id == current_user.id
+        ).order_by(CustomUserAccountRecord.created_at.desc()).all()
+
+    if user_custom_records:
+        source_accounts = [json.loads(r.raw_payload) for r in user_custom_records]
+        is_live = True
+        active_source = "user_vault"
+    else:
+        is_live = state.workspace_mode == "live" and state.has_connected_data and bool(state.live_accounts)
+        source_accounts = state.live_accounts if is_live else state.demo_accounts
+        active_source = state.connected_source
 
     if not source_accounts:
         return {
@@ -422,10 +442,26 @@ def get_demo_accounts(request: Request):
                 "total_accounts": 0, "total_portfolio_mrr": 0, "total_mrr_at_risk": 0,
                 "portfolio_risk_pct": 0, "critical_risk_count": 0, "high_risk_count": 0,
                 "medium_risk_count": 0, "low_risk_count": 0
-            }
+            },
+            "workspace_mode": "demo",
+            "has_connected_data": False,
+            "connected_source": None
         }
         
     df_sample = pd.DataFrame(source_accounts)
+    for feat in ALL_MODEL_FEATURES:
+        if feat not in df_sample.columns:
+            if feat == "contract_tier":
+                df_sample[feat] = "Enterprise"
+            elif feat == "active_user_ratio":
+                df_sample[feat] = 0.75
+            elif feat == "api_calls_monthly":
+                df_sample[feat] = 15000
+            elif feat == "auto_renew_enabled":
+                df_sample[feat] = 1
+            else:
+                df_sample[feat] = 0.0
+
     transformed = state.preprocessor.transform(df_sample)
     probas = state.model.predict_proba(transformed)[:, 1]
     
@@ -475,9 +511,9 @@ def get_demo_accounts(request: Request):
             "low_risk_count": sum(1 for r in results if r["risk_tier"] == "Low")
         },
         "accounts": results,
-        "workspace_mode": state.workspace_mode,
-        "has_connected_data": state.has_connected_data,
-        "connected_source": state.connected_source
+        "workspace_mode": "live" if is_live else "demo",
+        "has_connected_data": is_live,
+        "connected_source": active_source
     }
 
 # --- Workspace & Data Connection Endpoints ---
@@ -510,7 +546,9 @@ def set_workspace_mode(payload: WorkspaceModeInput):
 async def import_company_data(
     request: Request,
     file: Optional[UploadFile] = File(None),
-    connector: Optional[str] = None
+    connector: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user)
 ):
     """
     Ingests, validates, and encrypts company data (CSV or Cloud Connector)
@@ -702,11 +740,33 @@ async def import_company_data(
 
     results.sort(key=lambda x: x["mrr_at_risk"], reverse=True)
 
-    # Persist in state
+    # Persist in state & DB
     state.live_accounts = raw_records
     state.has_connected_data = True
     state.workspace_mode = "live"
     state.connected_source = source_name
+
+    if current_user:
+        try:
+            db.query(CustomUserAccountRecord).filter(CustomUserAccountRecord.user_id == current_user.id).delete()
+            for rec in results:
+                custom_rec = CustomUserAccountRecord(
+                    user_id=current_user.id,
+                    tenant_id=current_user.tenant_id,
+                    account_id=rec["account_id"],
+                    company_name=rec["company_name"],
+                    contract_mrr=rec["contract_mrr"],
+                    raw_payload=json.dumps(rec),
+                    churn_probability=rec["churn_probability"],
+                    risk_tier=rec["risk_tier"],
+                    created_at=datetime.now(timezone.utc)
+                )
+                db.add(custom_rec)
+            db.commit()
+            logger.info(f"USER VAULT: Saved {len(results)} accounts for user #{current_user.id} ({current_user.email})")
+        except Exception as e:
+            logger.error(f"Failed to persist custom user accounts: {e}")
+            db.rollback()
 
     summary = {
         "total_accounts": len(results),
@@ -729,8 +789,14 @@ async def import_company_data(
     )
 
 @app.post("/api/v1/workspace/reset-demo", tags=["Workspace"])
-def reset_demo_workspace():
+def reset_demo_workspace(
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user)
+):
     """Resets the workspace back to baseline demo sandbox mode."""
+    if current_user:
+        db.query(CustomUserAccountRecord).filter(CustomUserAccountRecord.user_id == current_user.id).delete()
+        db.commit()
     state.workspace_mode = "demo"
     state.has_connected_data = False
     state.connected_source = None
@@ -748,6 +814,7 @@ def get_playbook_catalog(request: Request):
 def dispatch_playbook(
     payload: DispatchedPlaybookInput,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
     authorized: bool = Depends(verify_api_key)
 ):
     """
@@ -757,6 +824,8 @@ def dispatch_playbook(
     deadline = now + timedelta(hours=payload.sla_hours or 4)
     
     record = DispatchedPlaybookRecord(
+        user_id=current_user.id if current_user else None,
+        tenant_id=current_user.tenant_id if current_user else "default_tenant",
         account_id=payload.account_id,
         company_name=payload.company_name,
         playbook_id=payload.playbook_id,
@@ -836,10 +905,17 @@ def update_dispatched_playbook_status(
 @app.get("/api/v1/playbooks/dispatched", response_model=List[DispatchedPlaybookResponse], tags=["Playbooks"])
 def list_dispatched_playbooks(
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
     authorized: bool = Depends(verify_api_key)
 ):
     """Returns the persistent audit log of all dispatched retention playbooks."""
-    records = db.query(DispatchedPlaybookRecord).order_by(DispatchedPlaybookRecord.created_at.desc()).limit(100).all()
+    query = db.query(DispatchedPlaybookRecord)
+    if current_user and current_user.role != "admin":
+        query = query.filter(
+            (DispatchedPlaybookRecord.user_id == current_user.id) |
+            (DispatchedPlaybookRecord.user_id == None)
+        )
+    records = query.order_by(DispatchedPlaybookRecord.created_at.desc()).limit(100).all()
     return [
         DispatchedPlaybookResponse(
             id=r.id,
@@ -947,13 +1023,17 @@ def add_account_note(
     account_id: str,
     payload: AccountNoteInput,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
     authorized: bool = Depends(verify_api_key)
 ):
     """Persists a collaborative CS note for an enterprise account."""
     now = datetime.now(timezone.utc)
+    author_name = current_user.full_name if (current_user and current_user.full_name) else (payload.author or "CS Lead")
     record = AccountNoteRecord(
+        user_id=current_user.id if current_user else None,
+        tenant_id=current_user.tenant_id if current_user else "default_tenant",
         account_id=account_id,
-        author=payload.author or "CS Lead",
+        author=author_name,
         note=payload.note,
         created_at=now
     )
@@ -973,10 +1053,17 @@ def add_account_note(
 def get_account_notes(
     account_id: str,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
     authorized: bool = Depends(verify_api_key)
 ):
     """Returns persistent notes for a specific enterprise account."""
-    notes = db.query(AccountNoteRecord).filter(AccountNoteRecord.account_id == account_id).order_by(AccountNoteRecord.created_at.desc()).all()
+    query = db.query(AccountNoteRecord).filter(AccountNoteRecord.account_id == account_id)
+    if current_user and current_user.role != "admin":
+        query = query.filter(
+            (AccountNoteRecord.user_id == current_user.id) |
+            (AccountNoteRecord.user_id == None)
+        )
+    notes = query.order_by(AccountNoteRecord.created_at.desc()).all()
     return [
         AccountNoteResponse(
             id=n.id,

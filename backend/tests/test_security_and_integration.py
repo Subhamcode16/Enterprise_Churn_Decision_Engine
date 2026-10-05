@@ -199,3 +199,131 @@ def test_what_if_counterfactual_simulation(client):
     sim_data = res.json()
     assert "churn_probability" in sim_data
     assert "top_drivers" in sim_data
+
+
+# ==============================================================================
+# 4. MULTI-TENANT USER ISOLATION & PER-USER WORKSPACE PERSISTENCE
+# ==============================================================================
+
+def test_multi_tenant_notes_and_playbook_isolation(client):
+    """Verify strict per-user database partitioning on operational notes and playbooks"""
+    # 1. Register User Alpha
+    email_a = f"user_alpha_{os.urandom(4).hex()}@tenant-a.com"
+    res_a = client.post("/api/auth/register", json={
+        "email": email_a,
+        "password": "Password123!",
+        "full_name": "Operator Alpha",
+        "role": "operator"
+    })
+    assert res_a.status_code == 201
+    token_a = res_a.json()["access_token"]
+
+    # 2. Register User Beta
+    email_b = f"user_beta_{os.urandom(4).hex()}@tenant-b.com"
+    res_b = client.post("/api/auth/register", json={
+        "email": email_b,
+        "password": "Password123!",
+        "full_name": "Operator Beta",
+        "role": "operator"
+    })
+    assert res_b.status_code == 201
+    token_b = res_b.json()["access_token"]
+
+    # 3. User Alpha adds a private note to ACC-ALPHA-SECRET
+    note_res = client.post(
+        "/api/v1/accounts/ACC-ALPHA-SECRET/notes",
+        headers={"Authorization": f"Bearer {token_a}"},
+        json={"note": "Confidential executive negotiation in progress for Alpha."}
+    )
+    assert note_res.status_code == 200
+
+    # 4. User Alpha dispatches a playbook
+    play_res = client.post(
+        "/api/v1/playbooks/dispatch",
+        headers={"Authorization": f"Bearer {token_a}"},
+        json={
+            "account_id": "ACC-ALPHA-SECRET",
+            "company_name": "Alpha Enterprise Inc",
+            "playbook_id": "PB-SAVE-01",
+            "priority": "P0",
+            "sla_hours": 4
+        }
+    )
+    assert play_res.status_code == 200
+    playbook_id = play_res.json()["id"]
+
+    # 5. User Beta queries notes for ACC-ALPHA-SECRET -> Must NOT see Alpha's private note
+    beta_notes = client.get(
+        "/api/v1/accounts/ACC-ALPHA-SECRET/notes",
+        headers={"Authorization": f"Bearer {token_b}"}
+    ).json()
+    assert len(beta_notes) == 0
+
+    # 6. User Alpha queries notes -> MUST see their note
+    alpha_notes = client.get(
+        "/api/v1/accounts/ACC-ALPHA-SECRET/notes",
+        headers={"Authorization": f"Bearer {token_a}"}
+    ).json()
+    assert len(alpha_notes) == 1
+    assert "Confidential executive negotiation" in alpha_notes[0]["note"]
+
+    # 7. User Beta queries dispatched playbooks -> Must NOT see Alpha's playbook
+    beta_playbooks = client.get(
+        "/api/v1/playbooks/dispatched",
+        headers={"Authorization": f"Bearer {token_b}"}
+    ).json()
+    assert not any(p["id"] == playbook_id for p in beta_playbooks)
+
+    # 8. User Alpha queries dispatched playbooks -> MUST see their playbook
+    alpha_playbooks = client.get(
+        "/api/v1/playbooks/dispatched",
+        headers={"Authorization": f"Bearer {token_a}"}
+    ).json()
+    assert any(p["id"] == playbook_id for p in alpha_playbooks)
+
+
+def test_per_user_workspace_import_persistence(client):
+    """Verify per-user live dataset import into CustomUserAccountRecord and isolation"""
+    email = f"workspace_user_{os.urandom(4).hex()}@enterprise.com"
+    res = client.post("/api/auth/register", json={
+        "email": email,
+        "password": "Password123!",
+        "full_name": "Workspace Lead",
+        "role": "operator"
+    })
+    token = res.json()["access_token"]
+
+    # 1. User imports Stripe live workspace data
+    import_res = client.post(
+        "/api/v1/workspace/import?connector=stripe",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert import_res.status_code == 200
+    import_data = import_res.json()
+    assert import_data["success"] is True
+    assert import_data["accounts_imported"] > 0
+
+    # 2. Query demo accounts endpoint with user's token -> returns their user_vault accounts
+    user_accounts_res = client.get(
+        "/api/v1/accounts/demo",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert user_accounts_res.status_code == 200
+    user_data = user_accounts_res.json()
+    assert user_data["connected_source"] == "user_vault"
+    assert user_data["summary"]["total_accounts"] == import_data["accounts_imported"]
+
+    # 3. User resets workspace
+    reset_res = client.post(
+        "/api/v1/workspace/reset-demo",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert reset_res.status_code == 200
+
+    # 4. Query demo accounts endpoint again -> reverts to default demo baseline
+    revert_res = client.get(
+        "/api/v1/accounts/demo",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert revert_res.status_code == 200
+    assert revert_res.json()["connected_source"] is None

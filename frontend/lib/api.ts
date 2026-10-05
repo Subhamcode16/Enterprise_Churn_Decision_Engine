@@ -6,6 +6,7 @@ import {
   AccountRecord
 } from "./types";
 import { SEED_ACCOUNTS, SEED_SUMMARY, SEED_PLAYBOOKS } from "./mockData";
+import { getStoredToken } from "./auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 const API_SECRET_KEY = process.env.NEXT_PUBLIC_API_KEY || "enterprise_churn_dev_key_2026";
@@ -15,6 +16,11 @@ async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   const headers = new Headers(options.headers || {});
   headers.set("Content-Type", "application/json");
   headers.set("X-API-Key", API_SECRET_KEY);
+
+  const token = getStoredToken();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
 
   const response = await fetch(url, {
     ...options,
@@ -195,11 +201,17 @@ export async function uploadBatchCsv(file: File): Promise<BatchResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
+  const headers: Record<string, string> = {
+    "X-API-Key": API_SECRET_KEY,
+  };
+  const token = getStoredToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const response = await fetch(url, {
     method: "POST",
-    headers: {
-      "X-API-Key": API_SECRET_KEY,
-    },
+    headers,
     body: formData,
   });
 
@@ -256,11 +268,17 @@ export async function importWorkspaceData(file?: File, connector?: "stripe" | "s
     formData.append("file", file);
   }
 
+  const headers: Record<string, string> = {
+    "X-API-Key": API_SECRET_KEY,
+  };
+  const token = getStoredToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const response = await fetch(url, {
     method: "POST",
-    headers: {
-      "X-API-Key": API_SECRET_KEY,
-    },
+    headers,
     body: file ? formData : undefined,
   });
 
