@@ -160,10 +160,10 @@ export default function AuthSectionThree({
 
   return (
     <section className={`w-full bg-white text-[#051F20] antialiased font-sans dark:bg-[#0a0a0c] dark:text-white ${isModal ? "min-h-0 h-full overflow-y-auto" : "min-h-screen"}`}>
-      <div className={`grid w-full ${isModal ? "min-h-0 h-full" : "min-h-screen"} lg:grid-cols-[0.96fr_1.04fr]`}>
+      <div className={`grid w-full ${isModal ? "min-h-0 h-full" : "min-h-screen"} lg:grid-cols-[0.94fr_1.06fr]`}>
         
-        {/* Left Side - Auth Form (Seamlessly Blended, No Double Padding) */}
-        <div className="relative flex min-h-[680px] items-center justify-center bg-white px-6 py-8 dark:bg-[#0a0a0c] lg:min-h-0 lg:px-12 lg:py-12 xl:px-16">
+        {/* Left Side - Auth Form (Seamlessly Blended, Balanced Spacing) */}
+        <div className="relative flex items-center justify-center bg-white px-6 py-8 dark:bg-[#0a0a0c] lg:px-10 lg:py-10 xl:px-14">
           
           {/* Modal Dismiss Button */}
           {onClose && (
@@ -177,13 +177,13 @@ export default function AuthSectionThree({
             </button>
           )}
 
-          <div className="mx-auto w-full max-w-[440px]">
+          <div className="mx-auto w-full max-w-[420px] py-2">
             {/* Header & Mode Switcher */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DAF1DE]/70 text-[#0B2B26] text-[10px] font-mono font-bold tracking-wide border border-[#235347]/15">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#DAF1DE]/70 text-[#0B2B26] text-[10px] font-mono font-bold tracking-wide border border-[#235347]/15">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#235347]" />
-                  <span>VALENCE • SOC-2 TYPE II VAULT</span>
+                  <span>VALENCE • SOC-2 VAULT</span>
                 </div>
 
                 {/* Quick Demo Helper Trigger */}
@@ -206,10 +206,10 @@ export default function AuthSectionThree({
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-[#051F20] dark:text-white">
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#051F20] dark:text-white">
                     {mode === "register" ? "Create an account" : "Sign in to Workspace"}
                   </h1>
-                  <p className="mt-1.5 text-xs text-stone-500 font-sans leading-relaxed">
+                  <p className="mt-1 text-xs text-stone-500 font-sans leading-relaxed">
                     {mode === "register" 
                       ? "Initialize dedicated ML telemetry vault and TreeSHAP retention engine." 
                       : "Access calibrated XGBoost models, live playbooks, and renewal briefs."}
@@ -219,11 +219,11 @@ export default function AuthSectionThree({
             </div>
 
             {/* Mode Switcher Tabs */}
-            <div className="mt-5 flex p-1 rounded-xl bg-[#F4F8F5] border border-[#E2EAE4]">
+            <div className="mt-4 flex p-1 rounded-xl bg-[#F4F8F5] border border-[#E2EAE4]">
               <button
                 type="button"
                 onClick={() => { playTick(); setMode("login"); setError(null); }}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
                   mode === "login"
                     ? "bg-white text-[#051F20] shadow-2xs font-semibold"
                     : "text-stone-500 hover:text-[#051F20]"
@@ -234,7 +234,7 @@ export default function AuthSectionThree({
               <button
                 type="button"
                 onClick={() => { playTick(); setMode("register"); setError(null); }}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
                   mode === "register"
                     ? "bg-white text-[#051F20] shadow-2xs font-semibold"
                     : "text-stone-500 hover:text-[#051F20]"
@@ -245,39 +245,39 @@ export default function AuthSectionThree({
             </div>
 
             {/* Social Signup Buttons */}
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 sm:gap-4">
+            <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() => { playTick(); setEmail("google.sso@enterprise.com"); }}
-                className="flex h-10 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-xs font-semibold text-[#051F20] transition-all hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 active:scale-98 cursor-pointer shadow-2xs"
+                className="flex h-9.5 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-3 text-xs font-semibold text-[#051F20] transition-all hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 active:scale-98 cursor-pointer shadow-2xs"
               >
                 <GoogleIcon />
-                <span className="whitespace-nowrap">{mode === "register" ? "Sign up with Google" : "Google SSO"}</span>
+                <span className="whitespace-nowrap">{mode === "register" ? "Google" : "Google SSO"}</span>
               </button>
               <button
                 type="button"
                 onClick={() => { playTick(); setEmail("apple.sso@enterprise.com"); }}
-                className="flex h-10 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-xs font-semibold text-[#051F20] transition-all hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 active:scale-98 cursor-pointer shadow-2xs"
+                className="flex h-9.5 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-3 text-xs font-semibold text-[#051F20] transition-all hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 active:scale-98 cursor-pointer shadow-2xs"
               >
                 <AppleIcon />
-                <span className="whitespace-nowrap">{mode === "register" ? "Sign up with Apple" : "Apple Work ID"}</span>
+                <span className="whitespace-nowrap">{mode === "register" ? "Apple" : "Apple Work ID"}</span>
               </button>
             </div>
 
-            <div className="my-5 flex items-center gap-4 text-xs font-medium text-stone-400 dark:text-white/30">
+            <div className="my-4 flex items-center gap-3 text-[11px] font-medium text-stone-400 dark:text-white/30">
               <div className="h-px flex-1 bg-stone-200 dark:bg-white/10" />
               <span>or enterprise email</span>
               <div className="h-px flex-1 bg-stone-200 dark:bg-white/10" />
             </div>
 
             {error && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-2.5 text-xs text-rose-700">
+              <div className="mb-3 p-2.5 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-2 text-xs text-rose-700">
                 <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-3.5">
+            <form onSubmit={handleSubmit} className="space-y-3">
               <AnimatePresence mode="wait">
                 {mode === "register" && (
                   <motion.div
@@ -285,7 +285,7 @@ export default function AuthSectionThree({
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.25 }}
-                    className="space-y-3.5 overflow-hidden"
+                    className="space-y-3 overflow-hidden"
                   >
                     <div className="grid gap-3 sm:grid-cols-2">
                       <InputField
@@ -305,7 +305,7 @@ export default function AuthSectionThree({
                     </div>
 
                     {/* Role Selector Capsule */}
-                    <div className="space-y-1.5 text-left w-full">
+                    <div className="space-y-1 text-left w-full">
                       <label className="text-xs font-semibold text-stone-600 dark:text-white/60">
                         Operator Role & Privilege
                       </label>
@@ -347,7 +347,7 @@ export default function AuthSectionThree({
               />
 
               {mode === "register" && (
-                <div className="space-y-2.5 pt-1 text-xs leading-5 text-stone-600 dark:text-white/40 sm:text-[13px]">
+                <div className="space-y-2 pt-1 text-xs leading-4 text-stone-600 dark:text-white/40 sm:text-[12px]">
                   <CheckboxLine
                     checked={noMarketingEmails}
                     onChange={(e) => setNoMarketingEmails(e.target.checked)}
@@ -366,7 +366,7 @@ export default function AuthSectionThree({
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#0B2B26] bg-[#0B2B26] text-sm font-bold text-[#DAF1DE] shadow-md transition-all hover:bg-[#163832] active:scale-98 disabled:opacity-50 cursor-pointer"
+                className="mt-3 flex h-10.5 w-full items-center justify-center gap-2 rounded-xl border border-[#0B2B26] bg-[#0B2B26] text-xs sm:text-sm font-bold text-[#DAF1DE] shadow-md transition-all hover:bg-[#163832] active:scale-98 disabled:opacity-50 cursor-pointer"
               >
                 {loading ? (
                   <span className="flex items-center gap-2 font-mono text-xs">
@@ -384,11 +384,11 @@ export default function AuthSectionThree({
           </div>
         </div>
 
-        {/* Right Side - Marketing Testimonial and Interactive Realistic UI Mockup */}
-        <div className="relative flex min-h-[700px] flex-col justify-between overflow-hidden bg-gradient-to-b from-[#0B2B26] via-[#051F20] to-[#163832] p-8 text-white sm:p-12 lg:min-h-0 lg:p-14 border-l border-[#235347]/30 shadow-2xl">
+        {/* Right Side - Testimonial, Metric Cards & Live UI Mockup (Natural Flex Stack, Zero Overlap) */}
+        <div className="relative flex flex-col justify-between overflow-hidden bg-gradient-to-b from-[#0B2B26] via-[#051F20] to-[#163832] p-6 sm:p-8 lg:p-10 text-white border-l border-[#235347]/30 shadow-2xl">
           
           {/* Background Shader / Refraction Layer */}
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-35 mix-blend-screen">
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-30 mix-blend-screen">
             {FlutedGlassComponent ? (
               <FlutedGlassComponent
                 size={0.89}
@@ -416,196 +416,197 @@ export default function AuthSectionThree({
             )}
           </div>
 
-          <div className="relative z-10 h-full w-full flex flex-col justify-between">
-            <div className="max-w-[460px] lg:pt-1">
+          <div className="relative z-10 w-full flex flex-col justify-between h-full gap-5">
+            {/* Top Cluster: Testimonial & Metric Cards */}
+            <div className="space-y-4">
               {/* Executive Testimonial Avatar with Subtle Halo Ring */}
               <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                className="flex items-center gap-4 cursor-pointer"
+                className="flex items-center gap-3.5 cursor-pointer"
               >
                 <div className="relative">
                   <img
                     src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
                     alt="Charlotte Vance"
-                    className="size-11 shrink-0 rounded-full border-2 border-[#DAF1DE]/40 object-cover shadow-md"
+                    className="size-10 shrink-0 rounded-full border-2 border-[#DAF1DE]/40 object-cover shadow-md"
                   />
                   {/* Glowing Status Pulse */}
-                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#0B2B26] shadow-xs">
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#0B2B26] shadow-xs">
                     <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
                   </span>
                 </div>
                 <div>
-                  <div className="font-bold text-base leading-tight text-[#DAF1DE]">
+                  <div className="font-bold text-sm leading-tight text-[#DAF1DE]">
                     Charlotte Vance
                   </div>
-                  <div className="mt-0.5 text-xs text-stone-300 font-mono">
+                  <div className="mt-0.5 text-[11px] text-stone-300 font-mono">
                     Chief Revenue Officer • HyperScale Cloud
                   </div>
                 </div>
               </motion.div>
 
-              {/* Verified Quote with Smooth Fade In */}
+              {/* Verified Quote with Proportional Editorial Scale */}
               <motion.blockquote
-                initial={{ opacity: 0, y: 14 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="mt-5 text-2xl font-light leading-snug tracking-[-0.035em] text-white/95 sm:text-3xl lg:text-[29px]"
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="text-lg sm:text-xl font-light leading-snug tracking-[-0.03em] text-white/95"
               >
                 “Every retention signal and TreeSHAP attribution has the mathematical precision our board demands.”
               </motion.blockquote>
 
-              {/* Apple-Style Frosted Glass Telemetry Metrics with Spring Hover Elevation */}
-              <div className="mt-6 grid grid-cols-3 gap-3">
+              {/* Apple-Style Frosted Glass Telemetry Metrics (Cleanly Stacked Above Window) */}
+              <div className="grid grid-cols-3 gap-2.5">
                 <motion.div
-                  whileHover={{ y: -4, scale: 1.03 }}
+                  whileHover={{ y: -3, scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
                   onMouseEnter={() => sound.playClick(850)}
-                  className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/50 hover:bg-white/15 hover:shadow-[0_8px_24px_rgba(35,83,71,0.4)] transition-all cursor-pointer group"
+                  className="p-2.5 sm:p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/50 hover:bg-white/15 hover:shadow-[0_8px_20px_rgba(35,83,71,0.3)] transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">Sub-50ms</span>
-                    <span className="size-1.5 rounded-full bg-emerald-400 group-hover:animate-ping" />
+                    <span className="text-[9px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">Sub-50ms</span>
+                    <span className="size-1 rounded-full bg-emerald-400 group-hover:animate-ping" />
                   </div>
-                  <div className="text-sm font-bold text-white mt-1 group-hover:text-emerald-300 transition-colors">TreeSHAP</div>
+                  <div className="text-xs sm:text-sm font-bold text-white mt-0.5 group-hover:text-emerald-300 transition-colors">TreeSHAP</div>
                 </motion.div>
 
                 <motion.div
-                  whileHover={{ y: -4, scale: 1.03 }}
+                  whileHover={{ y: -3, scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
                   onMouseEnter={() => sound.playClick(850)}
-                  className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/50 hover:bg-white/15 hover:shadow-[0_8px_24px_rgba(35,83,71,0.4)] transition-all cursor-pointer group"
+                  className="p-2.5 sm:p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/50 hover:bg-white/15 hover:shadow-[0_8px_20px_rgba(35,83,71,0.3)] transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">0.886</span>
-                    <span className="size-1.5 rounded-full bg-emerald-400 group-hover:animate-ping" />
+                    <span className="text-[9px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">0.886</span>
+                    <span className="size-1 rounded-full bg-emerald-400 group-hover:animate-ping" />
                   </div>
-                  <div className="text-sm font-bold text-white mt-1 group-hover:text-emerald-300 transition-colors">ROC-AUC</div>
+                  <div className="text-xs sm:text-sm font-bold text-white mt-0.5 group-hover:text-emerald-300 transition-colors">ROC-AUC</div>
                 </motion.div>
 
                 <motion.div
-                  whileHover={{ y: -4, scale: 1.03 }}
+                  whileHover={{ y: -3, scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
                   onMouseEnter={() => sound.playClick(850)}
-                  className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/50 hover:bg-white/15 hover:shadow-[0_8px_24px_rgba(35,83,71,0.4)] transition-all cursor-pointer group"
+                  className="p-2.5 sm:p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/50 hover:bg-white/15 hover:shadow-[0_8px_20px_rgba(35,83,71,0.3)] transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">NIST PBKDF2</span>
-                    <span className="size-1.5 rounded-full bg-emerald-400 group-hover:animate-ping" />
+                    <span className="text-[9px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">NIST PBKDF2</span>
+                    <span className="size-1 rounded-full bg-emerald-400 group-hover:animate-ping" />
                   </div>
-                  <div className="text-sm font-bold text-white mt-1 group-hover:text-emerald-300 transition-colors">Encrypted</div>
+                  <div className="text-xs sm:text-sm font-bold text-white mt-0.5 group-hover:text-emerald-300 transition-colors">Encrypted</div>
                 </motion.div>
               </div>
             </div>
 
-            {/* Authentic Live-Rendered Valence UI Mockup Frame with Interactive 3D Tilt */}
-            <div className="mt-8 w-full translate-y-[6%] overflow-hidden rounded-2xl sm:translate-y-[4%] lg:absolute lg:left-[6%] lg:-bottom-20 lg:mt-0 lg:w-[105%] lg:max-w-none lg:origin-bottom-left lg:translate-y-0 lg:-rotate-2 xl:left-[8%] xl:-bottom-[120px] xl:w-[106%] 2xl:-bottom-[130px] 2xl:w-[108%]">
+            {/* Bottom Cluster: Live-Rendered Valence UI Mockup Frame (Natural Flow, Never Collides) */}
+            <div className="w-full pt-1">
               <motion.div
-                whileHover={{ y: -8, scale: 1.02, rotate: -0.5 }}
+                whileHover={{ y: -4, scale: 1.01 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                className="relative overflow-hidden rounded-2xl border border-white/25 bg-[#051F20]/95 text-white p-4 space-y-3 shadow-2xl backdrop-blur-2xl transition-shadow hover:shadow-[0_20px_50px_rgba(5,31,32,0.8)]"
+                className="relative overflow-hidden rounded-2xl border border-white/20 bg-[#051F20]/95 text-white p-3 sm:p-3.5 space-y-2.5 shadow-2xl backdrop-blur-2xl transition-all"
               >
                 {/* Scanning Telemetry Laser Beam */}
-                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-80" />
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-75" />
 
                 {/* Window Chrome Header */}
-                <div className="flex items-center justify-between border-b border-white/10 pb-2.5 select-none">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2 select-none">
                   <div className="flex items-center gap-1.5">
-                    <div className="size-2.5 rounded-full bg-rose-500/80" />
-                    <div className="size-2.5 rounded-full bg-amber-500/80" />
-                    <div className="size-2.5 rounded-full bg-emerald-500/80" />
-                    <span className="ml-3 text-[10px] font-mono tracking-wider text-[#DAF1DE]">
+                    <div className="size-2 rounded-full bg-rose-500/80" />
+                    <div className="size-2 rounded-full bg-amber-500/80" />
+                    <div className="size-2 rounded-full bg-emerald-500/80" />
+                    <span className="ml-2 text-[9px] font-mono tracking-wider text-[#DAF1DE]">
                       valence-ai.io/intelligence • live-cluster
                     </span>
                   </div>
-                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/30 font-bold flex items-center gap-1">
-                    <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="text-[8px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/30 font-bold flex items-center gap-1">
+                    <span className="size-1 rounded-full bg-emerald-400 animate-ping" />
                     TREE SHAP CALIBRATED
                   </span>
                 </div>
 
                 {/* Account Card & Risk Header */}
-                <div className="flex items-center justify-between pt-0.5">
+                <div className="flex items-center justify-between">
                   <div>
                     <div className="text-xs font-bold text-white flex items-center gap-1.5">
                       <span>Acme Global Systems</span>
-                      <span className="text-[10px] font-mono text-stone-400 font-normal">($48,500 MRR)</span>
+                      <span className="text-[10px] font-mono text-stone-400 font-normal">($48.5k MRR)</span>
                     </div>
-                    <div className="text-[10px] text-stone-400 font-mono mt-0.5">
-                      Account ID: ACC-8941 • 36m Vintage
+                    <div className="text-[9px] text-stone-400 font-mono">
+                      ACC-8941 • 36m Vintage
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-950/90 border border-rose-500/50 text-rose-300 text-[10px] font-mono font-bold shadow-xs">
-                      <TrendingDown className="w-3 h-3 text-rose-400" />
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-950/90 border border-rose-500/50 text-rose-300 text-[9px] font-mono font-bold shadow-xs">
+                      <TrendingDown className="w-2.5 h-2.5 text-rose-400" />
                       84.2% CHURN RISK
                     </span>
                   </div>
                 </div>
 
-                {/* Live TreeSHAP Attribution Force Bars with Interactive Hover Rows */}
-                <div className="space-y-2 pt-0.5">
-                  <div className="text-[9px] font-mono uppercase tracking-wider text-stone-400 flex items-center justify-between">
-                    <span>Key Risk Attribution Drivers</span>
-                    <span className="text-emerald-400">SHAP Impact Value</span>
+                {/* Live TreeSHAP Attribution Force Bars */}
+                <div className="space-y-1.5">
+                  <div className="text-[8px] font-mono uppercase tracking-wider text-stone-400 flex items-center justify-between">
+                    <span>Key Risk Drivers</span>
+                    <span className="text-emerald-400">SHAP Impact</span>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <motion.div
-                      whileHover={{ x: 4, scale: 1.01 }}
+                      whileHover={{ x: 3 }}
                       onMouseEnter={() => sound.playClick(700)}
-                      className="p-2.5 rounded-xl bg-black/40 border border-white/10 hover:border-rose-400/40 hover:bg-black/60 transition-all flex items-center justify-between text-xs cursor-pointer group/row"
+                      className="p-1.5 px-2 rounded-lg bg-black/40 border border-white/10 hover:border-rose-400/40 transition-all flex items-center justify-between text-xs cursor-pointer group/row"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="size-2 rounded-full bg-rose-500 animate-pulse" />
-                        <span className="font-mono text-[11px] text-stone-200 group-hover/row:text-white transition-colors">Open P1 Blocking Incident (2 tickets)</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="size-1.5 rounded-full bg-rose-500 animate-pulse" />
+                        <span className="font-mono text-[10px] text-stone-200 group-hover/row:text-white transition-colors">Open P1 Blocking Incident</span>
                       </div>
-                      <span className="font-mono text-[11px] text-rose-400 font-bold bg-rose-950/60 px-1.5 py-0.5 rounded border border-rose-500/20">+0.32</span>
+                      <span className="font-mono text-[10px] text-rose-400 font-bold bg-rose-950/60 px-1 rounded border border-rose-500/20">+0.32</span>
                     </motion.div>
 
                     <motion.div
-                      whileHover={{ x: 4, scale: 1.01 }}
+                      whileHover={{ x: 3 }}
                       onMouseEnter={() => sound.playClick(700)}
-                      className="p-2.5 rounded-xl bg-black/40 border border-white/10 hover:border-amber-400/40 hover:bg-black/60 transition-all flex items-center justify-between text-xs cursor-pointer group/row"
+                      className="p-1.5 px-2 rounded-lg bg-black/40 border border-white/10 hover:border-amber-400/40 transition-all flex items-center justify-between text-xs cursor-pointer group/row"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
-                        <span className="font-mono text-[11px] text-stone-200 group-hover/row:text-white transition-colors">30-Day Usage Contraction (-28.4%)</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                        <span className="font-mono text-[10px] text-stone-200 group-hover/row:text-white transition-colors">30-Day Usage Contraction</span>
                       </div>
-                      <span className="font-mono text-[11px] text-amber-400 font-bold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/20">+0.24</span>
+                      <span className="font-mono text-[10px] text-amber-400 font-bold bg-amber-950/60 px-1 rounded border border-amber-500/20">+0.24</span>
                     </motion.div>
 
                     <motion.div
-                      whileHover={{ x: 4, scale: 1.01 }}
+                      whileHover={{ x: 3 }}
                       onMouseEnter={() => sound.playClick(700)}
-                      className="p-2.5 rounded-xl bg-black/40 border border-white/10 hover:border-emerald-400/40 hover:bg-black/60 transition-all flex items-center justify-between text-xs cursor-pointer group/row"
+                      className="p-1.5 px-2 rounded-lg bg-black/40 border border-white/10 hover:border-emerald-400/40 transition-all flex items-center justify-between text-xs cursor-pointer group/row"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="font-mono text-[11px] text-stone-200 group-hover/row:text-white transition-colors">Multi-Year Enterprise Agreement (3 yrs)</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="font-mono text-[10px] text-stone-200 group-hover/row:text-white transition-colors">Multi-Year Agreement (3 yrs)</span>
                       </div>
-                      <span className="font-mono text-[11px] text-emerald-400 font-bold bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/20">-0.18</span>
+                      <span className="font-mono text-[10px] text-emerald-400 font-bold bg-emerald-950/60 px-1 rounded border border-emerald-500/20">-0.18</span>
                     </motion.div>
                   </div>
                 </div>
 
-                {/* Dispatched Playbook Capsule with Live Ping */}
+                {/* Dispatched Playbook Capsule */}
                 <motion.div 
                   whileHover={{ scale: 1.01 }}
-                  className="p-2.5 rounded-xl bg-emerald-950/50 border border-emerald-500/40 flex items-center justify-between shadow-xs"
+                  className="p-2 rounded-xl bg-emerald-950/50 border border-emerald-500/40 flex items-center justify-between shadow-xs"
                 >
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
                     <div>
-                      <div className="text-[11px] font-bold text-[#DAF1DE]">PB-EXEC-01 • VP Revenue Intervention</div>
-                      <div className="text-[9px] text-stone-400 font-mono">Automated SLA: 4 Hours • TAM Assigned</div>
+                      <div className="text-[10px] font-bold text-[#DAF1DE]">PB-EXEC-01 • VP Intervention</div>
+                      <div className="text-[8px] text-stone-400 font-mono">SLA: 4h • TAM Assigned</div>
                     </div>
                   </div>
-                  <span className="text-[9px] font-mono font-bold text-emerald-300 bg-emerald-900/90 px-2 py-0.5 rounded border border-emerald-400/30 flex items-center gap-1">
-                    <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="text-[8px] font-mono font-bold text-emerald-300 bg-emerald-900/90 px-1.5 py-0.5 rounded border border-emerald-400/30 flex items-center gap-1">
+                    <span className="size-1 rounded-full bg-emerald-400 animate-ping" />
                     DISPATCHED
                   </span>
                 </motion.div>
@@ -640,11 +641,11 @@ function InputField({
   }, [value]);
 
   return (
-    <div className="space-y-1.5 text-left w-full">
+    <div className="space-y-1 text-left w-full">
       <label className="text-xs font-bold text-[#051F20] dark:text-white/60">
         {label}
       </label>
-      <div className="relative flex h-10 items-center rounded-xl border border-stone-200 bg-white px-3.5 focus-within:border-[#235347] focus-within:ring-2 focus-within:ring-[#DAF1DE] transition-all dark:border-white/10 dark:bg-white/5 shadow-2xs">
+      <div className="relative flex h-9.5 items-center rounded-xl border border-stone-200 bg-white px-3.5 focus-within:border-[#235347] focus-within:ring-2 focus-within:ring-[#DAF1DE] transition-all dark:border-white/10 dark:bg-white/5 shadow-2xs">
         <input
           type={
             type === "password" ? (showPassword ? "text" : "password") : type
@@ -685,13 +686,13 @@ function CheckboxLine({
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <label className="flex items-start gap-2.5 cursor-pointer select-none">
-      <span className="relative mt-0.5 size-4 shrink-0">
+    <label className="flex items-start gap-2 cursor-pointer select-none">
+      <span className="relative mt-0.5 size-3.5 shrink-0">
         <input
           type="checkbox"
           checked={checked}
           onChange={onChange}
-          className="peer size-full cursor-pointer appearance-none rounded-[4px] border border-stone-300 bg-white checked:border-[#0B2B26] checked:bg-[#0B2B26] dark:border-white/30 dark:bg-white/5 dark:checked:border-white dark:checked:bg-white transition-all"
+          className="peer size-full cursor-pointer appearance-none rounded-[3px] border border-stone-300 bg-white checked:border-[#0B2B26] checked:bg-[#0B2B26] dark:border-white/30 dark:bg-white/5 dark:checked:border-white dark:checked:bg-white transition-all"
         />
         <svg
           viewBox="0 0 12 12"
@@ -716,8 +717,8 @@ function CheckboxLine({
 function GoogleIcon() {
   return (
     <svg
-      width="15"
-      height="15"
+      width="14"
+      height="14"
       viewBox="0 0 24 24"
       aria-hidden="true"
       className="shrink-0"
@@ -745,8 +746,8 @@ function GoogleIcon() {
 function AppleIcon() {
   return (
     <svg
-      width="16"
-      height="16"
+      width="15"
+      height="15"
       viewBox="0 0 24 24"
       fill="currentColor"
       aria-hidden="true"
