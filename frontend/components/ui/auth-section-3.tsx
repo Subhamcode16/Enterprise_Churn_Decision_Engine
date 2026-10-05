@@ -211,16 +211,12 @@ export default function AuthSectionThree({
 
         <div className="w-full max-w-[460px] mx-auto space-y-6">
           
-          {/* Glowing Valence Hex Logo & Brand Identity */}
-          <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center size-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-teal-500/15 to-emerald-950/80 border border-emerald-400/40 shadow-[0_0_20px_rgba(52,211,153,0.3)]">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" />
-              <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
-            </div>
-            <div>
-              <div className="font-mono text-xs font-bold tracking-wider text-[#DAF1DE]">VALENCE ENTERPRISE</div>
-              <div className="text-[10px] text-stone-400 font-mono">CHURN & REVENUE DECISION ENGINE</div>
-            </div>
+          {/* Minimalist Stripe/Vercel-Style Brand Header */}
+          <div className="flex items-center gap-2.5">
+            <ValenceLogoGlyph />
+            <span className="text-sm font-semibold tracking-tight text-white font-sans">
+              Valence
+            </span>
           </div>
 
           {/* Header Title Section (Clean & Spacious) */}
@@ -677,6 +673,42 @@ function AppleIcon() {
       className="shrink-0 text-white"
     >
       <path d="M17.05 12.54c-.03-3.02 2.47-4.47 2.58-4.54-1.41-2.06-3.6-2.34-4.38-2.37-1.86-.19-3.64 1.1-4.58 1.1-.95 0-2.42-1.07-3.98-1.04-2.05.03-3.94 1.19-4.99 3.02-2.13 3.69-.54 9.16 1.53 12.15 1.01 1.46 2.22 3.1 3.81 3.04 1.53-.06 2.11-.99 3.96-.99s2.37.99 3.99.96c1.65-.03 2.69-1.49 3.69-2.96 1.16-1.69 1.64-3.33 1.66-3.41-.04-.02-3.2-1.23-3.24-4.87ZM14.03 3.66c.84-1.02 1.41-2.43 1.25-3.84-1.21.05-2.68.81-3.55 1.83-.78.9-1.46 2.34-1.28 3.72 1.35.1 2.73-.69 3.58-1.71Z" />
+    </svg>
+  );
+}
+
+function ValenceLogoGlyph() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="shrink-0"
+    >
+      <path
+        d="M3 4.5L12 20.5L21 4.5H16.5L12 12.5L7.5 4.5H3Z"
+        fill="url(#valence-gradient)"
+      />
+      <path
+        d="M7.5 4.5L12 12.5L16.5 4.5H12.8L12 6L11.2 4.5H7.5Z"
+        fill="#DAF1DE"
+        fillOpacity="0.85"
+      />
+      <defs>
+        <linearGradient
+          id="valence-gradient"
+          x1="3"
+          y1="4.5"
+          x2="21"
+          y2="20.5"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#34D399" />
+          <stop offset="1" stopColor="#059669" />
+        </linearGradient>
+      </defs>
     </svg>
   );
 }
