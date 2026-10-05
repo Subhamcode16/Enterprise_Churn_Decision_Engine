@@ -20,10 +20,10 @@ export default function AuthModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-[#051F20]/80 backdrop-blur-lg animate-in fade-in duration-300 font-sans"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 md:p-8 bg-[#051F20]/80 backdrop-blur-xl animate-in fade-in duration-300 font-sans"
     >
       <div 
-        className="relative w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-2xl bg-white shadow-2xl border border-[#E2EAE4] dark:bg-[#0a0a0c] dark:border-white/10"
+        className="relative w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-3xl bg-white shadow-2xl border border-white/25 dark:bg-[#0a0a0c] dark:border-white/10"
         onClick={(e) => e.stopPropagation()}
       >
         <AuthSectionThree
