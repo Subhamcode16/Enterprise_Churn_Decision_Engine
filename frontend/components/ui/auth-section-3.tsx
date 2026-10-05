@@ -8,7 +8,8 @@ import {
   X, 
   ArrowRight, 
   CheckCircle2, 
-  AlertCircle
+  AlertCircle,
+  ShieldCheck
 } from "lucide-react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { setStoredAuth, AuthUser } from "@/lib/auth";
@@ -44,8 +45,11 @@ export default function AuthSectionThree({
   const [email, setEmail] = useState("director.retention@valence-enterprise.ai");
   const [password, setPassword] = useState("ValenceSecure2026!");
   const [role, setRole] = useState<"admin" | "operator" | "executive">("executive");
-  const [noMarketingEmails, setNoMarketingEmails] = useState(false);
+  
+  // Enterprise Policy & Session Preferences
+  const [rememberDevice, setRememberDevice] = useState(true);
   const [agreedTerms, setAgreedTerms] = useState(true);
+  const [agreedSoc2, setAgreedSoc2] = useState(true);
 
   const resetErrorState = () => {
     if (error) setError(null);
@@ -66,10 +70,17 @@ export default function AuthSectionThree({
       setAuthStatus("idle");
       return;
     }
-    if (mode === "register" && !agreedTerms) {
-      setError("Please agree to the Terms of Service & Security Policies.");
-      setAuthStatus("idle");
-      return;
+    if (mode === "register") {
+      if (!agreedTerms) {
+        setError("Please agree to the Terms of Service & Enterprise Privacy Policy.");
+        setAuthStatus("idle");
+        return;
+      }
+      if (!agreedSoc2) {
+        setError("Please acknowledge the SOC-2 Type II audit logging protocol.");
+        setAuthStatus("idle");
+        return;
+      }
     }
 
     setAuthStatus("loading");
@@ -79,8 +90,8 @@ export default function AuthSectionThree({
     const endpoint = mode === "login" ? `${baseUrl}/api/auth/login` : `${baseUrl}/api/auth/register`;
     const fullName = `${firstName} ${lastName}`.trim() || "Executive Operator";
     const payload = mode === "login"
-      ? { email, password }
-      : { email, password, full_name: fullName, role };
+      ? { email, password, remember_device: rememberDevice }
+      : { email, password, full_name: fullName, role, agreed_soc2: agreedSoc2 };
 
     try {
       const response = await fetch(endpoint, {
@@ -150,8 +161,8 @@ export default function AuthSectionThree({
         onClick={(e) => e.preventDefault()}
         className="font-semibold text-[#DAF1DE] underline underline-offset-2 hover:text-emerald-300"
       >
-        NIST PBKDF2 Vault Policy
-      </a>
+        Enterprise Privacy Policy
+      </a>.
     </>
   );
 
@@ -200,8 +211,20 @@ export default function AuthSectionThree({
 
         <div className="w-full max-w-[460px] mx-auto space-y-6">
           
+          {/* Glowing Valence Hex Logo & Brand Identity */}
+          <div className="flex items-center gap-3">
+            <div className="relative flex items-center justify-center size-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-teal-500/15 to-emerald-950/80 border border-emerald-400/40 shadow-[0_0_20px_rgba(52,211,153,0.3)]">
+              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+            </div>
+            <div>
+              <div className="font-mono text-xs font-bold tracking-wider text-[#DAF1DE]">VALENCE ENTERPRISE</div>
+              <div className="text-[10px] text-stone-400 font-mono">CHURN & REVENUE DECISION ENGINE</div>
+            </div>
+          </div>
+
           {/* Header Title Section (Clean & Spacious) */}
-          <div className="pt-1 pr-8">
+          <div className="pt-0 pr-8">
             <AnimatePresence mode="wait">
               <motion.div
                 key={mode}
@@ -384,26 +407,45 @@ export default function AuthSectionThree({
               type="password"
             />
 
-            <AnimatePresence initial={false}>
+            {/* Contextual Policy & Session Preference Checkboxes */}
+            <AnimatePresence initial={false} mode="sync">
+              {mode === "login" && (
+                <motion.div
+                  key="login-remember"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto", transition: { duration: 0.2 } }}
+                  exit={{ opacity: 0, height: 0, transition: { duration: 0.15 } }}
+                  className="pt-0.5 overflow-hidden"
+                >
+                  <CheckboxLine
+                    checked={rememberDevice}
+                    onChange={(e) => { setRememberDevice(e.target.checked); resetErrorState(); }}
+                  >
+                    Keep session authenticated for 30 days on this workstation.
+                  </CheckboxLine>
+                </motion.div>
+              )}
+
               {mode === "register" && (
                 <motion.div
                   key="register-terms"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto", transition: { duration: 0.25 } }}
                   exit={{ opacity: 0, height: 0, transition: { duration: 0.15 } }}
-                  className="space-y-2 pt-1 text-xs text-stone-300 overflow-hidden"
+                  className="space-y-2.5 pt-1 text-xs text-stone-300 overflow-hidden"
                 >
-                  <CheckboxLine
-                    checked={noMarketingEmails}
-                    onChange={(e) => setNoMarketingEmails(e.target.checked)}
-                  >
-                    Opt out of product benchmark newsletters and quarterly churn reports.
-                  </CheckboxLine>
                   <CheckboxLine
                     checked={agreedTerms}
                     onChange={(e) => { setAgreedTerms(e.target.checked); resetErrorState(); }}
                   >
                     {termsText}
+                  </CheckboxLine>
+
+                  <CheckboxLine
+                    checked={agreedSoc2}
+                    onChange={(e) => { setAgreedSoc2(e.target.checked); resetErrorState(); }}
+                  >
+                    Acknowledge SOC-2 Type II audit logging and automated model telemetry.
                   </CheckboxLine>
                 </motion.div>
               )}
