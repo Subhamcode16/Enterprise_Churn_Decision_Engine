@@ -5,24 +5,13 @@ import type { ReactNode } from "react";
 import { 
   Eye, 
   EyeOff, 
-  ShieldCheck, 
-  Sparkles, 
   X, 
   ArrowRight, 
-  Lock, 
   CheckCircle2, 
-  AlertCircle,
-  Zap,
-  Activity,
-  Check,
-  Bot,
-  KeyRound,
-  Fingerprint
+  AlertCircle
 } from "lucide-react";
-import Image from "next/image";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { setStoredAuth, AuthUser } from "@/lib/auth";
-import { sound, playTick, playExecute, playBlip } from "@/lib/sound";
 
 let FlutedGlassComponent: any = null;
 try {
@@ -58,18 +47,14 @@ export default function AuthSectionThree({
   const [noMarketingEmails, setNoMarketingEmails] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(true);
 
-  const handleQuickDemoFill = (targetRole: "executive" | "operator") => {
-    setMode("login");
-    setError(null);
-    if (targetRole === "executive") {
-      setEmail("director.retention@valence-enterprise.ai");
-      setPassword("ValenceSecure2026!");
-      setRole("executive");
-    } else {
-      setEmail("lead.operator@valence-enterprise.ai");
-      setPassword("ValenceSecure2026!");
-      setRole("operator");
-    }
+  const resetErrorState = () => {
+    if (error) setError(null);
+    if (authStatus === "error") setAuthStatus("idle");
+  };
+
+  const handleInputChange = (setter: (v: any) => void) => (val: any) => {
+    setter(val);
+    resetErrorState();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -215,34 +200,8 @@ export default function AuthSectionThree({
 
         <div className="w-full max-w-[460px] mx-auto space-y-6">
           
-          {/* Header Security Capsule & Demo Trigger */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 text-[#DAF1DE] text-[10px] font-mono font-bold tracking-wide border border-emerald-500/30 shadow-xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>VALENCE • SOC-2 VAULT</span>
-              </div>
-
-              {/* Bear Mascot One-Tap Demo Fill Helper */}
-              <button
-                type="button"
-                onClick={() => handleQuickDemoFill("executive")}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/15 text-[#DAF1DE] text-[10px] font-mono font-bold border border-white/15 transition-all active:scale-95 cursor-pointer shadow-xs group"
-                title="Populate verified executive credentials"
-              >
-                <div className="relative size-3.5 rounded-full overflow-hidden bg-[#0B2B26] border border-white/30">
-                  <Image
-                    src="/mascot_bear.png"
-                    alt="Bear Mascot"
-                    fill
-                    sizes="14px"
-                    className="object-cover"
-                  />
-                </div>
-                <span className="text-emerald-300 group-hover:text-white transition-colors">Demo Fill</span>
-              </button>
-            </div>
-
+          {/* Header Title Section (Clean & Spacious) */}
+          <div className="pt-1 pr-8">
             <AnimatePresence mode="wait">
               <motion.div
                 key={mode}
@@ -268,7 +227,7 @@ export default function AuthSectionThree({
           <div className="flex p-1 rounded-2xl bg-black/40 border border-white/15">
             <button
               type="button"
-              onClick={() => { setMode("login"); setError(null); }}
+              onClick={() => { setMode("login"); resetErrorState(); }}
               className={`relative flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                 mode === "login" ? "text-[#0B2B26]" : "text-stone-300 hover:text-white"
               }`}
@@ -285,7 +244,7 @@ export default function AuthSectionThree({
 
             <button
               type="button"
-              onClick={() => { setMode("register"); setError(null); }}
+              onClick={() => { setMode("register"); resetErrorState(); }}
               className={`relative flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                 mode === "register" ? "text-[#0B2B26]" : "text-stone-300 hover:text-white"
               }`}
@@ -370,14 +329,14 @@ export default function AuthSectionThree({
                     <InputField
                       label="First name"
                       value={firstName}
-                      onChange={setFirstName}
+                      onChange={handleInputChange(setFirstName)}
                       placeholder="Alexandre"
                       type="text"
                     />
                     <InputField
                       label="Last name"
                       value={lastName}
-                      onChange={setLastName}
+                      onChange={handleInputChange(setLastName)}
                       placeholder="Vance"
                       type="text"
                     />
@@ -393,7 +352,7 @@ export default function AuthSectionThree({
                         <button
                           key={r}
                           type="button"
-                          onClick={() => setRole(r)}
+                          onClick={() => { setRole(r); resetErrorState(); }}
                           className={`py-1.5 px-2 text-center text-xs font-bold rounded-xl border capitalize transition-all cursor-pointer ${
                             role === r
                               ? "bg-[#DAF1DE] text-[#0B2B26] border-[#DAF1DE] shadow-xs"
@@ -412,7 +371,7 @@ export default function AuthSectionThree({
             <InputField
               label="Enterprise Email"
               value={email}
-              onChange={setEmail}
+              onChange={handleInputChange(setEmail)}
               placeholder="director.retention@enterprise.com"
               type="email"
             />
@@ -420,7 +379,7 @@ export default function AuthSectionThree({
             <InputField
               label="Master Vault Password"
               value={password}
-              onChange={setPassword}
+              onChange={handleInputChange(setPassword)}
               placeholder="Enter strong password (min 8 chars)"
               type="password"
             />
@@ -442,7 +401,7 @@ export default function AuthSectionThree({
                   </CheckboxLine>
                   <CheckboxLine
                     checked={agreedTerms}
-                    onChange={(e) => setAgreedTerms(e.target.checked)}
+                    onChange={(e) => { setAgreedTerms(e.target.checked); resetErrorState(); }}
                   >
                     {termsText}
                   </CheckboxLine>
@@ -535,15 +494,6 @@ export default function AuthSectionThree({
               </AnimatePresence>
             </motion.button>
           </motion.form>
-
-          {/* Footer Security Trust Stamp */}
-          <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-stone-400">
-            <span className="flex items-center gap-1">
-              <Lock className="w-3 h-3 text-emerald-400" />
-              256-Bit TLS Vault
-            </span>
-            <span className="text-stone-400">NIST PBKDF2 SHA-256</span>
-          </div>
 
         </div>
       </div>
