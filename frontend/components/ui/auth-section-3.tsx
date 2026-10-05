@@ -46,7 +46,7 @@ export default function AuthSectionThree({
   isModal = false,
 }: AuthSectionThreeProps) {
   const [mode, setMode] = useState<"login" | "register">(initialMode);
-  const [loading, setLoading] = useState(false);
+  const [authStatus, setAuthStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
   // Form Fields
@@ -59,8 +59,8 @@ export default function AuthSectionThree({
   const [agreedTerms, setAgreedTerms] = useState(true);
 
   const handleQuickDemoFill = (targetRole: "executive" | "operator") => {
-    playTick();
     setMode("login");
+    setError(null);
     if (targetRole === "executive") {
       setEmail("director.retention@valence-enterprise.ai");
       setPassword("ValenceSecure2026!");
@@ -74,18 +74,21 @@ export default function AuthSectionThree({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (authStatus === "loading" || authStatus === "success") return;
+
     if (!email || !password) {
       setError("Please complete all required credentials.");
+      setAuthStatus("idle");
       return;
     }
     if (mode === "register" && !agreedTerms) {
       setError("Please agree to the Terms of Service & Security Policies.");
+      setAuthStatus("idle");
       return;
     }
 
-    setLoading(true);
+    setAuthStatus("loading");
     setError(null);
-    playBlip();
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     const endpoint = mode === "login" ? `${baseUrl}/api/auth/login` : `${baseUrl}/api/auth/register`;
@@ -108,35 +111,41 @@ export default function AuthSectionThree({
       }
 
       setStoredAuth(data.access_token, data.user);
-      playExecute();
-      if (onSuccess) onSuccess(data.user);
-      if (onClose) onClose();
-      else if (typeof window !== "undefined") {
-        window.location.href = "/";
-      }
+      setAuthStatus("success");
+
+      // Delightful 1.2s delay for the morphing success capsule state before closing/redirecting
+      setTimeout(() => {
+        if (onSuccess) onSuccess(data.user);
+        if (onClose) onClose();
+        else if (typeof window !== "undefined") {
+          window.location.href = "/";
+        }
+      }, 1200);
     } catch (err: any) {
       // Offline fallback in development
       if (err.message?.includes("Failed to fetch") || err.message?.includes("NetworkError")) {
         const fallbackUser: AuthUser = {
           id: 1,
           email,
-          full_name: mode === "login" ? "VP Revenue & Retention" : fullName,
-          name: mode === "login" ? "VP Revenue & Retention" : fullName,
+          full_name: mode === "login" ? (firstName ? `${firstName} ${lastName}` : "Alexandre Vance") : fullName,
+          name: mode === "login" ? (firstName ? `${firstName} ${lastName}` : "Alexandre Vance") : fullName,
           role: role || "executive",
         };
         const fallbackToken = `mock_jwt_token_${Date.now()}`;
         setStoredAuth(fallbackToken, fallbackUser);
-        playExecute();
-        if (onSuccess) onSuccess(fallbackUser);
-        if (onClose) onClose();
-        else if (typeof window !== "undefined") {
-          window.location.href = "/";
-        }
+        setAuthStatus("success");
+
+        setTimeout(() => {
+          if (onSuccess) onSuccess(fallbackUser);
+          if (onClose) onClose();
+          else if (typeof window !== "undefined") {
+            window.location.href = "/";
+          }
+        }, 1200);
       } else {
+        setAuthStatus("error");
         setError(err.message || "Failed to authenticate session.");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -145,7 +154,7 @@ export default function AuthSectionThree({
       I agree to the{" "}
       <a
         href="#"
-        onClick={(e) => { e.preventDefault(); playTick(); }}
+        onClick={(e) => e.preventDefault()}
         className="font-semibold text-[#DAF1DE] underline underline-offset-2 hover:text-emerald-300"
       >
         Terms of Service
@@ -153,7 +162,7 @@ export default function AuthSectionThree({
       and{" "}
       <a
         href="#"
-        onClick={(e) => { e.preventDefault(); playTick(); }}
+        onClick={(e) => e.preventDefault()}
         className="font-semibold text-[#DAF1DE] underline underline-offset-2 hover:text-emerald-300"
       >
         NIST PBKDF2 Vault Policy
@@ -196,7 +205,7 @@ export default function AuthSectionThree({
         {onClose && (
           <button
             type="button"
-            onClick={() => { playTick(); onClose(); }}
+            onClick={onClose}
             className="absolute top-5 right-5 p-2 rounded-full bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white transition-all active:scale-95 z-30 cursor-pointer border border-white/10 shadow-xs"
             title="Close Authentication"
           >
@@ -259,7 +268,7 @@ export default function AuthSectionThree({
           <div className="flex p-1 rounded-2xl bg-black/40 border border-white/15">
             <button
               type="button"
-              onClick={() => { playTick(); setMode("login"); setError(null); }}
+              onClick={() => { setMode("login"); setError(null); }}
               className={`relative flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                 mode === "login" ? "text-[#0B2B26]" : "text-stone-300 hover:text-white"
               }`}
@@ -276,7 +285,7 @@ export default function AuthSectionThree({
 
             <button
               type="button"
-              onClick={() => { playTick(); setMode("register"); setError(null); }}
+              onClick={() => { setMode("register"); setError(null); }}
               className={`relative flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                 mode === "register" ? "text-[#0B2B26]" : "text-stone-300 hover:text-white"
               }`}
@@ -296,7 +305,7 @@ export default function AuthSectionThree({
           <div className="grid gap-2.5 sm:grid-cols-2">
             <button
               type="button"
-              onClick={() => { playTick(); setEmail("google.sso@enterprise.com"); }}
+              onClick={() => setEmail("google.sso@enterprise.com")}
               className="flex h-10 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 text-xs font-semibold text-white transition-all hover:bg-white/10 hover:border-white/25 active:scale-98 cursor-pointer shadow-xs"
             >
               <GoogleIcon />
@@ -304,7 +313,7 @@ export default function AuthSectionThree({
             </button>
             <button
               type="button"
-              onClick={() => { playTick(); setEmail("apple.sso@enterprise.com"); }}
+              onClick={() => setEmail("apple.sso@enterprise.com")}
               className="flex h-10 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 text-xs font-semibold text-white transition-all hover:bg-white/10 hover:border-white/25 active:scale-98 cursor-pointer shadow-xs"
             >
               <AppleIcon />
@@ -319,21 +328,42 @@ export default function AuthSectionThree({
           </div>
 
           {error && (
-            <div className="p-3 rounded-xl bg-rose-950/70 border border-rose-500/40 flex items-center gap-2 text-xs text-rose-300">
+            <motion.div 
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 rounded-xl bg-rose-950/70 border border-rose-500/40 flex items-center gap-2 text-xs text-rose-300"
+            >
               <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
               <span>{error}</span>
-            </div>
+            </motion.div>
           )}
 
-          {/* Credential Form */}
-          <form onSubmit={handleSubmit} className="space-y-3.5">
-            <AnimatePresence mode="wait">
+          {/* Credential Form with Layout & Spring Motion */}
+          <motion.form layout onSubmit={handleSubmit} className="space-y-3.5">
+            <AnimatePresence initial={false} mode="sync">
               {mode === "register" && (
                 <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.25 }}
+                  key="register-fields"
+                  initial={{ opacity: 0, height: 0, y: -8 }}
+                  animate={{ 
+                    opacity: 1, 
+                    height: "auto", 
+                    y: 0,
+                    transition: {
+                      height: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+                      opacity: { duration: 0.25, delay: 0.05 },
+                      staggerChildren: 0.06
+                    }
+                  }}
+                  exit={{ 
+                    opacity: 0, 
+                    height: 0, 
+                    y: -8,
+                    transition: {
+                      height: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
+                      opacity: { duration: 0.15 }
+                    }
+                  }}
                   className="space-y-3.5 overflow-hidden"
                 >
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -354,7 +384,7 @@ export default function AuthSectionThree({
                   </div>
 
                   {/* Role Selector Capsule */}
-                  <div className="space-y-1.5 text-left w-full">
+                  <motion.div layout className="space-y-1.5 text-left w-full">
                     <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-stone-300">
                       Operator Role & Privilege
                     </label>
@@ -363,8 +393,8 @@ export default function AuthSectionThree({
                         <button
                           key={r}
                           type="button"
-                          onClick={() => { playTick(); setRole(r); }}
-                          className={`py-1.5 px-2 text-center text-xs font-bold rounded-xl border capitalize transition-all ${
+                          onClick={() => setRole(r)}
+                          className={`py-1.5 px-2 text-center text-xs font-bold rounded-xl border capitalize transition-all cursor-pointer ${
                             role === r
                               ? "bg-[#DAF1DE] text-[#0B2B26] border-[#DAF1DE] shadow-xs"
                               : "bg-white/5 text-stone-300 border-white/15 hover:bg-white/10"
@@ -374,7 +404,7 @@ export default function AuthSectionThree({
                         </button>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -395,41 +425,116 @@ export default function AuthSectionThree({
               type="password"
             />
 
-            {mode === "register" && (
-              <div className="space-y-2 pt-1 text-xs text-stone-300">
-                <CheckboxLine
-                  checked={noMarketingEmails}
-                  onChange={(e) => setNoMarketingEmails(e.target.checked)}
+            <AnimatePresence initial={false}>
+              {mode === "register" && (
+                <motion.div
+                  key="register-terms"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto", transition: { duration: 0.25 } }}
+                  exit={{ opacity: 0, height: 0, transition: { duration: 0.15 } }}
+                  className="space-y-2 pt-1 text-xs text-stone-300 overflow-hidden"
                 >
-                  Opt out of product benchmark newsletters and quarterly churn reports.
-                </CheckboxLine>
-                <CheckboxLine
-                  checked={agreedTerms}
-                  onChange={(e) => setAgreedTerms(e.target.checked)}
-                >
-                  {termsText}
-                </CheckboxLine>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-[#DAF1DE] to-emerald-300 text-sm font-bold text-[#0B2B26] shadow-[0_4px_20px_rgba(35,83,71,0.5)] transition-all hover:opacity-95 hover:scale-[1.01] active:scale-98 disabled:opacity-50 cursor-pointer"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2 font-mono text-xs">
-                  <span className="w-3.5 h-3.5 border-2 border-[#0B2B26]/30 border-t-[#0B2B26] rounded-full animate-spin" />
-                  AUTHENTICATING VAULT...
-                </span>
-              ) : (
-                <>
-                  <span>{mode === "register" ? "Create Enterprise Account" : "Access Decision Workspace"}</span>
-                  <ArrowRight className="w-4 h-4 text-[#0B2B26]" />
-                </>
+                  <CheckboxLine
+                    checked={noMarketingEmails}
+                    onChange={(e) => setNoMarketingEmails(e.target.checked)}
+                  >
+                    Opt out of product benchmark newsletters and quarterly churn reports.
+                  </CheckboxLine>
+                  <CheckboxLine
+                    checked={agreedTerms}
+                    onChange={(e) => setAgreedTerms(e.target.checked)}
+                  >
+                    {termsText}
+                  </CheckboxLine>
+                </motion.div>
               )}
-            </button>
-          </form>
+            </AnimatePresence>
+
+            {/* Primary Action Button with Shimmer Sheen & Morphing Success State */}
+            <motion.button
+              layout
+              type="submit"
+              disabled={authStatus === "loading" || authStatus === "success"}
+              whileHover={authStatus === "idle" ? { scale: 1.02 } : {}}
+              whileTap={authStatus === "idle" ? { scale: 0.98 } : {}}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className={`group relative mt-4 flex h-11 w-full items-center justify-center overflow-hidden rounded-xl text-sm font-bold transition-all duration-300 cursor-pointer shadow-[0_4px_20px_rgba(35,83,71,0.5)] ${
+                authStatus === "success"
+                  ? "bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 text-[#051F20] shadow-[0_0_35px_rgba(52,211,153,0.7)]"
+                  : "bg-gradient-to-r from-emerald-400 via-[#DAF1DE] to-emerald-300 text-[#0B2B26] hover:shadow-[0_0_30px_rgba(52,211,153,0.45)]"
+              } disabled:cursor-not-allowed`}
+            >
+              {/* Shimmer Light Sweep Beam on Hover */}
+              {authStatus === "idle" && (
+                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
+              )}
+
+              <AnimatePresence mode="wait">
+                {authStatus === "loading" && (
+                  <motion.span
+                    key="loading"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="flex items-center gap-2 font-mono text-xs"
+                  >
+                    <span className="w-4 h-4 border-2 border-[#0B2B26]/30 border-t-[#0B2B26] rounded-full animate-spin" />
+                    AUTHENTICATING VAULT...
+                  </motion.span>
+                )}
+
+                {authStatus === "success" && (
+                  <motion.span
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                    className="flex items-center gap-2 text-xs font-bold tracking-wide"
+                  >
+                    <motion.div
+                      initial={{ scale: 0, rotate: -45 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 600, damping: 20 }}
+                    >
+                      <CheckCircle2 className="w-5 h-5 text-[#051F20]" />
+                    </motion.div>
+                    <span>
+                      {mode === "register" 
+                        ? "Vault Initialized • Executive Access" 
+                        : `Access Granted • Welcome ${firstName || "Executive"}`}
+                    </span>
+                  </motion.span>
+                )}
+
+                {authStatus === "idle" && (
+                  <motion.span
+                    key="idle"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-2"
+                  >
+                    <span>{mode === "register" ? "Create Enterprise Account" : "Access Decision Workspace"}</span>
+                    <ArrowRight className="w-4 h-4 text-[#0B2B26] transition-transform group-hover:translate-x-1 duration-200" />
+                  </motion.span>
+                )}
+
+                {authStatus === "error" && (
+                  <motion.span
+                    key="error"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-2 text-rose-950"
+                  >
+                    <span>Retry Authentication</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </motion.form>
 
           {/* Footer Security Trust Stamp */}
           <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-stone-400">
@@ -467,11 +572,11 @@ function InputField({
   }, [value]);
 
   return (
-    <div className="space-y-1.5 text-left w-full">
+    <motion.div layout className="space-y-1.5 text-left w-full">
       <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-stone-300">
         {label}
       </label>
-      <div className="relative flex h-10 items-center rounded-xl border border-white/15 bg-white/5 px-3.5 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/20 focus-within:bg-white/10 transition-all shadow-2xs">
+      <div className="relative flex h-10 items-center rounded-xl border border-white/15 bg-white/5 px-3.5 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/20 focus-within:bg-white/10 transition-all duration-200 shadow-2xs hover:border-white/25">
         <input
           type={
             type === "password" ? (showPassword ? "text" : "password") : type
@@ -487,7 +592,7 @@ function InputField({
         {type === "password" && (
           <button
             type="button"
-            onClick={() => { playTick(); setShowPassword(!showPassword); }}
+            onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3.5 text-stone-400 hover:text-white cursor-pointer transition-colors"
           >
             {showPassword ? (
@@ -498,7 +603,7 @@ function InputField({
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
