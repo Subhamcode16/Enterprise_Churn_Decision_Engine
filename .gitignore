@@ -39,6 +39,9 @@ planner_debug.log
 # Models & Data Cache (Optional large binaries)
 *.pkl
 *.joblib
+*.db*
+data/*.db*
+backend/data/*.db*
 
 # Node / Next.js
 node_modules/
