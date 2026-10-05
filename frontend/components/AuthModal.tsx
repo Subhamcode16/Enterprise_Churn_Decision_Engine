@@ -22,16 +22,19 @@ export default function AuthModal({
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 md:p-8 bg-[#051F20]/80 backdrop-blur-xl animate-in fade-in duration-300 font-sans"
     >
+      {/* Radiant Perimeter Outer Halo */}
       <div 
-        className="relative w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-3xl bg-white shadow-2xl border border-white/25 dark:bg-[#0a0a0c] dark:border-white/10"
+        className="relative w-full max-w-6xl max-h-[92vh] p-0.5 rounded-3xl bg-gradient-to-br from-emerald-400/40 via-teal-500/20 to-emerald-900/60 shadow-[0_25px_80px_rgba(5,31,32,0.6)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <AuthSectionThree
-          isModal={true}
-          initialMode={initialTab}
-          onSuccess={onSuccess}
-          onClose={onClose}
-        />
+        <div className="w-full h-full rounded-[23px] overflow-hidden bg-white dark:bg-[#0a0a0c]">
+          <AuthSectionThree
+            isModal={true}
+            initialMode={initialTab}
+            onSuccess={onSuccess}
+            onClose={onClose}
+          />
+        </div>
       </div>
     </div>
   );
