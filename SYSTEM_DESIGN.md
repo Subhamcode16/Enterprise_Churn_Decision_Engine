@@ -204,21 +204,60 @@ Generates 10,000+ synthetic B2B SaaS accounts incorporating realistic non-linear
 ```
 frontend/
 ├── app/
-│   ├── layout.tsx              # Root shell with dark/light tokens & navbar
+│   ├── layout.tsx              # Root shell with dark obsidian tokens & navbar
 │   ├── page.tsx                # Executive Overview (KPIs, Risk Distribution, MRR loss)
-│   ├── accounts/
-│   │   ├── page.tsx            # Full Accounts Directory (Filterable, sortable)
-│   │   └── [id]/page.tsx       # Single Account Inspector (SHAP waterfall, Playbooks)
+│   ├── auth/page.tsx           # Dedicated standalone login & registration portal
 │   ├── simulator/page.tsx      # What-If Simulator with dynamic recalculation
 │   ├── batch/page.tsx          # CSV Upload & Batch Intelligence Processor
-│   └── api/                    # Next.js BFF proxy to FastAPI
+│   ├── playbooks/page.tsx      # Enterprise SLA Playbook Management
+│   └── settings/page.tsx       # System telemetry & model controls
 ├── components/
-│   ├── ui/                     # Glassmorphic cards, badges, buttons, modals
+│   ├── AuthModal.tsx           # Centered Studio Glass Capsule modal wrapper
+│   ├── ui/
+│   │   ├── auth-section-3.tsx  # Obsidian Glass Auth Capsule with kinetic sheen
+│   │   └── ...                 # Glassmorphic UI components & motion controls
 │   ├── charts/                 # SHAP Waterfall visualizer, Risk Bar, MRR Cohort
-│   ├── playbooks/              # Playbook dispatch modal & webhook trigger status
-│   └── tables/                 # Virtualized account risk table
+│   ├── PlaybookModal.tsx       # Playbook dispatch modal & SLA workflow triggers
+│   └── ...
 ├── lib/
 │   ├── api.ts                  # Typed Axios/Fetch client with retry & fallback
+│   ├── auth.ts                 # Client JWT session management & user storage
 │   ├── types.ts                # Strict TypeScript interfaces matching backend models
 │   └── utils.ts                # Currency, percentage, and risk tier formatters
 ```
+
+---
+
+## 5. Security Architecture & Compliance Matrix
+
+| Security Layer | Implementation Mechanism | Purpose / Threat Mitigation |
+| :--- | :--- | :--- |
+| **Password Storage** | NIST PBKDF2-HMAC-SHA256 (100,000 rounds) + 32-byte salt | Protects against GPU rainbow tables and credential stuffing |
+| **Token Authentication** | HMAC-SHA256 JWT (7-Day Expiry, HS256) | Stateless, tamper-proof session tokens for RBAC |
+| **Database Persistence** | SQLite with WAL Mode (`PRAGMA journal_mode=WAL`) | High-concurrency read/write transactions without lock contention |
+| **Rate Limiting** | SlowAPI with Multi-Tier IP/Client Throttling | Prevents brute force auth and ML compute resource exhaustion |
+| **HTTP Defense Headers** | `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `HSTS` | Clickjacking, MIME sniffing, and MITM protocol downgrade prevention |
+| **Audit Logging** | `audit_logs` table recording actions, user, IP, and timestamp | SOC-2 Type II traceability for model telemetry and logins |
+| **Error Sanitization** | Global exception handlers returning sanitized client JSON | Prevents internal traceback exposure and system enumeration |
+
+### 5.1 Rate Limiting Policy
+- **Authentication Endpoints (`/api/auth/register`, `/api/auth/login`):** `10 requests / minute`
+- **Machine Learning Inference (`/api/v1/predict`, `/api/v1/simulate`):** `30 - 60 requests / minute`
+- **AI Copilot & Batch (`/api/v1/copilot/chat`, `/api/v1/batch-predict`):** `20 - 30 requests / minute`
+- **Telemetry & Health Diagnostics (`/health`, `/api/v1/dashboard`):** `120 requests / minute`
+
+---
+
+## 6. Automated Verification & Quality Assurance
+
+The system is continuously validated by an automated test suite:
+- **Pytest Security Suite (`backend/tests/test_security_and_integration.py`):**
+  - ✅ Password PBKDF2 hashing & constant-time comparison
+  - ✅ JWT signature generation, expiration, and payload decoding
+  - ✅ User registration, duplicate email blocking, and login flows
+  - ✅ Security header injection (`nosniff`, `DENY`, `HSTS`)
+  - ✅ XGBoost ML prediction and TreeSHAP explainability pipeline
+  - ✅ What-If counterfactual scenario simulation
+- **Next.js Production Build:**
+  - ✅ 100% static & server component compilation with zero TypeScript errors.
+

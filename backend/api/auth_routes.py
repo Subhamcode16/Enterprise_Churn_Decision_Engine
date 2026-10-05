@@ -15,6 +15,7 @@ from src.auth import (
     create_access_token, 
     get_current_user
 )
+from src.limiter import limiter
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication & Access"])
 
@@ -48,7 +49,8 @@ class UserProfileResponse(BaseModel):
 
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
-def register_user(req: RegisterRequest, request: Request, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def register_user(request: Request, req: RegisterRequest, db: Session = Depends(get_db)):
     """Registers a new enterprise operator with salt-hashed password and issues JWT"""
     existing = db.query(User).filter(User.email == req.email.lower()).first()
     if existing:
@@ -67,7 +69,7 @@ def register_user(req: RegisterRequest, request: Request, db: Session = Depends(
         full_name=req.full_name,
         role=req.role,
         is_active=True,
-        last_login=datetime.utcnow()
+        last_login=datetime.now(timezone.utc)
     )
     db.add(user)
     db.commit()
@@ -99,7 +101,8 @@ def register_user(req: RegisterRequest, request: Request, db: Session = Depends(
 
 
 @router.post("/login", response_model=AuthResponse)
-def login_user(req: LoginRequest, request: Request, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def login_user(request: Request, req: LoginRequest, db: Session = Depends(get_db)):
     """Authenticates operator credentials and issues an HMAC-SHA256 JWT access token"""
     user = db.query(User).filter(User.email == req.email.lower()).first()
     if not user or not verify_password(req.password, user.salt, user.hashed_password):
@@ -144,7 +147,8 @@ def login_user(req: LoginRequest, request: Request, db: Session = Depends(get_db
 
 
 @router.get("/me", response_model=UserProfileResponse)
-def get_user_profile(current_user: User = Depends(get_current_user)):
+@limiter.limit("60/minute")
+def get_user_profile(request: Request, current_user: User = Depends(get_current_user)):
     """Retrieves authenticated operator profile and role privileges"""
     return {
         "id": current_user.id,
@@ -152,5 +156,5 @@ def get_user_profile(current_user: User = Depends(get_current_user)):
         "full_name": current_user.full_name or "Enterprise Operator",
         "role": current_user.role,
         "is_active": current_user.is_active,
-        "created_at": current_user.created_at.isoformat() if current_user.created_at else datetime.utcnow().isoformat()
+        "created_at": current_user.created_at.isoformat() if current_user.created_at else datetime.now(timezone.utc).isoformat()
     }

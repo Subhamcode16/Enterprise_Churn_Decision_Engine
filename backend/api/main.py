@@ -26,10 +26,10 @@ import numpy as np
 from fastapi import FastAPI, Request, Response, HTTPException, UploadFile, File, Depends, Header, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy.orm import Session
+from src.limiter import limiter
 
 from src.pipeline import load_preprocessor, ALL_MODEL_FEATURES, get_transformed_feature_names
 from src.model import load_model
@@ -134,9 +134,6 @@ def init_engine():
             state.demo_accounts = json.load(f)
 
     logger.info(f"Engine initialization complete. Transformed features: {len(transformed_features)}. Ready for inference.")
-
-# Rate Limiter
-limiter = Limiter(key_func=get_remote_address)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

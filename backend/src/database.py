@@ -14,7 +14,8 @@ from sqlalchemy import (
     Float, 
     Boolean, 
     DateTime, 
-    Text
+    Text,
+    event
 )
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
@@ -27,6 +28,16 @@ if DATABASE_URL.startswith("sqlite"):
         DATABASE_URL, 
         connect_args={"check_same_thread": False}
     )
+
+    @event.listens_for(engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        try:
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+            cursor.close()
+        except Exception:
+            pass
 else:
     engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 
