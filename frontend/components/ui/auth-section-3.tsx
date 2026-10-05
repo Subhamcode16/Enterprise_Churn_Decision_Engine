@@ -13,11 +13,11 @@ import {
   CheckCircle2, 
   AlertCircle,
   Zap,
-  TrendingDown,
-  TrendingUp,
   Activity,
   Check,
-  Bot
+  Bot,
+  KeyRound,
+  Fingerprint
 } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
@@ -31,134 +31,6 @@ try {
 } catch (e) {
   FlutedGlassComponent = null;
 }
-
-interface CaseStudy {
-  id: string;
-  tabLabel: string;
-  name: string;
-  role: string;
-  company: string;
-  avatar: string;
-  quote: string;
-  metrics: {
-    stat1: { label: string; value: string };
-    stat2: { label: string; value: string };
-    stat3: { label: string; value: string };
-  };
-  mockup: {
-    companyName: string;
-    mrr: string;
-    accountId: string;
-    riskScore: string;
-    riskType: "critical" | "high" | "low";
-    drivers: Array<{
-      label: string;
-      value: string;
-      color: "rose" | "amber" | "emerald";
-    }>;
-    playbook: {
-      id: string;
-      title: string;
-      sla: string;
-    };
-  };
-}
-
-const CASE_STUDIES: CaseStudy[] = [
-  {
-    id: "charlotte",
-    tabLabel: "Cloud Platform",
-    name: "Charlotte Vance",
-    role: "Chief Revenue Officer",
-    company: "HyperScale Cloud",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    quote: "“Every retention signal and TreeSHAP attribution has the mathematical precision our board demands.”",
-    metrics: {
-      stat1: { label: "Sub-50ms", value: "TreeSHAP" },
-      stat2: { label: "0.886", value: "ROC-AUC" },
-      stat3: { label: "NIST PBKDF2", value: "Encrypted" },
-    },
-    mockup: {
-      companyName: "Acme Global Systems",
-      mrr: "$48.5k MRR",
-      accountId: "ACC-8941 • 36m Vintage",
-      riskScore: "84.2% CHURN RISK",
-      riskType: "critical",
-      drivers: [
-        { label: "Open P1 Blocking Incident (2 tickets)", value: "+0.32", color: "rose" },
-        { label: "30-Day Usage Contraction (-28.4%)", value: "+0.24", color: "amber" },
-        { label: "Multi-Year Enterprise Agreement (3 yrs)", value: "-0.18", color: "emerald" },
-      ],
-      playbook: {
-        id: "PB-EXEC-01",
-        title: "VP Revenue Intervention",
-        sla: "SLA: 4h • TAM Assigned",
-      },
-    },
-  },
-  {
-    id: "marcus",
-    tabLabel: "Enterprise FinTech",
-    name: "Marcus Chen",
-    role: "VP Customer Success",
-    company: "Apex Global FinTech",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-    quote: "“We recovered $2.4M in at-risk ARR across 40 accounts within our first 90 days of automated playbooks.”",
-    metrics: {
-      stat1: { label: "$2.4M", value: "ARR Saved" },
-      stat2: { label: "94.2%", value: "SLA Adherence" },
-      stat3: { label: "SOC-2 Type II", value: "Certified" },
-    },
-    mockup: {
-      companyName: "Apex Premier Banking",
-      mrr: "$120.0k MRR",
-      accountId: "ACC-4102 • 48m Vintage",
-      riskScore: "32.1% LOW RISK",
-      riskType: "low",
-      drivers: [
-        { label: "Automated Invoice Retry Cleared", value: "-0.28", color: "emerald" },
-        { label: "Active Seat Utilization (92%)", value: "-0.22", color: "emerald" },
-        { label: "CSAT Score Maintained (4.8/5.0)", value: "-0.15", color: "emerald" },
-      ],
-      playbook: {
-        id: "PB-FIN-03",
-        title: "Executive QBR & Multi-Year Expansion",
-        sla: "SLA: 24h • CRO Sponsor",
-      },
-    },
-  },
-  {
-    id: "elena",
-    tabLabel: "AI & BioTech",
-    name: "Dr. Elena Rostova",
-    role: "Head of Growth & Retention",
-    company: "BioPulse AI",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
-    quote: "“Sub-50ms local TreeSHAP explanations gave our Customer Success managers instant clarity before renewal calls.”",
-    metrics: {
-      stat1: { label: "< 50ms", value: "SHAP Latency" },
-      stat2: { label: "180 Trees", value: "Calibrated" },
-      stat3: { label: "AES-256", value: "Isolated" },
-    },
-    mockup: {
-      companyName: "Genomics Life Sciences",
-      mrr: "$76.2k MRR",
-      accountId: "ACC-6719 • 18m Vintage",
-      riskScore: "61.5% HIGH RISK",
-      riskType: "high",
-      drivers: [
-        { label: "Primary Admin Inactivity (14 days)", value: "+0.26", color: "amber" },
-        { label: "Support Ticket SLA Breach", value: "+0.21", color: "amber" },
-        { label: "High Annual API Consumption", value: "-0.14", color: "emerald" },
-      ],
-      playbook: {
-        id: "PB-SUPP-02",
-        title: "Dedicated Technical Architect Dispatch",
-        sla: "SLA: 6h • Solutions Lead",
-      },
-    },
-  },
-];
 
 interface AuthSectionThreeProps {
   onSuccess?: (user: AuthUser) => void;
@@ -174,7 +46,6 @@ export default function AuthSectionThree({
   isModal = false,
 }: AuthSectionThreeProps) {
   const [mode, setMode] = useState<"login" | "register">(initialMode);
-  const [activeCaseStudyIndex, setActiveCaseStudyIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -186,8 +57,6 @@ export default function AuthSectionThree({
   const [role, setRole] = useState<"admin" | "operator" | "executive">("executive");
   const [noMarketingEmails, setNoMarketingEmails] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(true);
-
-  const activeStory = CASE_STUDIES[activeCaseStudyIndex];
 
   const handleQuickDemoFill = (targetRole: "executive" | "operator") => {
     playTick();
@@ -273,11 +142,11 @@ export default function AuthSectionThree({
 
   const termsText = (
     <>
-      By creating an account, you agree to our{" "}
+      I agree to the{" "}
       <a
         href="#"
         onClick={(e) => { e.preventDefault(); playTick(); }}
-        className="font-semibold text-[#0B2B26] dark:text-[#DAF1DE] underline underline-offset-2 hover:text-[#235347]"
+        className="font-semibold text-[#DAF1DE] underline underline-offset-2 hover:text-emerald-300"
       >
         Terms of Service
       </a>{" "}
@@ -285,518 +154,294 @@ export default function AuthSectionThree({
       <a
         href="#"
         onClick={(e) => { e.preventDefault(); playTick(); }}
-        className="font-semibold text-[#0B2B26] dark:text-[#DAF1DE] underline underline-offset-2 hover:text-[#235347]"
+        className="font-semibold text-[#DAF1DE] underline underline-offset-2 hover:text-emerald-300"
       >
-        NIST PBKDF2 Privacy Policy
+        NIST PBKDF2 Vault Policy
       </a>
     </>
   );
 
   return (
-    <LayoutGroup id="auth-modal-layout">
-      <section className={`w-full bg-white text-[#051F20] antialiased font-sans dark:bg-[#0a0a0c] dark:text-white ${isModal ? "min-h-0 h-full overflow-y-auto" : "min-h-screen"}`}>
-        <div className={`grid w-full ${isModal ? "min-h-0 h-full" : "min-h-screen"} lg:grid-cols-[0.94fr_1.06fr]`}>
+    <LayoutGroup id="auth-capsule-layout">
+      <div className={`relative w-full overflow-hidden text-white font-sans ${isModal ? "p-6 sm:p-8" : "min-h-screen flex items-center justify-center p-4 sm:p-6"}`}>
+        
+        {/* Ambient Shader / Background Layer */}
+        <div className="absolute inset-0 pointer-events-none opacity-30 mix-blend-screen -z-10">
+          {FlutedGlassComponent ? (
+            <FlutedGlassComponent
+              size={0.85}
+              shape="lines"
+              angle={0}
+              distortionShape="prism"
+              distortion={0.4}
+              shift={0}
+              blur={0}
+              edges={0.25}
+              stretch={0}
+              scale={1.1}
+              fit="cover"
+              highlights={0.15}
+              shadows={0.2}
+              colorBack="#00000000"
+              colorHighlight="#DAF1DE"
+              colorShadow="#051F20"
+              className="w-full h-full bg-transparent"
+            />
+          ) : (
+            <div className="w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/15 via-transparent to-transparent" />
+          )}
+        </div>
+
+        {/* Modal Close Dismiss Button */}
+        {onClose && (
+          <button
+            type="button"
+            onClick={() => { playTick(); onClose(); }}
+            className="absolute top-5 right-5 p-2 rounded-full bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white transition-all active:scale-95 z-30 cursor-pointer border border-white/10 shadow-xs"
+            title="Close Authentication"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+
+        <div className="w-full max-w-[460px] mx-auto space-y-6">
           
-          {/* Left Side - Auth Form (Seamlessly Blended, Balanced Spacing) */}
-          <div className="relative flex items-center justify-center bg-white px-6 py-8 dark:bg-[#0a0a0c] lg:px-10 lg:py-10 xl:px-14">
-            
-            {/* Modal Dismiss Button */}
-            {onClose && (
+          {/* Header Security Capsule & Demo Trigger */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 text-[#DAF1DE] text-[10px] font-mono font-bold tracking-wide border border-emerald-500/30 shadow-xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>VALENCE • SOC-2 VAULT</span>
+              </div>
+
+              {/* Bear Mascot One-Tap Demo Fill Helper */}
               <button
                 type="button"
-                onClick={() => { playTick(); onClose(); }}
-                className="absolute top-5 right-5 p-2 rounded-full bg-[#F4F8F5] hover:bg-[#E2EAE4] text-stone-500 hover:text-[#051F20] transition-all active:scale-95 z-20 cursor-pointer shadow-2xs"
-                title="Close Authentication"
+                onClick={() => handleQuickDemoFill("executive")}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/15 text-[#DAF1DE] text-[10px] font-mono font-bold border border-white/15 transition-all active:scale-95 cursor-pointer shadow-xs group"
+                title="Populate verified executive credentials"
               >
-                <X className="w-5 h-5" />
+                <div className="relative size-3.5 rounded-full overflow-hidden bg-[#0B2B26] border border-white/30">
+                  <Image
+                    src="/mascot_bear.png"
+                    alt="Bear Mascot"
+                    fill
+                    sizes="14px"
+                    className="object-cover"
+                  />
+                </div>
+                <span className="text-emerald-300 group-hover:text-white transition-colors">Demo Fill</span>
               </button>
-            )}
-
-            <div className="mx-auto w-full max-w-[420px] py-2">
-              {/* Header & Mode Switcher */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#DAF1DE]/70 text-[#0B2B26] text-[10px] font-mono font-bold tracking-wide border border-[#235347]/15">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#235347]" />
-                    <span>VALENCE • SOC-2 VAULT</span>
-                  </div>
-
-                  {/* Bear Mascot Verified Demo Helper */}
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemoFill("executive")}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-[#235347] text-[10px] font-mono font-bold border border-emerald-200/60 transition-all active:scale-95 cursor-pointer shadow-2xs hover:shadow-xs group"
-                    title="One-Tap Verified Executive Login"
-                  >
-                    <div className="relative size-3.5 rounded-full overflow-hidden bg-[#0B2B26]">
-                      <Image
-                        src="/mascot_bear.png"
-                        alt="Bear Mascot"
-                        fill
-                        sizes="16px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <span>Demo Fill</span>
-                  </button>
-                </div>
-
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={mode}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#051F20] dark:text-white">
-                      {mode === "register" ? "Create an account" : "Sign in to Workspace"}
-                    </h1>
-                    <p className="mt-1 text-xs text-stone-500 font-sans leading-relaxed">
-                      {mode === "register" 
-                        ? "Initialize dedicated ML telemetry vault and TreeSHAP retention engine." 
-                        : "Access calibrated XGBoost models, live playbooks, and renewal briefs."}
-                    </p>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              {/* Mode Switcher Tabs */}
-              <div className="mt-4 flex p-1 rounded-xl bg-[#F4F8F5] border border-[#E2EAE4]">
-                <button
-                  type="button"
-                  onClick={() => { playTick(); setMode("login"); setError(null); }}
-                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                    mode === "login"
-                      ? "bg-white text-[#051F20] shadow-2xs font-semibold"
-                      : "text-stone-500 hover:text-[#051F20]"
-                  }`}
-                >
-                  Sign In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { playTick(); setMode("register"); setError(null); }}
-                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                    mode === "register"
-                      ? "bg-white text-[#051F20] shadow-2xs font-semibold"
-                      : "text-stone-500 hover:text-[#051F20]"
-                  }`}
-                >
-                  Create Account
-                </button>
-              </div>
-
-              {/* Social Signup Buttons */}
-              <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => { playTick(); setEmail("google.sso@enterprise.com"); }}
-                  className="flex h-9.5 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-3 text-xs font-semibold text-[#051F20] transition-all hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 active:scale-98 cursor-pointer shadow-2xs"
-                >
-                  <GoogleIcon />
-                  <span className="whitespace-nowrap">{mode === "register" ? "Google" : "Google SSO"}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { playTick(); setEmail("apple.sso@enterprise.com"); }}
-                  className="flex h-9.5 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-3 text-xs font-semibold text-[#051F20] transition-all hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 active:scale-98 cursor-pointer shadow-2xs"
-                >
-                  <AppleIcon />
-                  <span className="whitespace-nowrap">{mode === "register" ? "Apple" : "Apple Work ID"}</span>
-                </button>
-              </div>
-
-              <div className="my-4 flex items-center gap-3 text-[11px] font-medium text-stone-400 dark:text-white/30">
-                <div className="h-px flex-1 bg-stone-200 dark:bg-white/10" />
-                <span>or enterprise email</span>
-                <div className="h-px flex-1 bg-stone-200 dark:bg-white/10" />
-              </div>
-
-              {error && (
-                <div className="mb-3 p-2.5 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-2 text-xs text-rose-700">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <AnimatePresence mode="wait">
-                  {mode === "register" && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="space-y-3 overflow-hidden"
-                    >
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <InputField
-                          label="First name"
-                          value={firstName}
-                          onChange={setFirstName}
-                          placeholder="Alexandre"
-                          type="text"
-                        />
-                        <InputField
-                          label="Last name"
-                          value={lastName}
-                          onChange={setLastName}
-                          placeholder="Vance"
-                          type="text"
-                        />
-                      </div>
-
-                      {/* Role Selector Capsule */}
-                      <div className="space-y-1 text-left w-full">
-                        <label className="text-xs font-semibold text-stone-600 dark:text-white/60">
-                          Operator Role & Privilege
-                        </label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {(["executive", "operator", "admin"] as const).map((r) => (
-                            <button
-                              key={r}
-                              type="button"
-                              onClick={() => { playTick(); setRole(r); }}
-                              className={`py-1.5 px-2 text-center text-xs font-bold rounded-xl border capitalize transition-all ${
-                                role === r
-                                  ? "bg-[#0B2B26] text-[#DAF1DE] border-[#0B2B26] shadow-2xs"
-                                  : "bg-white text-stone-600 border-[#E2EAE4] hover:bg-[#F4F8F5]"
-                              }`}
-                            >
-                              {r}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <InputField
-                  label="Enterprise Email"
-                  value={email}
-                  onChange={setEmail}
-                  placeholder="director.retention@enterprise.com"
-                  type="email"
-                />
-
-                <InputField
-                  label="Master Vault Password"
-                  value={password}
-                  onChange={setPassword}
-                  placeholder="Enter strong password (min 8 chars)"
-                  type="password"
-                />
-
-                {mode === "register" && (
-                  <div className="space-y-2 pt-1 text-xs leading-4 text-stone-600 dark:text-white/40 sm:text-[12px]">
-                    <CheckboxLine
-                      checked={noMarketingEmails}
-                      onChange={(e) => setNoMarketingEmails(e.target.checked)}
-                    >
-                      Opt out of product benchmark newsletters and quarterly churn reports.
-                    </CheckboxLine>
-                    <CheckboxLine
-                      checked={agreedTerms}
-                      onChange={(e) => setAgreedTerms(e.target.checked)}
-                    >
-                      {termsText}
-                    </CheckboxLine>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="mt-3 flex h-10.5 w-full items-center justify-center gap-2 rounded-xl border border-[#0B2B26] bg-[#0B2B26] text-xs sm:text-sm font-bold text-[#DAF1DE] shadow-md transition-all hover:bg-[#163832] active:scale-98 disabled:opacity-50 cursor-pointer"
-                >
-                  {loading ? (
-                    <span className="flex items-center gap-2 font-mono text-xs">
-                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      AUTHENTICATING VAULT...
-                    </span>
-                  ) : (
-                    <>
-                      <span>{mode === "register" ? "Create Enterprise Account" : "Access Decision Workspace"}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </form>
             </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={mode}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-1.5"
+              >
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+                  <span>{mode === "register" ? "Create Enterprise Account" : "Sign in to Workspace"}</span>
+                </h1>
+                <p className="text-xs text-stone-300 font-sans leading-relaxed">
+                  {mode === "register" 
+                    ? "Initialize dedicated ML telemetry vault and TreeSHAP retention engine." 
+                    : "Access calibrated XGBoost models, live playbooks, and renewal briefs."}
+                </p>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
-          {/* Right Side - Dynamic Multi-Executive Case-Study Showcase */}
-          <div className="relative flex flex-col justify-between overflow-hidden bg-gradient-to-b from-[#0B2B26] via-[#051F20] to-[#163832] p-6 sm:p-8 lg:p-10 text-white border-l border-[#235347]/30 shadow-2xl">
-            
-            {/* Background Shader / Refraction Layer */}
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-30 mix-blend-screen">
-              {FlutedGlassComponent ? (
-                <FlutedGlassComponent
-                  size={0.89}
-                  shape="lines"
-                  angle={0}
-                  distortionShape="prism"
-                  distortion={0.5}
-                  shift={0}
-                  blur={0}
-                  edges={0.25}
-                  stretch={0}
-                  scale={1.11}
-                  fit="cover"
-                  highlights={0.1}
-                  shadows={0.2}
-                  grainMixer={0.1}
-                  grainOverlay={0.1}
-                  colorBack="#00000000"
-                  colorHighlight="#DAF1DE"
-                  colorShadow="#051F20"
-                  className="w-full h-full bg-transparent"
+          {/* Fluid Mode Switcher Segmented Control */}
+          <div className="flex p-1 rounded-2xl bg-black/40 border border-white/15">
+            <button
+              type="button"
+              onClick={() => { playTick(); setMode("login"); setError(null); }}
+              className={`relative flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                mode === "login" ? "text-[#0B2B26]" : "text-stone-300 hover:text-white"
+              }`}
+            >
+              {mode === "login" && (
+                <motion.div
+                  layoutId="authSegmentTab"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  className="absolute inset-0 bg-[#DAF1DE] rounded-xl shadow-md z-0"
                 />
-              ) : (
-                <div className="w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent" />
               )}
+              <span className="relative z-10">Sign In</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { playTick(); setMode("register"); setError(null); }}
+              className={`relative flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                mode === "register" ? "text-[#0B2B26]" : "text-stone-300 hover:text-white"
+              }`}
+            >
+              {mode === "register" && (
+                <motion.div
+                  layoutId="authSegmentTab"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  className="absolute inset-0 bg-[#DAF1DE] rounded-xl shadow-md z-0"
+                />
+              )}
+              <span className="relative z-10">Create Account</span>
+            </button>
+          </div>
+
+          {/* Social Single Sign-On Options */}
+          <div className="grid gap-2.5 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => { playTick(); setEmail("google.sso@enterprise.com"); }}
+              className="flex h-10 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 text-xs font-semibold text-white transition-all hover:bg-white/10 hover:border-white/25 active:scale-98 cursor-pointer shadow-xs"
+            >
+              <GoogleIcon />
+              <span className="whitespace-nowrap">{mode === "register" ? "Google SSO" : "Google Work ID"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { playTick(); setEmail("apple.sso@enterprise.com"); }}
+              className="flex h-10 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 text-xs font-semibold text-white transition-all hover:bg-white/10 hover:border-white/25 active:scale-98 cursor-pointer shadow-xs"
+            >
+              <AppleIcon />
+              <span className="whitespace-nowrap">{mode === "register" ? "Apple SSO" : "Apple Work ID"}</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3 text-[11px] font-medium text-stone-400">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="font-mono text-[10px] text-stone-400">OR ENTERPRISE EMAIL</span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+
+          {error && (
+            <div className="p-3 rounded-xl bg-rose-950/70 border border-rose-500/40 flex items-center gap-2 text-xs text-rose-300">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span>{error}</span>
             </div>
+          )}
 
-            <div className="relative z-10 w-full flex flex-col justify-between h-full gap-5">
-              
-              {/* Top Cluster: FluidTabs Selector + Testimonial + Metrics */}
-              <div className="space-y-3.5">
-                
-                {/* Fluid Case-Study Selector (animate-ui FluidTabs Pattern) */}
-                <div className="flex items-center gap-1 p-1 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 w-fit">
-                  {CASE_STUDIES.map((study, idx) => {
-                    const isActive = idx === activeCaseStudyIndex;
-                    return (
-                      <button
-                        key={study.id}
-                        type="button"
-                        onClick={() => {
-                          sound.playClick(750);
-                          setActiveCaseStudyIndex(idx);
-                        }}
-                        className={`relative px-3 py-1.5 rounded-xl text-[11px] font-mono font-bold transition-colors cursor-pointer select-none ${
-                          isActive ? "text-[#0B2B26]" : "text-white/70 hover:text-white"
-                        }`}
-                      >
-                        {isActive && (
-                          <motion.div
-                            layoutId="activeCaseStudyTab"
-                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                            className="absolute inset-0 bg-[#DAF1DE] rounded-xl shadow-xs z-0"
-                          />
-                        )}
-                        <span className="relative z-10">{study.tabLabel}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+          {/* Credential Form */}
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            <AnimatePresence mode="wait">
+              {mode === "register" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-3.5 overflow-hidden"
+                >
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <InputField
+                      label="First name"
+                      value={firstName}
+                      onChange={setFirstName}
+                      placeholder="Alexandre"
+                      type="text"
+                    />
+                    <InputField
+                      label="Last name"
+                      value={lastName}
+                      onChange={setLastName}
+                      placeholder="Vance"
+                      type="text"
+                    />
+                  </div>
 
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeStory.id}
-                    initial={{ opacity: 0, x: 8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -8 }}
-                    transition={{ duration: 0.25 }}
-                    className="space-y-3"
-                  >
-                    {/* Executive Testimonial Avatar with Subtle Halo Ring */}
-                    <div className="flex items-center gap-3.5">
-                      <div className="relative">
-                        <img
-                          src={activeStory.avatar}
-                          alt={activeStory.name}
-                          className="size-10 shrink-0 rounded-full border-2 border-[#DAF1DE]/40 object-cover shadow-md"
-                        />
-                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#0B2B26] shadow-xs">
-                          <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
-                        </span>
-                      </div>
-                      <div>
-                        <div className="font-bold text-sm leading-tight text-[#DAF1DE]">
-                          {activeStory.name}
-                        </div>
-                        <div className="mt-0.5 text-[11px] text-stone-300 font-mono">
-                          {activeStory.role} • {activeStory.company}
-                        </div>
-                      </div>
+                  {/* Role Selector Capsule */}
+                  <div className="space-y-1.5 text-left w-full">
+                    <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-stone-300">
+                      Operator Role & Privilege
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(["executive", "operator", "admin"] as const).map((r) => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => { playTick(); setRole(r); }}
+                          className={`py-1.5 px-2 text-center text-xs font-bold rounded-xl border capitalize transition-all ${
+                            role === r
+                              ? "bg-[#DAF1DE] text-[#0B2B26] border-[#DAF1DE] shadow-xs"
+                              : "bg-white/5 text-stone-300 border-white/15 hover:bg-white/10"
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
                     </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-                    {/* Verified Quote with Proportional Editorial Scale */}
-                    <blockquote className="text-base sm:text-lg font-light leading-snug tracking-[-0.025em] text-white/95">
-                      {activeStory.quote}
-                    </blockquote>
+            <InputField
+              label="Enterprise Email"
+              value={email}
+              onChange={setEmail}
+              placeholder="director.retention@enterprise.com"
+              type="email"
+            />
 
-                    {/* Apple-Style Frosted Glass Telemetry Metrics */}
-                    <div className="grid grid-cols-3 gap-2.5 pt-1">
-                      <motion.div
-                        whileHover={{ y: -3, scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                        onMouseEnter={() => sound.playClick(850)}
-                        className="p-2.5 sm:p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/50 hover:bg-white/15 transition-all cursor-pointer group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[9px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">{activeStory.metrics.stat1.label}</span>
-                          <span className="size-1 rounded-full bg-emerald-400 group-hover:animate-ping" />
-                        </div>
-                        <div className="text-xs sm:text-sm font-bold text-white mt-0.5 group-hover:text-emerald-300 transition-colors">{activeStory.metrics.stat1.value}</div>
-                      </motion.div>
+            <InputField
+              label="Master Vault Password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Enter strong password (min 8 chars)"
+              type="password"
+            />
 
-                      <motion.div
-                        whileHover={{ y: -3, scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                        onMouseEnter={() => sound.playClick(850)}
-                        className="p-2.5 sm:p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/50 hover:bg-white/15 transition-all cursor-pointer group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[9px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">{activeStory.metrics.stat2.label}</span>
-                          <span className="size-1 rounded-full bg-emerald-400 group-hover:animate-ping" />
-                        </div>
-                        <div className="text-xs sm:text-sm font-bold text-white mt-0.5 group-hover:text-emerald-300 transition-colors">{activeStory.metrics.stat2.value}</div>
-                      </motion.div>
-
-                      <motion.div
-                        whileHover={{ y: -3, scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                        onMouseEnter={() => sound.playClick(850)}
-                        className="p-2.5 sm:p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 hover:border-emerald-400/50 hover:bg-white/15 transition-all cursor-pointer group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[9px] font-mono text-[#DAF1DE] uppercase font-bold tracking-wider">{activeStory.metrics.stat3.label}</span>
-                          <span className="size-1 rounded-full bg-emerald-400 group-hover:animate-ping" />
-                        </div>
-                        <div className="text-xs sm:text-sm font-bold text-white mt-0.5 group-hover:text-emerald-300 transition-colors">{activeStory.metrics.stat3.value}</div>
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
+            {mode === "register" && (
+              <div className="space-y-2 pt-1 text-xs text-stone-300">
+                <CheckboxLine
+                  checked={noMarketingEmails}
+                  onChange={(e) => setNoMarketingEmails(e.target.checked)}
+                >
+                  Opt out of product benchmark newsletters and quarterly churn reports.
+                </CheckboxLine>
+                <CheckboxLine
+                  checked={agreedTerms}
+                  onChange={(e) => setAgreedTerms(e.target.checked)}
+                >
+                  {termsText}
+                </CheckboxLine>
               </div>
+            )}
 
-              {/* Bottom Cluster: Dynamic TreeSHAP Mockup Profile for Active Story */}
-              <div className="w-full pt-1">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeStory.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25 }}
-                    whileHover={{ y: -4, scale: 1.01 }}
-                    className="relative overflow-hidden rounded-2xl border border-white/20 bg-[#051F20]/95 text-white p-3 sm:p-3.5 space-y-2.5 shadow-2xl backdrop-blur-2xl transition-all"
-                  >
-                    {/* Scanning Telemetry Laser Beam */}
-                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-75" />
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-[#DAF1DE] to-emerald-300 text-sm font-bold text-[#0B2B26] shadow-[0_4px_20px_rgba(35,83,71,0.5)] transition-all hover:opacity-95 hover:scale-[1.01] active:scale-98 disabled:opacity-50 cursor-pointer"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2 font-mono text-xs">
+                  <span className="w-3.5 h-3.5 border-2 border-[#0B2B26]/30 border-t-[#0B2B26] rounded-full animate-spin" />
+                  AUTHENTICATING VAULT...
+                </span>
+              ) : (
+                <>
+                  <span>{mode === "register" ? "Create Enterprise Account" : "Access Decision Workspace"}</span>
+                  <ArrowRight className="w-4 h-4 text-[#0B2B26]" />
+                </>
+              )}
+            </button>
+          </form>
 
-                    {/* Window Chrome Header */}
-                    <div className="flex items-center justify-between border-b border-white/10 pb-2 select-none">
-                      <div className="flex items-center gap-1.5">
-                        <div className="size-2 rounded-full bg-rose-500/80" />
-                        <div className="size-2 rounded-full bg-amber-500/80" />
-                        <div className="size-2 rounded-full bg-emerald-500/80" />
-                        <span className="ml-2 text-[9px] font-mono tracking-wider text-[#DAF1DE]">
-                          valence-ai.io/intelligence • live-cluster
-                        </span>
-                      </div>
-                      <span className="text-[8px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/30 font-bold flex items-center gap-1">
-                        <span className="size-1 rounded-full bg-emerald-400 animate-ping" />
-                        TREE SHAP CALIBRATED
-                      </span>
-                    </div>
-
-                    {/* Account Card & Risk Header */}
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                          <span>{activeStory.mockup.companyName}</span>
-                          <span className="text-[10px] font-mono text-stone-400 font-normal">({activeStory.mockup.mrr})</span>
-                        </div>
-                        <div className="text-[9px] text-stone-400 font-mono">
-                          {activeStory.mockup.accountId}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold shadow-xs ${
-                          activeStory.mockup.riskType === "critical" 
-                            ? "bg-rose-950/90 border border-rose-500/50 text-rose-300"
-                            : activeStory.mockup.riskType === "high"
-                            ? "bg-amber-950/90 border border-amber-500/50 text-amber-300"
-                            : "bg-emerald-950/90 border border-emerald-500/50 text-emerald-300"
-                        }`}>
-                          {activeStory.mockup.riskType === "low" ? (
-                            <TrendingUp className="w-2.5 h-2.5 text-emerald-400" />
-                          ) : (
-                            <TrendingDown className="w-2.5 h-2.5" />
-                          )}
-                          {activeStory.mockup.riskScore}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Live TreeSHAP Attribution Force Bars */}
-                    <div className="space-y-1.5">
-                      <div className="text-[8px] font-mono uppercase tracking-wider text-stone-400 flex items-center justify-between">
-                        <span>Key Risk Attribution Drivers</span>
-                        <span className="text-emerald-400">SHAP Impact</span>
-                      </div>
-
-                      <div className="space-y-1">
-                        {activeStory.mockup.drivers.map((driver, dIdx) => (
-                          <motion.div
-                            key={dIdx}
-                            whileHover={{ x: 3 }}
-                            onMouseEnter={() => sound.playClick(700)}
-                            className="p-1.5 px-2 rounded-lg bg-black/40 border border-white/10 hover:border-emerald-400/40 transition-all flex items-center justify-between text-xs cursor-pointer group/row"
-                          >
-                            <div className="flex items-center gap-1.5">
-                              <span className={`size-1.5 rounded-full animate-pulse ${
-                                driver.color === "rose" ? "bg-rose-500" : driver.color === "amber" ? "bg-amber-500" : "bg-emerald-500"
-                              }`} />
-                              <span className="font-mono text-[10px] text-stone-200 group-hover/row:text-white transition-colors">{driver.label}</span>
-                            </div>
-                            <span className={`font-mono text-[10px] font-bold px-1 rounded border ${
-                              driver.color === "rose" 
-                                ? "text-rose-400 bg-rose-950/60 border-rose-500/20" 
-                                : driver.color === "amber"
-                                ? "text-amber-400 bg-amber-950/60 border-amber-500/20"
-                                : "text-emerald-400 bg-emerald-950/60 border-emerald-500/20"
-                            }`}>
-                              {driver.value}
-                            </span>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Dispatched Playbook Capsule */}
-                    <motion.div 
-                      whileHover={{ scale: 1.01 }}
-                      className="p-2 rounded-xl bg-emerald-950/50 border border-emerald-500/40 flex items-center justify-between shadow-xs"
-                    >
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
-                        <div>
-                          <div className="text-[10px] font-bold text-[#DAF1DE]">{activeStory.mockup.playbook.id} • {activeStory.mockup.playbook.title}</div>
-                          <div className="text-[8px] text-stone-400 font-mono">{activeStory.mockup.playbook.sla}</div>
-                        </div>
-                      </div>
-                      <span className="text-[8px] font-mono font-bold text-emerald-300 bg-emerald-900/90 px-1.5 py-0.5 rounded border border-emerald-400/30 flex items-center gap-1">
-                        <span className="size-1 rounded-full bg-emerald-400 animate-ping" />
-                        DISPATCHED
-                      </span>
-                    </motion.div>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </div>
+          {/* Footer Security Trust Stamp */}
+          <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-stone-400">
+            <span className="flex items-center gap-1">
+              <Lock className="w-3 h-3 text-emerald-400" />
+              256-Bit TLS Vault
+            </span>
+            <span className="text-stone-400">NIST PBKDF2 SHA-256</span>
           </div>
 
         </div>
-      </section>
+      </div>
     </LayoutGroup>
   );
 }
@@ -822,11 +467,11 @@ function InputField({
   }, [value]);
 
   return (
-    <div className="space-y-1 text-left w-full">
-      <label className="text-xs font-bold text-[#051F20] dark:text-white/60">
+    <div className="space-y-1.5 text-left w-full">
+      <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-stone-300">
         {label}
       </label>
-      <div className="relative flex h-9.5 items-center rounded-xl border border-stone-200 bg-white px-3.5 focus-within:border-[#235347] focus-within:ring-2 focus-within:ring-[#DAF1DE] transition-all dark:border-white/10 dark:bg-white/5 shadow-2xs">
+      <div className="relative flex h-10 items-center rounded-xl border border-white/15 bg-white/5 px-3.5 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/20 focus-within:bg-white/10 transition-all shadow-2xs">
         <input
           type={
             type === "password" ? (showPassword ? "text" : "password") : type
@@ -837,13 +482,13 @@ function InputField({
             if (onChange) onChange(e.target.value);
           }}
           placeholder={placeholder}
-          className="w-full bg-transparent text-xs text-[#051F20] font-medium outline-none placeholder:text-stone-400 dark:text-white dark:placeholder:text-white/30"
+          className="w-full bg-transparent text-xs text-white font-medium outline-none placeholder:text-stone-500"
         />
         {type === "password" && (
           <button
             type="button"
             onClick={() => { playTick(); setShowPassword(!showPassword); }}
-            className="absolute right-3.5 text-stone-400 hover:text-[#051F20] dark:hover:text-white cursor-pointer"
+            className="absolute right-3.5 text-stone-400 hover:text-white cursor-pointer transition-colors"
           >
             {showPassword ? (
               <EyeOff className="size-4" />
@@ -867,30 +512,30 @@ function CheckboxLine({
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <label className="flex items-start gap-2 cursor-pointer select-none">
+    <label className="flex items-start gap-2.5 cursor-pointer select-none">
       <span className="relative mt-0.5 size-3.5 shrink-0">
         <input
           type="checkbox"
           checked={checked}
           onChange={onChange}
-          className="peer size-full cursor-pointer appearance-none rounded-[3px] border border-stone-300 bg-white checked:border-[#0B2B26] checked:bg-[#0B2B26] dark:border-white/30 dark:bg-white/5 dark:checked:border-white dark:checked:bg-white transition-all"
+          className="peer size-full cursor-pointer appearance-none rounded-[3px] border border-white/30 bg-white/5 checked:border-[#DAF1DE] checked:bg-[#DAF1DE] transition-all"
         />
         <svg
           viewBox="0 0 12 12"
-          className="pointer-events-none absolute inset-0 hidden size-full p-0.5 text-[#DAF1DE] peer-checked:block dark:text-black"
+          className="pointer-events-none absolute inset-0 hidden size-full p-0.5 text-[#0B2B26] peer-checked:block"
           fill="none"
           aria-hidden="true"
         >
           <path
             d="M3 6.2 5 8.1 9 3.9"
             stroke="currentColor"
-            strokeWidth="1.8"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </svg>
       </span>
-      <span>{children}</span>
+      <span className="text-xs text-stone-300 leading-tight">{children}</span>
     </label>
   );
 }
@@ -932,7 +577,7 @@ function AppleIcon() {
       viewBox="0 0 24 24"
       fill="currentColor"
       aria-hidden="true"
-      className="shrink-0 text-[#051F20] dark:text-white"
+      className="shrink-0 text-white"
     >
       <path d="M17.05 12.54c-.03-3.02 2.47-4.47 2.58-4.54-1.41-2.06-3.6-2.34-4.38-2.37-1.86-.19-3.64 1.1-4.58 1.1-.95 0-2.42-1.07-3.98-1.04-2.05.03-3.94 1.19-4.99 3.02-2.13 3.69-.54 9.16 1.53 12.15 1.01 1.46 2.22 3.1 3.81 3.04 1.53-.06 2.11-.99 3.96-.99s2.37.99 3.99.96c1.65-.03 2.69-1.49 3.69-2.96 1.16-1.69 1.64-3.33 1.66-3.41-.04-.02-3.2-1.23-3.24-4.87ZM14.03 3.66c.84-1.02 1.41-2.43 1.25-3.84-1.21.05-2.68.81-3.55 1.83-.78.9-1.46 2.34-1.28 3.72 1.35.1 2.73-.69 3.58-1.71Z" />
     </svg>
