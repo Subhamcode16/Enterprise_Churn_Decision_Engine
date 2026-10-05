@@ -76,6 +76,9 @@ module.exports = {
         sans: ["'Plus Jakarta Sans'", "system-ui", "-apple-system", "sans-serif"],
         serif: ["'Plus Jakarta Sans'", "Georgia", "serif"],
         mono: ["'JetBrains Mono'", "monospace"]
+      },
+      animation: {
+        'spin-slow': 'spin 12s linear infinite',
       }
     },
   },
