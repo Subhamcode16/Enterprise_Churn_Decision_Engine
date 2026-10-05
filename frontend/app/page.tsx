@@ -7,6 +7,7 @@ import { sound, playTick, playBlip, playExecute } from "@/lib/sound";
 import PastelBentoMetrics from "@/components/PastelBentoMetrics";
 import LiveTelemetryHeader from "@/components/LiveTelemetryHeader";
 import CohortMigrationMatrix from "@/components/CohortMigrationMatrix";
+import PortfolioRiskMatrix from "@/components/PortfolioRiskMatrix";
 import ConnectDataModal from "@/components/ConnectDataModal";
 import AddAccountModal from "@/components/AddAccountModal";
 import RiskTable from "@/components/RiskTable";
@@ -29,7 +30,9 @@ import {
   Bot, 
   Sliders, 
   CheckCircle2, 
-  Calendar 
+  Calendar,
+  Compass,
+  Layers
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -42,6 +45,7 @@ export default function DashboardPage() {
   const [predictLoading, setPredictLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"shap" | "radar">("shap");
   const [selectedCohortTier, setSelectedCohortTier] = useState<string>("All");
+  const [matrixViewMode, setMatrixViewMode] = useState<"matrix" | "flow">("matrix");
   const [dispatchedPlaybooks, setDispatchedPlaybooks] = useState<Record<string, boolean>>({});
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const [copilotInitialQuery, setCopilotInitialQuery] = useState<string | undefined>(undefined);
@@ -261,13 +265,65 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Portfolio Risk Migration Flow & Cohort Health Matrix */}
+        {/* Portfolio Risk Visualization Suite Switcher & Canvas */}
         {summary && (
-          <CohortMigrationMatrix
-            summary={summary}
-            selectedTier={selectedCohortTier}
-            onFilterTier={(tier) => setSelectedCohortTier(tier)}
-          />
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/80 backdrop-blur-md border border-[#E2EAE4] p-2.5 px-4 rounded-[22px] shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-[#235347] animate-pulse" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#051F20]">
+                  Portfolio Macro Telemetry
+                </span>
+                <span className="hidden sm:inline-block text-[10px] font-mono text-[#163832]/60 bg-[#F4F9F4] px-2.5 py-0.5 rounded-full border border-[#E2EAE4]">
+                  {accounts.length} Active Accounts
+                </span>
+              </div>
+
+              {/* Segmented View Switcher */}
+              <div className="flex items-center gap-1 bg-[#F4F9F4] p-1 rounded-xl border border-[#E2EAE4]">
+                <button
+                  id="tab-view-2d-matrix"
+                  onClick={() => { playTick(); setMatrixViewMode("matrix"); }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+                    matrixViewMode === "matrix"
+                      ? "bg-[#0B2B26] text-[#FAF0E6] shadow-sm font-bold"
+                      : "text-[#163832]/70 hover:text-[#051F20] hover:bg-white/60"
+                  }`}
+                >
+                  <Compass className="w-3.5 h-3.5 text-[#00E599]" />
+                  <span>2D Risk Matrix & Heatmaps</span>
+                </button>
+                <button
+                  id="tab-view-cohort-flow"
+                  onClick={() => { playTick(); setMatrixViewMode("flow"); }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+                    matrixViewMode === "flow"
+                      ? "bg-[#0B2B26] text-[#FAF0E6] shadow-sm font-bold"
+                      : "text-[#163832]/70 hover:text-[#051F20] hover:bg-white/60"
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5 text-[#8EB69B]" />
+                  <span>Cohort Dynamics Flow</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Dynamic Visualization Canvas */}
+            {matrixViewMode === "matrix" ? (
+              <PortfolioRiskMatrix
+                accounts={accounts}
+                selectedAccount={selectedAccount}
+                onSelectAccount={handleSelectAccount}
+                summary={summary}
+              />
+            ) : (
+              <CohortMigrationMatrix
+                summary={summary}
+                selectedTier={selectedCohortTier}
+                onFilterTier={(tier) => setSelectedCohortTier(tier)}
+              />
+            )}
+          </div>
         )}
 
         {/* 3-Column Studio Workspace */}
