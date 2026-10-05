@@ -219,6 +219,13 @@ button:active:not(:disabled) {
   background: #BDB7A6;
 }
 
+/* Magic UI Border Beam Animation */
+@keyframes border-beam {
+  100% {
+    offset-distance: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -227,3 +234,4 @@ button:active:not(:disabled) {
     scroll-behavior: auto !important;
   }
 }
+
