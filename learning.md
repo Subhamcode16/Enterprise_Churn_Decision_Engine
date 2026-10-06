@@ -9,6 +9,8 @@
 - Provide generous vertical spacing (`space-y-8 lg:space-y-10`) between header navigation ribbons and primary KPI metric bento grids.
 - Ensure supporting reference sections (such as Knowledge Base & FAQ) sit directly on the seamless canvas page rather than inside nested card containers, ensuring natural scroll rhythm.
 
-## 3. Machine Learning & Telemetry Ingestion
-- **TreeSHAP Attributions**: Compute game-theoretic Shapley feature attributions with sub-50ms latency using tree path explainers.
-- **Tenant Vault Isolation**: Partition customer telemetry with AES-256 GCM encryption at rest.
+## 4. Blacklisted Visual Anti-Patterns (Anti-AI Slop Mandate)
+- **NEVER use dark retro-futuristic hacker/gamer HUD containers**: No heavy pitch-black (`#051816`) cards, glowing neon laser grids, rotating radar scanlines, or artificial neon laser lines. They clash violently with the light SaaS editorial system and look like low-quality AI-generated mockups.
+- **Rule**: All executive charts and matrix components MUST natively match the **Editorial Ivory & Pine Forest SaaS** system (`#F4F8F5` canvas, `#FFFFFF` crisp cards, 1px `#E2EAE4` borders, refined typography, and soft restrained data colors).
+- **Chart Precision**: Use clean, human-designed Cartesian graphs (like Stripe, Linear, or Gartner/Clutch reports) with clean axes, standard data points, and clear tooltips.
+
