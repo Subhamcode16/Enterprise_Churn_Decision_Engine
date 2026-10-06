@@ -56,7 +56,7 @@ export default function AppSidebar({ onOpenProfile, onOpenAuth }: AppSidebarProp
   ];
 
   return (
-    <aside className="w-64 bg-[#F4F8F5] text-[#051F20] shrink-0 min-h-screen flex flex-col justify-between p-5 border-r border-[#E2EAE4] select-none">
+    <aside className="w-64 bg-[#F4F8F5] text-[#051F20] shrink-0 h-screen sticky top-0 flex flex-col justify-between p-5 border-r border-[#E2EAE4] select-none overflow-y-auto z-30">
       <div className="space-y-7">
         {/* Brandmark / Logo */}
         <Link 
