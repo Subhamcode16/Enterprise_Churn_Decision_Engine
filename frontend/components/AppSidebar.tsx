@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
-  Activity, 
   BarChart3, 
   Sliders, 
   UploadCloud, 
@@ -27,6 +26,40 @@ import { useAuth } from "@/lib/auth";
 interface AppSidebarProps {
   onOpenProfile?: () => void;
   onOpenAuth?: () => void;
+}
+
+function ValenceLogoGlyph({ className = "w-5 h-5 shrink-0" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      <path
+        d="M3 4.5L12 20.5L21 4.5H16.5L12 12.5L7.5 4.5H3Z"
+        fill="url(#valence-sidebar-gradient)"
+      />
+      <path
+        d="M7.5 4.5L12 12.5L16.5 4.5H12.8L12 6L11.2 4.5H7.5Z"
+        fill="#DAF1DE"
+        fillOpacity="0.85"
+      />
+      <defs>
+        <linearGradient
+          id="valence-sidebar-gradient"
+          x1="3"
+          y1="4.5"
+          x2="21"
+          y2="20.5"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#34D399" />
+          <stop offset="1" stopColor="#059669" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
 }
 
 export default function AppSidebar({ onOpenProfile, onOpenAuth }: AppSidebarProps = {}) {
@@ -64,13 +97,13 @@ export default function AppSidebar({ onOpenProfile, onOpenAuth }: AppSidebarProp
           onClick={() => sound.playClick(600)}
           className="flex items-center gap-3 px-2 group"
         >
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#235347] via-[#163832] to-[#0B2B26] flex items-center justify-center text-[#DAF1DE] shadow-sm group-hover:scale-105 transition-transform">
-            <Activity className="w-5 h-5 text-[#DAF1DE]" />
+          <div className="w-9 h-9 rounded-xl bg-[#0B2B26] flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform shrink-0">
+            <ValenceLogoGlyph className="w-5 h-5 shrink-0" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-base tracking-tight text-[#051F20]">
-                VALENCE <span className="text-[#235347]">AI</span>
+                Valence
               </span>
             </div>
             <span className="text-[10px] text-stone-500 font-medium tracking-wide">
