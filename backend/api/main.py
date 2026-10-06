@@ -71,17 +71,24 @@ from api.schemas import (
 )
 
 # Setup Logging
-log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "logs")
-os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, "engine_audit.log")
+handlers = [logging.StreamHandler()]
+try:
+    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "engine_audit.log")
+    handlers.insert(0, logging.FileHandler(log_file))
+except Exception:
+    try:
+        tmp_log_dir = "/tmp/logs"
+        os.makedirs(tmp_log_dir, exist_ok=True)
+        handlers.insert(0, logging.FileHandler(os.path.join(tmp_log_dir, "engine_audit.log")))
+    except Exception:
+        pass
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler()
-    ]
+    handlers=handlers
 )
 logger = logging.getLogger("ValenceDecisionEngine")
 

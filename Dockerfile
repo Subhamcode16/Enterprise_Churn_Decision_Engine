@@ -16,8 +16,12 @@ COPY backend/ .
 # Execute training and save artifacts
 RUN python -u src/train_pipeline.py
 
-# Create non-root user for security
-RUN addgroup --system appgroup && adduser --system --group appuser
+# Create non-root user and pre-create runtime directories with permissions
+RUN addgroup --system appgroup && adduser --system --group appuser && \
+    mkdir -p /app/logs /app/data /tmp/logs && \
+    chown -R appuser:appgroup /app /tmp/logs && \
+    chmod -R 775 /app/logs /app/data /tmp/logs
+
 USER appuser
 
 EXPOSE 8000

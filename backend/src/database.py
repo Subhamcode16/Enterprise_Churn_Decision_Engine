@@ -21,6 +21,10 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/valence.db")
 
+# Normalize postgres:// to postgresql:// for SQLAlchemy 2.0 compatibility (e.g. Supabase/Render)
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # Ensure data directory exists for SQLite
 if DATABASE_URL.startswith("sqlite"):
     os.makedirs("./data", exist_ok=True)
@@ -39,7 +43,14 @@ if DATABASE_URL.startswith("sqlite"):
         except Exception:
             pass
 else:
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+    # Supabase / PostgreSQL Connection Pool
+    engine = create_engine(
+        DATABASE_URL, 
+        pool_pre_ping=True,
+        pool_size=10,
+        max_overflow=20,
+        pool_recycle=300
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
