@@ -97,16 +97,14 @@ export default function AppSidebar({ onOpenProfile, onOpenAuth }: AppSidebarProp
           onClick={() => sound.playClick(600)}
           className="flex items-center gap-3 px-2 group"
         >
-          <div className="w-9 h-9 rounded-xl bg-[#0B2B26] flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform shrink-0">
-            <ValenceLogoGlyph className="w-5 h-5 shrink-0" />
+          <div className="w-10 h-10 rounded-2xl bg-[#0B2B26] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform shrink-0">
+            <ValenceLogoGlyph className="w-5.5 h-5.5 shrink-0" />
           </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-base tracking-tight text-[#051F20]">
-                Valence
-              </span>
-            </div>
-            <span className="text-[10px] text-stone-500 font-medium tracking-wide">
+          <div className="flex flex-col justify-center">
+            <span className="font-black text-xl tracking-tight text-[#051F20] leading-tight">
+              Valence
+            </span>
+            <span className="text-[10.5px] text-stone-400 font-medium tracking-tight leading-tight mt-0.5">
               Enterprise Decision Engine
             </span>
           </div>
