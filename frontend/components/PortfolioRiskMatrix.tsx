@@ -447,17 +447,18 @@ export default function PortfolioRiskMatrix({
         <div className="lg:col-span-5 flex flex-col space-y-2.5">
           <div className="flex items-center justify-between px-1 text-xs font-mono">
             <span className="text-[#051F20] font-bold uppercase tracking-wider flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5 text-[#C86D51]" /> WHOOP Telemetry Heatmap
+              <Layers className="w-3.5 h-3.5 text-[#235347]" /> Cohort Telemetry Heatmap
             </span>
-            {/* WHOOP Legend */}
+            {/* Pure Green Scale Legend */}
             <div className="flex items-center gap-1 text-[9px] font-mono text-[#163832]/60">
-              <span>Less</span>
+              <span>Low</span>
               <span className="w-2.5 h-2.5 rounded-sm bg-[#F4F8F5] border border-[#E2EAE4]" />
               <span className="w-2.5 h-2.5 rounded-sm bg-[#EAF5E8] border border-[#C1E7BC]" />
-              <span className="w-2.5 h-2.5 rounded-sm bg-[#FEF3C7] border border-[#FDE68A]" />
-              <span className="w-2.5 h-2.5 rounded-sm bg-[#FED7AA] border border-[#FDBA74]" />
-              <span className="w-2.5 h-2.5 rounded-sm bg-[#C86D51] border border-[#A44328]" />
-              <span>More</span>
+              <span className="w-2.5 h-2.5 rounded-sm bg-[#C6E7C1] border border-[#A3D99C]" />
+              <span className="w-2.5 h-2.5 rounded-sm bg-[#65B77B] border border-[#4DA565]" />
+              <span className="w-2.5 h-2.5 rounded-sm bg-[#235347] border border-[#1B4339]" />
+              <span className="w-2.5 h-2.5 rounded-sm bg-[#0B2B26] border border-[#051F20]" />
+              <span>High</span>
             </div>
           </div>
 
@@ -487,31 +488,31 @@ export default function PortfolioRiskMatrix({
                     const hasAccounts = cell.count > 0;
                     const loss = cell.totalLoss;
 
-                    // 5-Tier Soft Intensity Grading
+                    // 5-Tier Pure Green Sequential Intensity Grading
                     let tileStyle = "bg-[#F4F8F5] border-[#E2EAE4] opacity-50";
                     let indicatorColor = "text-[#163832]/40";
                     let pulseBeacon = false;
 
                     if (hasAccounts) {
                       if (loss >= 25000 || (cell.renewalBand.id === "urgent" && row.usageBand.id === "severe_drop")) {
-                        // Level 5: P0 Critical Terracotta
-                        tileStyle = "bg-[#C86D51] border-[#A44328] text-white shadow-xs";
-                        indicatorColor = "text-white font-extrabold";
+                        // Level 5: Deep Forest Green (Max Density)
+                        tileStyle = "bg-[#0B2B26] border-[#051F20] text-[#DAF1DE] shadow-xs";
+                        indicatorColor = "text-[#DAF1DE] font-black";
                         pulseBeacon = true;
                       } else if (loss >= 10000 || row.usageBand.id === "severe_drop") {
-                        // Level 4: Coral Rose
-                        tileStyle = "bg-[#FCA5A5] border-[#F87171] text-[#7F1D1D]";
-                        indicatorColor = "text-[#7F1D1D] font-bold";
+                        // Level 4: Dark Emerald Green
+                        tileStyle = "bg-[#235347] border-[#1B4339] text-[#DAF1DE]";
+                        indicatorColor = "text-[#DAF1DE] font-bold";
                       } else if (loss >= 4000 || row.usageBand.id === "mod_drop") {
-                        // Level 3: Soft Amber
-                        tileStyle = "bg-[#FED7AA] border-[#FDBA74] text-[#7C2D12]";
-                        indicatorColor = "text-[#7C2D12] font-bold";
+                        // Level 3: Medium Jade Green
+                        tileStyle = "bg-[#4DA565] border-[#3B8E52] text-white";
+                        indicatorColor = "text-white font-bold";
                       } else if (loss > 0) {
-                        // Level 2: Pale Canary
-                        tileStyle = "bg-[#FEF3C7] border-[#FDE68A] text-[#78350F]";
-                        indicatorColor = "text-[#78350F] font-bold";
+                        // Level 2: Soft Sage Green
+                        tileStyle = "bg-[#C6E7C1] border-[#A3D99C] text-[#0B2B26]";
+                        indicatorColor = "text-[#0B2B26] font-bold";
                       } else {
-                        // Level 1: Pale Mint
+                        // Level 1: Pale Mint Green
                         tileStyle = "bg-[#EAF5E8] border-[#C1E7BC] text-[#235347]";
                         indicatorColor = "text-[#235347] font-bold";
                       }
@@ -567,11 +568,11 @@ export default function PortfolioRiskMatrix({
               {hoveredTile ? (
                 <>
                   <div className="flex items-center gap-1.5 truncate">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#C86D51]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#235347]" />
                     <span className="text-[#051F20] font-bold truncate">{hoveredTile.usageLabel} ({hoveredTile.renewalLabel})</span>
                   </div>
                   <div className="text-right shrink-0 pl-2">
-                    <span className="text-[#A44328] font-bold">{formatCurrency(hoveredTile.totalLoss)} at risk</span>
+                    <span className="text-[#235347] font-bold">{formatCurrency(hoveredTile.totalLoss)} at risk</span>
                     <span className="text-[#163832]/60"> • {hoveredTile.count} accts</span>
                   </div>
                 </>
