@@ -740,7 +740,7 @@ function InputField({
             if (onChange) onChange(e.target.value);
           }}
           placeholder={placeholder}
-          className="w-full bg-transparent text-xs text-white font-medium outline-none placeholder:text-stone-500"
+          className="w-full bg-transparent text-xs text-white/70 focus:text-white font-medium outline-none placeholder:text-stone-500 transition-colors duration-200"
         />
         {type === "password" && (
           <button
