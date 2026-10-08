@@ -17,6 +17,12 @@ export default function AuthModal({
   initialTab = "login",
   onSuccess
 }: AuthModalProps) {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      console.log("%c[VALENCE]%c UI v1.0.1 (Production Auth Modal Scroll Active)", "background:#0B2B26;color:#34D399;font-weight:bold;padding:2px 6px;border-radius:4px;", "color:#0B2B26;font-weight:bold;");
+    }
+  }, []);
+
   // Lock body scroll when modal is open to prevent background dashboard scrolling
   useEffect(() => {
     if (!isOpen) return;
@@ -56,6 +62,11 @@ export default function AuthModal({
           data-lenis-prevent="true"
           onWheel={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
+          style={{
+            touchAction: "pan-y",
+            WebkitOverflowScrolling: "touch",
+            overscrollBehavior: "contain",
+          }}
           className="w-full flex-1 min-h-0 rounded-[23px] overflow-y-auto overscroll-contain dark-modal-scroll bg-gradient-to-b from-[#0B2B26] via-[#051F20] to-[#0B2B26] border border-white/10"
         >
           <AuthSectionThree

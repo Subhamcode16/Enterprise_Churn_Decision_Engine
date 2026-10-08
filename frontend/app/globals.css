@@ -219,23 +219,27 @@ button:active:not(:disabled) {
   background: #BDB7A6;
 }
 
-/* Custom Dark Modal Scrollbar */
+/* Custom Dark Modal Scrollbar & Cross-Browser Touch Containment */
 .dark-modal-scroll {
   scrollbar-width: thin;
   scrollbar-color: rgba(52, 211, 153, 0.3) transparent;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior: contain !important;
+  overscroll-behavior-y: contain !important;
 }
 .dark-modal-scroll::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
 }
 .dark-modal-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 .dark-modal-scroll::-webkit-scrollbar-thumb {
-  background: rgba(52, 211, 153, 0.25);
+  background: rgba(52, 211, 153, 0.3);
   border-radius: 9999px;
 }
 .dark-modal-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.6);
 }
 
 /* Magic UI Border Beam Animation */
