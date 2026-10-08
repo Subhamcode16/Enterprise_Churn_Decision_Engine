@@ -19,6 +19,9 @@ function getSanitizedApiUrl() {
 
 const nextConfig = {
   reactStrictMode: true,
+  swcMinify: true,
+  compress: true,
+  poweredByHeader: false,
   async rewrites() {
     const apiUrl = getSanitizedApiUrl();
     return [

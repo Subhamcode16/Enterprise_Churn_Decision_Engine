@@ -1,0 +1,63 @@
+name: VALENCE CI/CD & Fast-Track Deployment Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-ci:
+    name: Backend Test Suite & Security Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Verify Module Importability
+        working-directory: backend
+        run: |
+          python -c "import api.main; print('Render Entrypoint Verified')"
+
+      - name: Run Pytest Suite
+        working-directory: backend
+        run: |
+          python -m pytest tests/ -v
+
+  frontend-ci:
+    name: Frontend Compilation & Typecheck Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Node Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run Next.js Production Build
+        working-directory: frontend
+        run: npm run build
