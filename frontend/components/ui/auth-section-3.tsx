@@ -258,7 +258,13 @@ export default function AuthSectionThree({
 
   return (
     <LayoutGroup id="auth-capsule-layout">
-      <div className={`relative w-full overflow-hidden text-white font-sans ${isModal ? "p-6 sm:p-8" : "min-h-screen flex items-center justify-center p-4 sm:p-6"}`}>
+      <div 
+        className={`relative w-full text-white font-sans ${
+          isModal 
+            ? "p-6 sm:p-8 max-h-[calc(90vh-8px)] overflow-y-auto overflow-x-hidden dark-modal-scroll" 
+            : "min-h-screen flex items-center justify-center p-4 sm:p-6"
+        }`}
+      >
         
         {/* Ambient Shader / Background Layer */}
         <div className="absolute inset-0 pointer-events-none opacity-30 mix-blend-screen -z-10">
@@ -292,7 +298,7 @@ export default function AuthSectionThree({
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-full bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white transition-all active:scale-95 z-30 cursor-pointer border border-white/10 shadow-xs"
+            className="sticky top-0 float-right -mr-2 -mt-2 p-2 rounded-full bg-[#051F20]/80 hover:bg-[#0B2B26] text-stone-300 hover:text-white transition-all active:scale-95 z-40 cursor-pointer border border-white/20 backdrop-blur-md shadow-md"
             title="Close Authentication"
           >
             <X className="w-4 h-4" />
@@ -564,9 +570,10 @@ export default function AuthSectionThree({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto", transition: { duration: 0.2 } }}
                   exit={{ opacity: 0, height: 0, transition: { duration: 0.15 } }}
-                  className="pt-0.5 overflow-hidden"
+                  className="pt-2 pb-1 overflow-hidden"
                 >
                   <CheckboxLine
+                    align="center"
                     checked={rememberDevice}
                     onChange={(e) => { setRememberDevice(e.target.checked); resetErrorState(); }}
                   >
@@ -581,9 +588,10 @@ export default function AuthSectionThree({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto", transition: { duration: 0.25 } }}
                   exit={{ opacity: 0, height: 0, transition: { duration: 0.15 } }}
-                  className="space-y-2.5 pt-1 text-xs text-stone-300 overflow-hidden"
+                  className="space-y-2.5 pt-2 pb-1 text-xs text-stone-300 overflow-hidden"
                 >
                   <CheckboxLine
+                    align="start"
                     checked={agreedTerms}
                     onChange={(e) => { setAgreedTerms(e.target.checked); resetErrorState(); }}
                   >
@@ -591,6 +599,7 @@ export default function AuthSectionThree({
                   </CheckboxLine>
 
                   <CheckboxLine
+                    align="start"
                     checked={agreedSoc2}
                     onChange={(e) => { setAgreedSoc2(e.target.checked); resetErrorState(); }}
                   >
@@ -608,7 +617,7 @@ export default function AuthSectionThree({
               whileHover={authStatus === "idle" ? { scale: 1.02 } : {}}
               whileTap={authStatus === "idle" ? { scale: 0.98 } : {}}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className={`group relative mt-4 flex h-11 w-full items-center justify-center overflow-hidden rounded-xl text-sm font-bold transition-all duration-300 cursor-pointer shadow-[0_4px_20px_rgba(35,83,71,0.5)] ${
+              className={`group relative mt-5 flex h-11 w-full items-center justify-center overflow-hidden rounded-xl text-sm font-bold transition-all duration-300 cursor-pointer shadow-[0_4px_20px_rgba(35,83,71,0.5)] ${
                 authStatus === "success"
                   ? "bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 text-[#051F20] shadow-[0_0_35px_rgba(52,211,153,0.7)]"
                   : "bg-gradient-to-r from-emerald-400 via-[#DAF1DE] to-emerald-300 text-[#0B2B26] hover:shadow-[0_0_30px_rgba(52,211,153,0.45)]"
@@ -752,36 +761,40 @@ function CheckboxLine({
   children,
   checked,
   onChange,
+  align = "start",
 }: {
   children: ReactNode;
   checked?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  align?: "start" | "center";
 }) {
   return (
-    <label className="flex items-start gap-2.5 cursor-pointer select-none">
-      <span className="relative mt-0.5 size-3.5 shrink-0">
+    <label className={`flex ${align === "center" ? "items-center" : "items-start"} gap-3 cursor-pointer select-none group py-0.5`}>
+      <span className={`relative ${align === "center" ? "" : "mt-0.5"} size-4 shrink-0`}>
         <input
           type="checkbox"
           checked={checked}
           onChange={onChange}
-          className="peer size-full cursor-pointer appearance-none rounded-[3px] border border-white/30 bg-white/5 checked:border-[#DAF1DE] checked:bg-[#DAF1DE] transition-all"
+          className="peer size-4 cursor-pointer appearance-none rounded-[4px] border border-white/25 bg-black/40 group-hover:border-emerald-400/80 checked:!border-[#DAF1DE] checked:!bg-[#DAF1DE] transition-all shadow-2xs"
         />
         <svg
           viewBox="0 0 12 12"
-          className="pointer-events-none absolute inset-0 hidden size-full p-0.5 text-[#0B2B26] peer-checked:block"
+          className="pointer-events-none absolute inset-0 hidden size-4 p-0.5 text-[#0B2B26] peer-checked:block"
           fill="none"
           aria-hidden="true"
         >
           <path
-            d="M3 6.2 5 8.1 9 3.9"
+            d="M2.5 6.2 4.8 8.4 9.5 3.6"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="2.2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </svg>
       </span>
-      <span className="text-xs text-stone-300 leading-tight">{children}</span>
+      <span className="text-xs text-stone-300 group-hover:text-white transition-colors leading-relaxed select-none font-normal">
+        {children}
+      </span>
     </label>
   );
 }

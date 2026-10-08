@@ -24,8 +24,8 @@ export default function AuthPage() {
         </Link>
       </div>
 
-      <div className="relative w-full max-w-[480px] p-0.5 rounded-3xl bg-gradient-to-br from-emerald-400/40 via-teal-500/20 to-emerald-900/60 shadow-[0_25px_80px_rgba(5,31,32,0.8)] overflow-hidden my-12">
-        <div className="w-full rounded-[23px] overflow-hidden bg-gradient-to-b from-[#0B2B26] via-[#051F20] to-[#0B2B26] border border-white/10">
+      <div className="relative w-full max-w-[480px] max-h-[90vh] flex flex-col p-0.5 rounded-3xl bg-gradient-to-br from-emerald-400/40 via-teal-500/20 to-emerald-900/60 shadow-[0_25px_80px_rgba(5,31,32,0.8)] overflow-hidden my-auto">
+        <div className="w-full h-full max-h-[calc(90vh-4px)] flex flex-col rounded-[23px] overflow-hidden bg-gradient-to-b from-[#0B2B26] via-[#051F20] to-[#0B2B26] border border-white/10">
           <AuthSectionThree isModal={true} />
         </div>
       </div>
