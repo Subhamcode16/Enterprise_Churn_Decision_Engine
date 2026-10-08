@@ -79,3 +79,32 @@ def test_invalid_login_rejection():
         "password": "WrongPassword123!"
     })
     assert res.status_code == 401
+
+
+def test_sso_authentication_flow():
+    # 1. 1-Click Google SSO
+    google_res = client.post("/api/auth/sso", json={
+        "provider": "google",
+        "email": "google.director@enterprise.com",
+        "full_name": "Google Director Operator"
+    })
+    assert google_res.status_code == 200
+    g_data = google_res.json()
+    assert "access_token" in g_data
+    assert g_data["user"]["auth_provider"] == "google"
+    assert g_data["user"]["email"] == "google.director@enterprise.com"
+
+    # 2. Verify Token on /me
+    token = g_data["access_token"]
+    me_res = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me_res.status_code == 200
+    assert me_res.json()["auth_provider"] == "google"
+
+    # 3. 1-Click X / Twitter SSO
+    x_res = client.post("/api/auth/sso", json={
+        "provider": "x",
+        "email": "x.strategist@enterprise.com",
+        "full_name": "X Strategist"
+    })
+    assert x_res.status_code == 200
+    assert x_res.json()["user"]["auth_provider"] == "x"

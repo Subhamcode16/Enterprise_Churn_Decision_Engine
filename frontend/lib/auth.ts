@@ -8,11 +8,14 @@ export interface AuthUser {
   full_name: string;
   name?: string;
   role: "admin" | "operator" | "executive";
+  auth_provider?: string;
+  last_login?: string;
   created_at?: string;
 }
 
 const TOKEN_KEY = "valence_auth_token";
 const USER_KEY = "valence_auth_user";
+const LAST_PROVIDER_KEY = "valence_last_auth_provider";
 
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -30,11 +33,23 @@ export function getStoredUser(): AuthUser | null {
   }
 }
 
-export function setStoredAuth(token: string, user: AuthUser) {
+export function getStoredLastProvider(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(LAST_PROVIDER_KEY);
+}
+
+export function setStoredLastProvider(provider: string) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(LAST_PROVIDER_KEY, provider);
+}
+
+export function setStoredAuth(token: string, user: AuthUser, provider?: string) {
   if (typeof window === "undefined") return;
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
-  window.dispatchEvent(new CustomEvent("valence-auth-change", { detail: { token, user } }));
+  const activeProvider = provider || user.auth_provider || "email";
+  localStorage.setItem(LAST_PROVIDER_KEY, activeProvider);
+  window.dispatchEvent(new CustomEvent("valence-auth-change", { detail: { token, user, provider: activeProvider } }));
 }
 
 export function clearStoredAuth() {
@@ -47,22 +62,31 @@ export function clearStoredAuth() {
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [lastProvider, setLastProvider] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Initial sync
     setToken(getStoredToken());
     setUser(getStoredUser());
+    setLastProvider(getStoredLastProvider());
     setLoading(false);
 
     const handleAuthChange = (e: any) => {
       setToken(e.detail?.token || null);
       setUser(e.detail?.user || null);
+      setLastProvider(e.detail?.provider || getStoredLastProvider());
     };
 
     window.addEventListener("valence-auth-change", handleAuthChange);
     return () => window.removeEventListener("valence-auth-change", handleAuthChange);
   }, []);
 
-  return { user, token, isAuthenticated: Boolean(token && user), loading };
+  return { 
+    user, 
+    token, 
+    lastProvider,
+    isAuthenticated: Boolean(token && user), 
+    loading 
+  };
 }

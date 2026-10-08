@@ -296,3 +296,65 @@ export async function resetDemoWorkspace() {
   });
 }
 
+export async function loginWithSSO(payload: {
+  provider: "google" | "apple" | "x" | "twitter" | "email" | "sso";
+  email: string;
+  full_name?: string;
+  provider_user_id?: string;
+}) {
+  const url = `${API_BASE_URL}/api/auth/sso`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": API_SECRET_KEY,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.detail || "Single Sign-On authentication failed.");
+  }
+
+  return response.json();
+}
+
+export async function loginWithCredentials(email: string, password: string) {
+  const url = `${API_BASE_URL}/api/auth/login`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": API_SECRET_KEY,
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.detail || "Invalid email or password.");
+  }
+
+  return response.json();
+}
+
+export async function registerWithCredentials(email: string, password: string, full_name: string) {
+  const url = `${API_BASE_URL}/api/auth/register`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": API_SECRET_KEY,
+    },
+    body: JSON.stringify({ email, password, full_name, role: "operator" }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.detail || "Registration failed. An account may already exist.");
+  }
+
+  return response.json();
+}
+

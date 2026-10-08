@@ -67,6 +67,8 @@ class User(Base):
     salt = Column(String(64), nullable=False)
     full_name = Column(String(255), nullable=True)
     role = Column(String(50), default="operator", nullable=False)  # admin, operator, executive
+    auth_provider = Column(String(50), default="email", nullable=False)  # google, apple, x, email, sso
+    provider_user_id = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     last_login = Column(DateTime, nullable=True)
@@ -172,6 +174,12 @@ def init_db():
                 user_cols = [r[1] for r in res]
                 if "tenant_id" not in user_cols and len(user_cols) > 0:
                     conn.exec_driver_sql("ALTER TABLE users ADD COLUMN tenant_id VARCHAR(100) DEFAULT 'default_tenant'")
+                if "auth_provider" not in user_cols and len(user_cols) > 0:
+                    conn.exec_driver_sql("ALTER TABLE users ADD COLUMN auth_provider VARCHAR(50) DEFAULT 'email'")
+                if "provider_user_id" not in user_cols and len(user_cols) > 0:
+                    conn.exec_driver_sql("ALTER TABLE users ADD COLUMN provider_user_id VARCHAR(255)")
+                if "last_login" not in user_cols and len(user_cols) > 0:
+                    conn.exec_driver_sql("ALTER TABLE users ADD COLUMN last_login TIMESTAMP")
 
                 # dispatched_playbooks table
                 res = conn.exec_driver_sql("PRAGMA table_info(dispatched_playbooks)").fetchall()
