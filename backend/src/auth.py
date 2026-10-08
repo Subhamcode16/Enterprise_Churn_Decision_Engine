@@ -71,13 +71,19 @@ def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta]
 
 
 def decode_access_token(token: str) -> Dict[str, Any]:
-    """Decodes and validates JWT token signature and expiration"""
+    """Decodes and validates JWT token signature, algorithm, and expiration"""
     try:
         parts = token.split(".")
         if len(parts) != 3:
             raise ValueError("Malformed token format")
 
         header_b64, payload_b64, signature_b64 = parts
+
+        # Strict Header and Algorithm Pinning
+        header = json.loads(base64url_decode(header_b64).decode("utf-8"))
+        if header.get("alg") != ALGORITHM:
+            raise ValueError(f"Algorithm mismatch: expected {ALGORITHM}, got {header.get('alg')}")
+
         signature_input = f"{header_b64}.{payload_b64}".encode("utf-8")
         expected_sig = hmac.new(SECRET_KEY.encode("utf-8"), signature_input, hashlib.sha256).digest()
         actual_sig = base64url_decode(signature_b64)
@@ -90,7 +96,7 @@ def decode_access_token(token: str) -> Dict[str, Any]:
             raise ValueError("Token has expired")
 
         return payload
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
