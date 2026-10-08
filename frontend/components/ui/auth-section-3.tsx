@@ -261,7 +261,7 @@ export default function AuthSectionThree({
       <div 
         className={`relative w-full text-white font-sans ${
           isModal 
-            ? "p-6 sm:p-8 max-h-[calc(90vh-8px)] overflow-y-auto overflow-x-hidden dark-modal-scroll" 
+            ? "p-6 sm:p-8 pb-12" 
             : "min-h-screen flex items-center justify-center p-4 sm:p-6"
         }`}
       >
