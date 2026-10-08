@@ -259,6 +259,9 @@ export default function AuthSectionThree({
   return (
     <LayoutGroup id="auth-capsule-layout">
       <div 
+        data-lenis-prevent="true"
+        onWheel={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
         className={`relative w-full text-white font-sans ${
           isModal 
             ? "p-6 sm:p-8 pb-12" 
