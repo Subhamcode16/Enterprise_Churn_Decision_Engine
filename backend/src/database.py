@@ -4,6 +4,7 @@ SQLAlchemy 2.0 ORM with SQLite local storage and PostgreSQL cloud compatibility.
 """
 
 import os
+import logging
 from datetime import datetime, timezone
 from typing import Generator
 from sqlalchemy import (
@@ -19,39 +20,56 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/valence.db")
+logger = logging.getLogger("valence.database")
 
-# Normalize postgres:// to postgresql:// for SQLAlchemy 2.0 compatibility (e.g. Supabase/Render)
+RAW_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/valence.db")
+
+# Normalize postgres URL for SQLAlchemy 2.0 (prefer psycopg3 / psycopg2)
+DATABASE_URL = RAW_DATABASE_URL
 if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
+elif DATABASE_URL.startswith("postgresql://") and not DATABASE_URL.startswith("postgresql+"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
 
-# Ensure data directory exists for SQLite
-if DATABASE_URL.startswith("sqlite"):
-    os.makedirs("./data", exist_ok=True)
-    engine = create_engine(
-        DATABASE_URL, 
-        connect_args={"check_same_thread": False}
-    )
 
-    @event.listens_for(engine, "connect")
-    def set_sqlite_pragma(dbapi_connection, connection_record):
+def create_app_engine(db_url: str):
+    if db_url.startswith("sqlite"):
+        os.makedirs("./data", exist_ok=True)
+        sqlite_engine = create_engine(
+            db_url,
+            connect_args={"check_same_thread": False}
+        )
+        @event.listens_for(sqlite_engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            try:
+                cursor = dbapi_connection.cursor()
+                cursor.execute("PRAGMA journal_mode=WAL")
+                cursor.execute("PRAGMA synchronous=NORMAL")
+                cursor.close()
+            except Exception:
+                pass
+        return sqlite_engine
+    else:
+        # PostgreSQL with fallback protection
         try:
-            cursor = dbapi_connection.cursor()
-            cursor.execute("PRAGMA journal_mode=WAL")
-            cursor.execute("PRAGMA synchronous=NORMAL")
-            cursor.close()
-        except Exception:
-            pass
-else:
-    # Supabase / PostgreSQL Connection Pool
-    engine = create_engine(
-        DATABASE_URL, 
-        pool_pre_ping=True,
-        pool_size=10,
-        max_overflow=20,
-        pool_recycle=300
-    )
+            pg_engine = create_engine(
+                db_url,
+                pool_pre_ping=True,
+                pool_size=10,
+                max_overflow=20,
+                pool_recycle=300
+            )
+            return pg_engine
+        except Exception as e:
+            logger.warning(f"PostgreSQL engine creation failed ({e}). Falling back to local SQLite.")
+            os.makedirs("./data", exist_ok=True)
+            return create_engine(
+                "sqlite:///./data/valence.db",
+                connect_args={"check_same_thread": False}
+            )
 
+
+engine = create_app_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -166,7 +184,7 @@ class AuditLog(Base):
 def init_db():
     Base.metadata.create_all(bind=engine)
     # Auto-migration for SQLite schema updates if table existed prior to column additions
-    if DATABASE_URL.startswith("sqlite"):
+    if engine.dialect.name == "sqlite":
         try:
             with engine.connect() as conn:
                 # users table
