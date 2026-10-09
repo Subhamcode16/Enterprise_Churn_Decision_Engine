@@ -1215,13 +1215,17 @@ def copilot_chat_endpoint(payload: CopilotChatRequest):
 
     q_lower = query.lower()
 
-    # 1. Gemini LLM Synthesis if GEMINI_API_KEY is configured
+    # 1. Gemini 3 Family LLM Synthesis if GEMINI_API_KEY is configured
     gemini_key = os.environ.get("GEMINI_API_KEY")
     if gemini_key and len(gemini_key) > 5:
         try:
             import google.generativeai as genai
             genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel("gemini-2.5-flash")
+            
+            # Gemini 3 Family Waterfall Model Strategy
+            model_candidates = ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-2.5-flash"]
+            resp = None
+            
             system_context = f"""You are the VALENCE AI Decision Copilot, an elite executive retention intelligence engine.
 Account Context:
 - Company: {company_name} ({account_id})
@@ -1236,7 +1240,17 @@ Account Context:
 
 Provide a concise, direct, professional response with markdown bullet points and exact numbers."""
             prompt = f"{system_context}\n\nUser Question: {query}"
-            resp = model.generate_content(prompt)
+            
+            for candidate in model_candidates:
+                try:
+                    model = genai.GenerativeModel(candidate)
+                    resp = model.generate_content(prompt)
+                    if resp and resp.text:
+                        break
+                except Exception as model_err:
+                    logger.info(f"Model candidate {candidate} failed ({model_err}), cascading to next fallback...")
+                    continue
+
             if resp and resp.text:
                 return CopilotChatResponse(
                     text=resp.text.strip(),
@@ -1254,11 +1268,11 @@ Provide a concise, direct, professional response with markdown bullet points and
                         ]
                     ),
                     confidence_score=0.98,
-                    source="gemini",
+                    source="gemini-3",
                     generated_at=now_iso
                 )
         except Exception as e:
-            logger.warning(f"Gemini API generation failed, falling back to Jev decision engine: {e}")
+            logger.warning(f"Gemini 3 API generation failed, falling back to deterministic decision engine: {e}")
 
     # 2. High-Precision Jev / TreeSHAP Structured Multi-Intent Decision Engine
     # Intent A: TreeSHAP / Root Cause breakdown

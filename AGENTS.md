@@ -7,9 +7,9 @@
 
 ## 🏛️ 1. Executive System Overview
 
-**VALENCE** is an autonomous B2B enterprise customer churn intelligence and revenue retention decision engine. It replaces lagging quarterly business reviews and arbitrary 1–100 customer health scores with calibrated machine learning, game-theoretic **TreeSHAP** mathematical feature attribution, and automated SLA-governed Customer Success playbooks.
+**VALENCE** is an enterprise-grade autonomous customer churn intelligence and revenue retention decision platform. It replaces lagging quarterly business reviews (QBRs) and arbitrary 1–100 health scores with calibrated machine learning, game-theoretic **TreeSHAP** mathematical feature attribution, and generative AI decision copilots backed by the **Gemini 3 Family** (`gemini-3.8-flash` & `gemini-3.5-flash`).
 
-### Core Architecture Decision Loop
+### Dual-Engine Decision Loop
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                              VALENCE OPERATIONAL LOOP                                  │
@@ -19,7 +19,7 @@
 │                                                                        │               │
 │                                                                        ▼               │
 │  [ Executive Renewal Brief ] ◄── [ SLA Playbook Dispatch ] ◄── [ TreeSHAP Attribution]  │
-│  (PDF / Webhook / Slack)         (Dedicated TAM, Credits)      (Sub-50ms Exact Shapley)│
+│  (Gemini 3 AI Synthesis)         (Dedicated TAM, Credits)      (Sub-50ms Exact Shapley)│
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -30,12 +30,12 @@
 ### XGBoost Classifier Architecture
 - **Model Framework**: `xgboost.XGBClassifier` with calibrated post-processing.
 - **Hyperparameters**:
-  - `max_depth`: `4` (Constrains overfitting on noise)
+  - `max_depth`: `4` (Constrains overfitting on noisy telemetry)
   - `learning_rate`: `0.05`
   - `n_estimators`: `180`
   - `subsample`: `0.8`
   - `colsample_bytree`: `0.8`
-  - `scale_pos_weight`: `2.5` (Compensates for class imbalance in enterprise churn cohorts)
+  - `scale_pos_weight`: `2.5` (Compensates for enterprise churn class imbalance)
   - `eval_metric`: `logloss`
 - **Calibration**: Calibrated via `sklearn.calibration.CalibratedClassifierCV(method='isotonic')` to guarantee output probabilities represent empirical retention risks.
 
@@ -62,29 +62,39 @@
 - **Performance**: Sub-50ms local vectorized computation per account.
 - **Output**: Positive SHAP values indicate churn catalysts (e.g. `+0.28` from unresolved P1 incidents), negative values indicate retention anchors (e.g. `-0.14` from 36-month contract vintage).
 
+### Gemini 3 LLM Copilot & Waterfall Fallback Architecture
+For natural language queries, root-cause diagnosis, and automated executive renewal brief generation, the backend implements a resilient waterfall cascade:
+1. **Primary Model**: `gemini-3.8-flash` (State-of-the-art fast reasoning & telemetry synthesis)
+2. **Secondary Model**: `gemini-3.5-flash` (High-throughput efficient inference)
+3. **Legacy Fallback**: `gemini-2.5-flash` (Stable safety net)
+4. **Deterministic Resilience**: If API keys or external networks are unavailable, the system automatically falls back to local TreeSHAP heuristic synthesis without crashing.
+
 ---
 
-## 📁 3. Codebase Directory & Symbol Map
+## 📁 3. Complete Codebase Directory & Symbol Map
 
 ```
 Enterprise_churn_engine/
 ├── AGENTS.md                          # Master architectural map for AI agents
+├── GEMINI.md                          # Persistent agent memory & operational directives
 ├── TRD.MD                             # Technical Requirements Document
-├── README.md                          # Product landing & executive documentation
+├── DEPLOYMENT_GUIDE.md                # Production cloud setup (Vercel + Render)
+├── README.md                          # Product landing & executive overview
 ├── start-app.bat                      # 1-Click self-healing startup script (ports 3000 & 8000)
 ├── sample_enterprise_accounts.csv     # Verified enterprise test cohort dataset
 │
 ├── backend/                           # FastAPI Python Backend
 │   ├── api/
-│   │   ├── main.py                    # App entrypoint, middleware, lifespan & endpoints
-│   │   ├── auth_routes.py             # Operator registration, JWT login, profile endpoints
+│   │   ├── main.py                    # Gateway entrypoint, middleware, Gemini 3 copilot, REST routes
+│   │   ├── auth_routes.py             # Operator registration, JWT authentication, RBAC endpoints
 │   │   └── schemas.py                 # Pydantic v2 input/output validation models
 │   ├── src/
-│   │   ├── auth.py                    # NIST PBKDF2 hashing, JWT verification, RBAC
+│   │   ├── auth.py                    # NIST PBKDF2 hashing, JWT verification, constant-time checks
 │   │   ├── database.py                # SQLAlchemy 2.0 ORM models & session management
+│   │   ├── limiter.py                 # SlowAPI rate limiting configuration
 │   │   ├── model.py                   # XGBoost loader & inference abstractions
 │   │   ├── explainer.py               # TreeSHAP vectorized calculation core
-│   │   ├── pipeline.py                # RobustScaler + OneHotEncoder pipelines
+│   │   ├── pipeline.py                # RobustScaler + OneHotEncoder preprocessing pipelines
 │   │   ├── rules_engine.py            # SLA retention playbook catalog & matching logic
 │   │   ├── train_pipeline.py          # Synthetic cohort generator & model trainer
 │   │   └── mock_data.py               # Seed cohorts for sandbox mode
@@ -94,17 +104,17 @@ Enterprise_churn_engine/
 │
 └── frontend/                          # Next.js 14 React / TypeScript Frontend
     ├── app/
-    │   ├── page.tsx                   # Main executive dashboard cockpit & layout
-    │   ├── layout.tsx                 # Root layout with Google Inter/Outfit fonts
-    │   ├── globals.css                # Tailwind CSS design system & custom scrollbars
+    │   ├── page.tsx                   # Main executive dashboard cockpit
+    │   ├── layout.tsx                 # Root layout with Google Inter/Outfit typography
+    │   ├── globals.css                # Tailwind CSS design system, glassmorphism, scrollbars
     │   ├── simulator/page.tsx         # Real-time TreeSHAP parameter simulator
     │   ├── playbooks/page.tsx         # Retention SLA orchestration hub
     │   ├── batch/page.tsx             # Bulk CSV cohort scoring matrix
     │   └── settings/page.tsx          # Tenant vault & API connection management
     ├── components/
-    │   ├── ConnectDataModal.tsx       # 3-Stage Vault Data Ingestion (Idle, HUD, 3D Tilt)
-    │   ├── FaqSection.tsx             # Asymmetrical 2-column full-width editorial FAQ
-    │   ├── LiveTelemetryHeader.tsx    # Header ribbon with live status & mode toggling
+    │   ├── PortfolioRiskMatrix.tsx    # Gartner 2×2 Matrix + GitHub 52-Week Contribution Heatmap
+    │   ├── ConnectDataModal.tsx       # 3-Stage Ingestion Vault (CSV, Cloud OAuth, Manual Entry)
+    │   ├── LiveTelemetryHeader.tsx    # Executive header ribbon with mode toggling & sound engine
     │   ├── PastelBentoMetrics.tsx     # 4 Core KPI financial risk bento cards
     │   ├── CohortMigrationMatrix.tsx  # Dynamic churn migration and risk cohort flow
     │   ├── RiskTable.tsx              # Sortable, searchable enterprise account watchlist
@@ -112,7 +122,8 @@ Enterprise_churn_engine/
     │   ├── ForceShapVisualizer.tsx    # Horizontal positive/negative force balance bar
     │   ├── AccountRadar.tsx           # 5D Health radar polygon chart
     │   ├── RenewalTimelineRail.tsx    # Interactive quarterly contract renewal rail
-    │   └── DecisionCopilot.tsx        # Slide-over Bear AI retention decision copilot
+    │   ├── DecisionCopilot.tsx        # Slide-over Bear AI retention decision copilot
+    │   └── FaqSection.tsx             # Asymmetrical 2-column full-width editorial FAQ
     ├── lib/
     │   ├── api.ts                     # REST client connecting to FastAPI backend
     │   ├── types.ts                   # Unified TypeScript schemas & interfaces
@@ -125,11 +136,29 @@ Enterprise_churn_engine/
 
 ---
 
-## 🗄️ 4. Persistence Models & Database Schemas
+## 🎨 4. Frontend UI & Telemetry Heatmap Architecture
 
-Configured via SQLAlchemy 2.0 (`backend/src/database.py`). Defaults to local SQLite (`data/valence.db`) and transparently supports PostgreSQL in production via `DATABASE_URL`.
+### PortfolioRiskMatrix & GitHub 52-Week Contribution Map
+Located in `frontend/components/PortfolioRiskMatrix.tsx`:
+- **Gartner 2×2 Risk/Value Canvas**: Interactive 2D scatter matrix mapping Churn Probability (X-axis) against Contract MRR (Y-axis), segmented into 4 quadrant zones (P0 Crisis Exposure, Expansion ARR Pool, Automated Nurture, Stable Core).
+- **GitHub 52-Week Contribution Matrix**: 52 weekly columns $\times$ 7 daily rows ($10\text{px} \times 10\text{px}$ micro-tiles), top month markers (`Oct` through `Sep`), left weekday indicators (`Mon`, `Wed`, `Fri`), spring scale hover physics, dynamic telemetry ribbon, and scoring methodology modal.
 
-### Database Tables
+### 5-Tier Pure Green Telemetry Scale
+| Tier | Color Code | Visual Accent | Telemetry Meaning / Threshold |
+| :--- | :--- | :--- | :--- |
+| **Level 0** | `#EBEDF0` / `rgba(22,56,50,0.06)` | Light Grey | **Neutral / Zero Signals**: No churn events recorded ($0 loss) |
+| **Level 1** | `#9BE9A8` | Light Mint | **Healthy Baseline**: Stable engagement, low risk exposure (< $2k at risk) |
+| **Level 2** | `#40C463` | Soft Emerald | **Moderate Warning**: Minor usage drop or renewal in <90d ($2k–$5k at risk) |
+| **Level 3** | `#235347` | Deep Forest Green | **High Risk Exposure**: Significant attrition or sponsor departure ($5k–$20k) |
+| **Level 4** | `#0B2B26` | Midnight Jade | **P0 Critical Crisis**: Imminent churn hazard (>60% prob, >$20k MRR at risk) |
+
+---
+
+## 🗄️ 5. Persistence Models & Database Schemas
+
+Configured via SQLAlchemy 2.0 (`backend/src/database.py`). Defaults to local SQLite (`data/valence.db`) and transparently connects to PostgreSQL (`DATABASE_URL`) in production.
+
+### Core Database Tables
 ```sql
 -- Operator & Executive RBAC Accounts
 CREATE TABLE users (
@@ -180,7 +209,7 @@ CREATE TABLE audit_logs (
 
 ---
 
-## 🔒 5. Security Architecture & OWASP Defense
+## 🔒 6. Security Architecture & OWASP Defense
 
 1. **Password Security**: NIST-compliant PBKDF2-HMAC-SHA256 with 100,000 iterations and cryptographically random 32-byte salts.
 2. **Session Authentication**: HMAC-SHA256 Bearer JWT tokens with 7-day expiration and constant-time verification.
@@ -195,7 +224,7 @@ CREATE TABLE audit_logs (
 
 ---
 
-## 📡 6. Complete REST API Specification
+## 📡 7. Complete REST API Specification
 
 | HTTP Method | Route | Description | Auth Guard |
 |---|---|---|---|
@@ -204,6 +233,7 @@ CREATE TABLE audit_logs (
 | `GET` | `/api/auth/me` | Validates active operator profile & role | `Bearer Token` |
 | `GET` | `/api/accounts/demo` | Retrieves sandbox cohort accounts & portfolio summary | Public / Token |
 | `POST` | `/api/predict` | Runs instant XGBoost + TreeSHAP prediction on account payload | Rate-limited (5/min) |
+| `POST` | `/api/copilot/chat` | Gemini 3 AI Copilot telemetry synthesis & brief generation | Public / Token |
 | `POST` | `/api/workspace/import` | Ingests CSV or initiates OAuth synchronization into tenant vault | Public / Token |
 | `GET` | `/api/workspace/status` | Returns workspace mode (`demo` vs `live`) and active source | Public / Token |
 | `POST` | `/api/workspace/mode` | Swaps workspace view between demo sandbox and live vault | Public / Token |
@@ -213,7 +243,18 @@ CREATE TABLE audit_logs (
 
 ---
 
-## 🚀 7. Operational Runbook & 1-Click Launch
+## 🌐 8. Cloud Deployment & CI/CD Blueprint
+
+### Production Architecture
+- **Frontend (Vercel)**: Next.js 14 App Router, static page generation, serverless edge functions. Automatically redeploys on push to `main`.
+- **Backend (Render)**: Docker / Python 3.11+ web service running Uvicorn with auto-restart on commit.
+- **Environment Variables**:
+  - Frontend: `NEXT_PUBLIC_API_URL=https://valence-decision-engine.onrender.com`
+  - Backend: `GEMINI_API_KEY=AIzaSy...`, `DATABASE_URL=postgresql://...`, `FRONTEND_URL=https://valence-engine.vercel.app`
+
+---
+
+## 🚀 9. Operational Runbook & 1-Click Launch
 
 ### Windows 1-Click Startup
 ```powershell
