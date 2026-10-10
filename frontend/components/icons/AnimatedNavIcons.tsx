@@ -9,9 +9,12 @@ interface AnimatedIconProps {
   className?: string;
 }
 
+// Smooth luxurious ease-out curve
+const smoothEase = [0.22, 1, 0.36, 1];
+
 /**
  * Animated Executive Suite Bar Chart Icon
- * Staggered direct line coordinate animation (y2 height morphing) + root spring pop.
+ * Smooth, deliberate wave surge across 3 bars (~850ms sequence).
  */
 export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
@@ -24,7 +27,7 @@ export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: Anima
       strokeLinejoin="round"
       className={className}
       animate={isHovered ? { scale: [1, 1.1, 1] } : { scale: 1 }}
-      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+      transition={{ duration: 0.8, ease: smoothEase }}
     >
       {/* Bar 1 (Left: shortest) */}
       <motion.line
@@ -32,8 +35,8 @@ export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: Anima
         y1="20"
         x2="6"
         initial={{ y2: 14 }}
-        animate={isHovered ? { y2: [14, 6, 16, 14] } : { y2: 14 }}
-        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+        animate={isHovered ? { y2: [14, 6, 15, 14] } : { y2: 14 }}
+        transition={{ duration: 0.75, ease: smoothEase }}
       />
       {/* Bar 2 (Middle: medium) */}
       <motion.line
@@ -41,8 +44,8 @@ export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: Anima
         y1="20"
         x2="12"
         initial={{ y2: 10 }}
-        animate={isHovered ? { y2: [10, 3, 12, 10] } : { y2: 10 }}
-        transition={{ duration: 0.5, delay: 0.07, ease: [0.34, 1.56, 0.64, 1] }}
+        animate={isHovered ? { y2: [10, 3, 11, 10] } : { y2: 10 }}
+        transition={{ duration: 0.75, delay: 0.15, ease: smoothEase }}
       />
       {/* Bar 3 (Right: tall) */}
       <motion.line
@@ -50,8 +53,8 @@ export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: Anima
         y1="20"
         x2="18"
         initial={{ y2: 4 }}
-        animate={isHovered ? { y2: [4, 1, 6, 4] } : { y2: 4 }}
-        transition={{ duration: 0.5, delay: 0.14, ease: [0.34, 1.56, 0.64, 1] }}
+        animate={isHovered ? { y2: [4, 1, 5, 4] } : { y2: 4 }}
+        transition={{ duration: 0.75, delay: 0.3, ease: smoothEase }}
       />
     </motion.svg>
   );
@@ -59,7 +62,7 @@ export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: Anima
 
 /**
  * Animated What-If Simulator Sliders Icon
- * Dual-layer sequential SVG pathLength line drawing for tracks and slider pins.
+ * Deliberate, clearly visible dual-layer line-drawing (~850ms sequence).
  */
 export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
@@ -72,7 +75,7 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
       strokeLinejoin="round"
       className={className}
       animate={isHovered ? { scale: [1, 1.08, 1] } : { scale: 1 }}
-      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+      transition={{ duration: 0.8, ease: smoothEase }}
     >
       {/* Subtle Base Layer */}
       <g opacity="0.3">
@@ -91,7 +94,7 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
         y2="8"
         initial={{ pathLength: 1 }}
         animate={isHovered ? { pathLength: [0, 1], opacity: [0.3, 1] } : { pathLength: 1, opacity: 1 }}
-        transition={{ duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
+        transition={{ duration: 0.6, ease: smoothEase }}
       />
       {/* Top Slider Notch */}
       <motion.line
@@ -102,7 +105,7 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
         strokeWidth="2.5"
         initial={{ pathLength: 1 }}
         animate={isHovered ? { pathLength: [0, 1], x: [0, 5, -1, 0] } : { pathLength: 1, x: 0 }}
-        transition={{ duration: 0.4, delay: 0.12, ease: [0.34, 1.56, 0.64, 1] }}
+        transition={{ duration: 0.65, delay: 0.2, ease: smoothEase }}
       />
 
       {/* Bottom Track */}
@@ -113,7 +116,7 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
         y2="16"
         initial={{ pathLength: 1 }}
         animate={isHovered ? { pathLength: [0, 1], opacity: [0.3, 1] } : { pathLength: 1, opacity: 1 }}
-        transition={{ duration: 0.35, delay: 0.08, ease: [0.34, 1.56, 0.64, 1] }}
+        transition={{ duration: 0.6, delay: 0.15, ease: smoothEase }}
       />
       {/* Bottom Slider Notch */}
       <motion.line
@@ -124,7 +127,7 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
         strokeWidth="2.5"
         initial={{ pathLength: 1 }}
         animate={isHovered ? { pathLength: [0, 1], x: [0, -5, 1, 0] } : { pathLength: 1, x: 0 }}
-        transition={{ duration: 0.4, delay: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
+        transition={{ duration: 0.65, delay: 0.35, ease: smoothEase }}
       />
     </motion.svg>
   );
@@ -132,7 +135,7 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
 
 /**
  * Animated Batch Processor Cloud Upload Icon
- * Sequential SVG line drawing: Cloud perimeter traces -> Upload arrow stem draws -> Arrow head draws.
+ * Distinct sequential line drawing: Cloud perimeter -> Arrow stem -> Arrowhead chevron (~850ms).
  */
 export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
@@ -145,7 +148,7 @@ export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: An
       strokeLinejoin="round"
       className={className}
       animate={isHovered ? { scale: [1, 1.08, 1] } : { scale: 1 }}
-      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+      transition={{ duration: 0.8, ease: smoothEase }}
     >
       {/* Subtle Base Layer */}
       <g opacity="0.3">
@@ -160,7 +163,7 @@ export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: An
         d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"
         initial={{ pathLength: 1 }}
         animate={isHovered ? { pathLength: [0, 1], opacity: [0.4, 1] } : { pathLength: 1, opacity: 1 }}
-        transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+        transition={{ duration: 0.75, ease: smoothEase }}
       />
 
       {/* Upload Arrow Shaft (Bottom to Top) */}
@@ -171,7 +174,7 @@ export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: An
         y2="12"
         initial={{ pathLength: 1 }}
         animate={isHovered ? { pathLength: [0, 1], y: [2, 0] } : { pathLength: 1, y: 0 }}
-        transition={{ duration: 0.35, delay: 0.15, ease: "easeOut" }}
+        transition={{ duration: 0.55, delay: 0.25, ease: smoothEase }}
       />
 
       {/* Upload Arrow Head (Chevron) */}
@@ -179,7 +182,7 @@ export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: An
         points="16 16 12 12 8 16"
         initial={{ pathLength: 1 }}
         animate={isHovered ? { pathLength: [0, 1], opacity: [0, 1] } : { pathLength: 1, opacity: 1 }}
-        transition={{ duration: 0.35, delay: 0.22, ease: "easeOut" }}
+        transition={{ duration: 0.55, delay: 0.38, ease: smoothEase }}
       />
     </motion.svg>
   );
@@ -187,7 +190,7 @@ export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: An
 
 /**
  * Animated Playbooks Catalog Book Icon
- * Sequential SVG line drawing: Left & right pages trace outwards from center spine.
+ * Deliberate dual-page line drawing tracing from spine outwards (~800ms).
  */
 export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
@@ -200,7 +203,7 @@ export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: Anima
       strokeLinejoin="round"
       className={className}
       animate={isHovered ? { scale: [1, 1.08, 1] } : { scale: 1 }}
-      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+      transition={{ duration: 0.8, ease: smoothEase }}
     >
       {/* Subtle Base Layer */}
       <g opacity="0.3">
@@ -214,14 +217,14 @@ export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: Anima
         d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"
         initial={{ pathLength: 1 }}
         animate={isHovered ? { pathLength: [0, 1], opacity: [0.3, 1] } : { pathLength: 1, opacity: 1 }}
-        transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+        transition={{ duration: 0.75, ease: smoothEase }}
       />
       {/* Right Page Path */}
       <motion.path
         d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"
         initial={{ pathLength: 1 }}
         animate={isHovered ? { pathLength: [0, 1], opacity: [0.3, 1] } : { pathLength: 1, opacity: 1 }}
-        transition={{ duration: 0.45, delay: 0.08, ease: [0.34, 1.56, 0.64, 1] }}
+        transition={{ duration: 0.75, delay: 0.18, ease: smoothEase }}
       />
     </motion.svg>
   );
@@ -229,7 +232,7 @@ export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: Anima
 
 /**
  * Animated Settings & Integrations Cog Icon
- * Rotates 90 degrees with mechanical spring damping + scale pop.
+ * Relaxed 90-degree mechanical notch rotation (~850ms).
  */
 export function AnimatedSettingsIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
@@ -242,7 +245,7 @@ export function AnimatedSettingsIcon({ isHovered, className = "w-4 h-4" }: Anima
       strokeLinejoin="round"
       className={className}
       animate={isHovered ? { rotate: [0, 95, 90], scale: [1, 1.12, 1] } : { rotate: 0, scale: 1 }}
-      transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+      transition={{ duration: 0.85, ease: smoothEase }}
       style={{ transformOrigin: "center", transformBox: "fill-box" }}
     >
       <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
@@ -253,7 +256,7 @@ export function AnimatedSettingsIcon({ isHovered, className = "w-4 h-4" }: Anima
 
 /**
  * Animated Sound Speaker Icon
- * Sound wave arcs radiate outward in sequence.
+ * Calibrated 750ms sound wave arcs.
  */
 export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }: { isHovered: boolean; isMuted: boolean; className?: string }) {
   if (isMuted) {
@@ -267,7 +270,7 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
         strokeLinejoin="round"
         className={className}
         animate={isHovered ? { rotate: [0, -12, 12, 0], scale: [1, 1.1, 1] } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.45 }}
+        transition={{ duration: 0.75, ease: smoothEase }}
         style={{ transformOrigin: "center", transformBox: "fill-box" }}
       >
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
@@ -287,18 +290,18 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
       strokeLinejoin="round"
       className={className}
       animate={isHovered ? { scale: [1, 1.1, 1] } : { scale: 1 }}
-      transition={{ duration: 0.45 }}
+      transition={{ duration: 0.75, ease: smoothEase }}
     >
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <motion.path
         d="M15.54 8.46a5 5 0 0 1 0 7.07"
         animate={isHovered ? { x: [0, 3, 0], opacity: [0.4, 1, 0.8] } : { x: 0, opacity: 0.7 }}
-        transition={{ duration: 0.45, ease: "easeOut" }}
+        transition={{ duration: 0.65, ease: smoothEase }}
       />
       <motion.path
         d="M19.07 4.93a10 10 0 0 1 0 14.14"
         animate={isHovered ? { x: [0, 5, 0], opacity: [0.2, 1, 0.8] } : { x: 0, opacity: 0.7 }}
-        transition={{ duration: 0.5, delay: 0.08, ease: "easeOut" }}
+        transition={{ duration: 0.75, delay: 0.15, ease: smoothEase }}
       />
     </motion.svg>
   );
@@ -306,7 +309,7 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
 
 /**
  * Animated Copilot Bot Icon
- * Bot head tilts and antenna pulses on hover.
+ * Calibrated 800ms bot head tilt and scale.
  */
 export function AnimatedBotIcon({ isHovered, className = "w-4 h-4" }: { isHovered: boolean; className?: string }) {
   return (
@@ -319,7 +322,7 @@ export function AnimatedBotIcon({ isHovered, className = "w-4 h-4" }: { isHovere
       strokeLinejoin="round"
       className={className}
       animate={isHovered ? { rotate: [0, -14, 10, 0], scale: [1, 1.15, 1] } : { rotate: 0, scale: 1 }}
-      transition={{ duration: 0.55, ease: [0.34, 1.56, 0.64, 1] }}
+      transition={{ duration: 0.8, ease: smoothEase }}
       style={{ transformOrigin: "center", transformBox: "fill-box" }}
     >
       <path d="M12 8V4H8" />
