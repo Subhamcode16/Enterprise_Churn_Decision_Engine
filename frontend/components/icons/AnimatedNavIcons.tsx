@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, Transition, Variants } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface AnimatedIconProps {
   isHovered: boolean;
@@ -9,32 +9,17 @@ interface AnimatedIconProps {
   className?: string;
 }
 
-const springTransition: Transition = {
-  type: "spring",
-  stiffness: 400,
-  damping: 22,
-};
+// Master Genjutsu Motion Easing Curves
+const kineticEase = [0.34, 1.56, 0.64, 1];
+const smoothSettle = [0.22, 1, 0.36, 1];
 
 /**
- * Animated Executive Suite Bar Chart Icon
- * Bars stagger and rise dynamically on hover once.
+ * 1. Executive Suite Bar Chart Icon
+ * Prolonged 3-bar harmonic wave surge (direct y2 coordinate morphing).
  */
-export function AnimatedBarChartIcon({ isHovered, isActive, className = "w-4 h-4" }: AnimatedIconProps) {
-  const barVariants: Variants = {
-    idle: { scaleY: 1, originY: 1 },
-    hover: (custom: number) => ({
-      scaleY: [1, 1.45, 0.9, 1],
-      originY: 1,
-      transition: {
-        duration: 0.55,
-        delay: custom * 0.08,
-        ease: [0.34, 1.56, 0.64, 1],
-      },
-    }),
-  };
-
+export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -43,63 +28,44 @@ export function AnimatedBarChartIcon({ isHovered, isActive, className = "w-4 h-4
       strokeLinejoin="round"
       className={className}
     >
-      {/* Bar 1 (Left: shortest) */}
+      {/* Bar 1 (Left) */}
       <motion.line
         x1="6"
         y1="20"
         x2="6"
-        y2="14"
-        custom={0}
-        variants={barVariants}
-        animate={isHovered ? "hover" : "idle"}
+        initial={{ y2: 14 }}
+        animate={isHovered ? { y2: [14, 5, 16, 13, 14] } : { y2: 14 }}
+        transition={{ duration: 0.85, ease: kineticEase }}
       />
-      {/* Bar 2 (Middle: medium) */}
+      {/* Bar 2 (Middle) */}
       <motion.line
         x1="12"
         y1="20"
         x2="12"
-        y2="10"
-        custom={1}
-        variants={barVariants}
-        animate={isHovered ? "hover" : "idle"}
+        initial={{ y2: 10 }}
+        animate={isHovered ? { y2: [10, 3, 12, 9, 10] } : { y2: 10 }}
+        transition={{ duration: 0.85, delay: 0.12, ease: kineticEase }}
       />
-      {/* Bar 3 (Right: tall) */}
+      {/* Bar 3 (Right) */}
       <motion.line
         x1="18"
         y1="20"
         x2="18"
-        y2="4"
-        custom={2}
-        variants={barVariants}
-        animate={isHovered ? "hover" : "idle"}
+        initial={{ y2: 4 }}
+        animate={isHovered ? { y2: [4, 1, 6, 3, 4] } : { y2: 4 }}
+        transition={{ duration: 0.85, delay: 0.24, ease: kineticEase }}
       />
-    </motion.svg>
+    </svg>
   );
 }
 
 /**
- * Animated What-If Simulator Sliders Icon
- * Slider knobs glide along rails with mechanical elastic settle.
+ * 2. What-If Simulator Sliders Icon
+ * Direct SVG Coordinate Attribute Morphing: Top & bottom notch coordinates glide horizontally across rails.
  */
-export function AnimatedSlidersIcon({ isHovered, isActive, className = "w-4 h-4" }: AnimatedIconProps) {
-  const topKnobVariants: Variants = {
-    idle: { x: 0 },
-    hover: {
-      x: [0, 5, -2, 0],
-      transition: { duration: 0.55, ease: [0.34, 1.56, 0.64, 1] },
-    },
-  };
-
-  const bottomKnobVariants: Variants = {
-    idle: { x: 0 },
-    hover: {
-      x: [0, -5, 2, 0],
-      transition: { duration: 0.55, delay: 0.08, ease: [0.34, 1.56, 0.64, 1] },
-    },
-  };
-
+export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -108,50 +74,52 @@ export function AnimatedSlidersIcon({ isHovered, isActive, className = "w-4 h-4"
       strokeLinejoin="round"
       className={className}
     >
-      {/* Top Track */}
+      {/* Top Rail */}
       <line x1="4" y1="8" x2="20" y2="8" />
-      <motion.g
-        variants={topKnobVariants}
-        animate={isHovered ? "hover" : "idle"}
-      >
-        <line x1="8" y1="4" x2="8" y2="12" strokeWidth="2.5" />
-      </motion.g>
 
-      {/* Bottom Track */}
+      {/* Top Slider Notch (Glides all the way across rail: x=8 -> x=17 -> x=5 -> x=8) */}
+      <motion.line
+        y1="4"
+        y2="12"
+        strokeWidth="2.5"
+        initial={{ x1: 8, x2: 8 }}
+        animate={isHovered ? {
+          x1: [8, 17, 5, 10, 8],
+          x2: [8, 17, 5, 10, 8],
+          y1: [4, 2, 5, 3, 4],
+          y2: [12, 14, 11, 13, 12]
+        } : { x1: 8, x2: 8, y1: 4, y2: 12 }}
+        transition={{ duration: 0.85, ease: kineticEase }}
+      />
+
+      {/* Bottom Rail */}
       <line x1="4" y1="16" x2="20" y2="16" />
-      <motion.g
-        variants={bottomKnobVariants}
-        animate={isHovered ? "hover" : "idle"}
-      >
-        <line x1="16" y1="12" x2="16" y2="20" strokeWidth="2.5" />
-      </motion.g>
-    </motion.svg>
+
+      {/* Bottom Slider Notch (Glides across rail in counter-motion: x=16 -> x=7 -> x=19 -> x=16) */}
+      <motion.line
+        y1="12"
+        y2="20"
+        strokeWidth="2.5"
+        initial={{ x1: 16, x2: 16 }}
+        animate={isHovered ? {
+          x1: [16, 7, 19, 14, 16],
+          x2: [16, 7, 19, 14, 16],
+          y1: [12, 10, 13, 11, 12],
+          y2: [20, 22, 19, 21, 20]
+        } : { x1: 16, x2: 16, y1: 12, y2: 20 }}
+        transition={{ duration: 0.85, delay: 0.08, ease: kineticEase }}
+      />
+    </svg>
   );
 }
 
 /**
- * Animated Batch Processor Cloud Upload Icon
- * Cloud puffs buoyantly while the upload arrow leaps upward and settles.
+ * 3. Batch Processor Cloud Upload Icon
+ * Direct SVG Coordinate Rocket Launch: Arrow shaft & wings launch 8px skyward through cloud.
  */
-export function AnimatedCloudUploadIcon({ isHovered, isActive, className = "w-4 h-4" }: AnimatedIconProps) {
-  const arrowVariants: Variants = {
-    idle: { y: 0, opacity: 1 },
-    hover: {
-      y: [0, -4, 1, 0],
-      transition: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
-    },
-  };
-
-  const cloudVariants: Variants = {
-    idle: { scale: 1 },
-    hover: {
-      scale: [1, 1.08, 0.98, 1],
-      transition: { duration: 0.45, ease: "easeOut" },
-    },
-  };
-
+export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -160,39 +128,61 @@ export function AnimatedCloudUploadIcon({ isHovered, isActive, className = "w-4 
       strokeLinejoin="round"
       className={className}
     >
+      {/* Cloud Body */}
       <motion.path
         d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"
-        variants={cloudVariants}
-        animate={isHovered ? "hover" : "idle"}
-        style={{ originX: "12px", originY: "12px" }}
+        animate={isHovered ? {
+          y: [0, 1.5, -2, 0.5, 0]
+        } : { y: 0 }}
+        transition={{ duration: 0.85, ease: smoothSettle }}
       />
-      <motion.g
-        variants={arrowVariants}
-        animate={isHovered ? "hover" : "idle"}
-      >
-        <path d="M12 12v9" />
-        <path d="m16 16-4-4-4 4" />
-      </motion.g>
-    </motion.svg>
+
+      {/* Upload Arrow Shaft (Direct Y coordinate launch) */}
+      <motion.line
+        x1="12"
+        x2="12"
+        initial={{ y1: 12, y2: 21 }}
+        animate={isHovered ? {
+          y1: [12, 4, 14, 11, 12],
+          y2: [21, 13, 23, 20, 21]
+        } : { y1: 12, y2: 21 }}
+        transition={{ duration: 0.85, ease: kineticEase }}
+      />
+
+      {/* Upload Arrowhead Left Wing (Direct coordinate launch) */}
+      <motion.line
+        initial={{ x1: 8, y1: 16, x2: 12, y2: 12 }}
+        animate={isHovered ? {
+          x1: [8, 8, 8, 8, 8],
+          y1: [16, 8, 18, 15, 16],
+          x2: [12, 12, 12, 12, 12],
+          y2: [12, 4, 14, 11, 12]
+        } : { x1: 8, y1: 16, x2: 12, y2: 12 }}
+        transition={{ duration: 0.85, ease: kineticEase }}
+      />
+
+      {/* Upload Arrowhead Right Wing (Direct coordinate launch) */}
+      <motion.line
+        initial={{ x1: 16, y1: 16, x2: 12, y2: 12 }}
+        animate={isHovered ? {
+          x1: [16, 16, 16, 16, 16],
+          y1: [16, 8, 18, 15, 16],
+          x2: [12, 12, 12, 12, 12],
+          y2: [12, 4, 14, 11, 12]
+        } : { x1: 16, y1: 16, x2: 12, y2: 12 }}
+        transition={{ duration: 0.85, ease: kineticEase }}
+      />
+    </svg>
   );
 }
 
 /**
- * Animated Playbooks Catalog Book Icon
- * Left and right pages open/fan outward slightly on hover and spring back.
+ * 4. Playbooks Catalog Book Icon
+ * Pure 2D Spine Hinge Rotation: Left & right pages fan open dynamically ±25°.
  */
-export function AnimatedBookOpenIcon({ isHovered, isActive, className = "w-4 h-4" }: AnimatedIconProps) {
-  const bookVariants: Variants = {
-    idle: { scale: 1, rotate: 0 },
-    hover: {
-      scale: [1, 1.12, 0.96, 1],
-      rotate: [0, -3, 3, 0],
-      transition: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
-    },
-  };
-
+export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -200,32 +190,35 @@ export function AnimatedBookOpenIcon({ isHovered, isActive, className = "w-4 h-4
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      variants={bookVariants}
-      animate={isHovered ? "hover" : "idle"}
-      style={{ originX: "12px", originY: "18px" }}
     >
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-    </motion.svg>
+      {/* Left Page Wing (Rotates around spine base 12px 20px) */}
+      <motion.path
+        d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"
+        animate={isHovered ? {
+          rotate: [0, -25, 8, -3, 0]
+        } : { rotate: 0 }}
+        style={{ transformOrigin: "12px 20px" }}
+        transition={{ duration: 0.85, ease: kineticEase }}
+      />
+
+      {/* Right Page Wing (Rotates in counter-direction around spine base 12px 20px) */}
+      <motion.path
+        d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"
+        animate={isHovered ? {
+          rotate: [0, 25, -8, 3, 0]
+        } : { rotate: 0 }}
+        style={{ transformOrigin: "12px 20px" }}
+        transition={{ duration: 0.85, delay: 0.05, ease: kineticEase }}
+      />
+    </svg>
   );
 }
 
 /**
- * Animated Settings & Integrations Cog Icon
- * Rotates exactly 90 degrees with mechanical spring damping.
+ * 5. Integrations & Settings Cog Icon
+ * Pure Mechanical Ratchet Notch Turn: -15° windup -> 90° tooth lock.
  */
-export function AnimatedSettingsIcon({ isHovered, isActive, className = "w-4 h-4" }: AnimatedIconProps) {
-  const cogVariants: Variants = {
-    idle: { rotate: 0 },
-    hover: {
-      rotate: [0, 95, 90],
-      transition: {
-        duration: 0.6,
-        ease: [0.34, 1.56, 0.64, 1],
-      },
-    },
-  };
-
+export function AnimatedSettingsIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
     <motion.svg
       viewBox="0 0 24 24"
@@ -235,9 +228,9 @@ export function AnimatedSettingsIcon({ isHovered, isActive, className = "w-4 h-4
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      variants={cogVariants}
-      animate={isHovered ? "hover" : "idle"}
-      style={{ originX: "12px", originY: "12px" }}
+      animate={isHovered ? { rotate: [0, -15, 105, 88, 90] } : { rotate: 0 }}
+      transition={{ duration: 0.85, ease: kineticEase }}
+      style={{ transformOrigin: "center" }}
     >
       <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
       <circle cx="12" cy="12" r="3" />
@@ -246,28 +239,10 @@ export function AnimatedSettingsIcon({ isHovered, isActive, className = "w-4 h-4
 }
 
 /**
- * Animated Sound Speaker Icon
- * Sound wave arcs pulse outward with acoustic micro-delay.
+ * 6. Tactile UI Audio Volume Icon
+ * Radiating acoustic displacement waves.
  */
 export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }: { isHovered: boolean; isMuted: boolean; className?: string }) {
-  const wave1Variants: Variants = {
-    idle: { opacity: 0.7, scale: 1 },
-    hover: {
-      opacity: [0.7, 1, 0.5, 1],
-      scale: [1, 1.2, 0.95, 1],
-      transition: { duration: 0.45, ease: "easeOut" },
-    },
-  };
-
-  const wave2Variants: Variants = {
-    idle: { opacity: 0.7, scale: 1 },
-    hover: {
-      opacity: [0.7, 1, 0.3, 1],
-      scale: [1, 1.3, 0.9, 1],
-      transition: { duration: 0.5, delay: 0.08, ease: "easeOut" },
-    },
-  };
-
   if (isMuted) {
     return (
       <motion.svg
@@ -278,8 +253,9 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
         strokeLinecap="round"
         strokeLinejoin="round"
         className={className}
-        animate={isHovered ? { rotate: [0, -10, 10, 0] } : { rotate: 0 }}
-        transition={{ duration: 0.4 }}
+        animate={isHovered ? { rotate: [0, -15, 15, -5, 0] } : { rotate: 0 }}
+        transition={{ duration: 0.75, ease: kineticEase }}
+        style={{ transformOrigin: "center" }}
       >
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
         <line x1="22" y1="9" x2="16" y2="15" />
@@ -289,7 +265,7 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
   }
 
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -301,34 +277,23 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <motion.path
         d="M15.54 8.46a5 5 0 0 1 0 7.07"
-        variants={wave1Variants}
-        animate={isHovered ? "hover" : "idle"}
-        style={{ originX: "11px", originY: "12px" }}
+        animate={isHovered ? { x: [0, 4, -1, 0], opacity: [0.4, 1, 0.8, 1] } : { x: 0, opacity: 0.7 }}
+        transition={{ duration: 0.7, ease: kineticEase }}
       />
       <motion.path
         d="M19.07 4.93a10 10 0 0 1 0 14.14"
-        variants={wave2Variants}
-        animate={isHovered ? "hover" : "idle"}
-        style={{ originX: "11px", originY: "12px" }}
+        animate={isHovered ? { x: [0, 6, -1.5, 0], opacity: [0.2, 1, 0.8, 1] } : { x: 0, opacity: 0.7 }}
+        transition={{ duration: 0.8, delay: 0.1, ease: kineticEase }}
       />
-    </motion.svg>
+    </svg>
   );
 }
 
 /**
- * Animated Copilot Bot Icon
- * Bot head tilts and antenna pulses on hover.
+ * 7. Decision Copilot Bot Icon
+ * Playful 3D nod and antenna wobble.
  */
 export function AnimatedBotIcon({ isHovered, className = "w-4 h-4" }: { isHovered: boolean; className?: string }) {
-  const botVariants: Variants = {
-    idle: { rotate: 0, scale: 1 },
-    hover: {
-      rotate: [0, -12, 8, 0],
-      scale: [1, 1.15, 0.95, 1],
-      transition: { duration: 0.55, ease: [0.34, 1.56, 0.64, 1] },
-    },
-  };
-
   return (
     <motion.svg
       viewBox="0 0 24 24"
@@ -338,9 +303,12 @@ export function AnimatedBotIcon({ isHovered, className = "w-4 h-4" }: { isHovere
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      variants={botVariants}
-      animate={isHovered ? "hover" : "idle"}
-      style={{ originX: "12px", originY: "16px" }}
+      animate={isHovered ? {
+        rotate: [0, -18, 12, -4, 0],
+        y: [0, -2, 0]
+      } : { rotate: 0, y: 0 }}
+      transition={{ duration: 0.85, ease: kineticEase }}
+      style={{ transformOrigin: "center" }}
     >
       <path d="M12 8V4H8" />
       <rect width="16" height="12" x="4" y="8" rx="2" />
