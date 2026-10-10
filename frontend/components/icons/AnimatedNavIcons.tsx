@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, Transition, Variants } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface AnimatedIconProps {
   isHovered: boolean;
@@ -9,30 +9,11 @@ interface AnimatedIconProps {
   className?: string;
 }
 
-const springTransition: Transition = {
-  type: "spring",
-  stiffness: 400,
-  damping: 22,
-};
-
 /**
  * Animated Executive Suite Bar Chart Icon
- * Bars stagger and rise dynamically on hover once.
+ * Staggered direct line coordinate animation (y2 height morphing) + root spring pop.
  */
-export function AnimatedBarChartIcon({ isHovered, isActive, className = "w-4 h-4" }: AnimatedIconProps) {
-  const barVariants: Variants = {
-    idle: { scaleY: 1, originY: 1 },
-    hover: (custom: number) => ({
-      scaleY: [1, 1.45, 0.9, 1],
-      originY: 1,
-      transition: {
-        duration: 0.55,
-        delay: custom * 0.08,
-        ease: [0.34, 1.56, 0.64, 1],
-      },
-    }),
-  };
-
+export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
     <motion.svg
       viewBox="0 0 24 24"
@@ -42,36 +23,35 @@ export function AnimatedBarChartIcon({ isHovered, isActive, className = "w-4 h-4
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      animate={isHovered ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
     >
       {/* Bar 1 (Left: shortest) */}
       <motion.line
         x1="6"
         y1="20"
         x2="6"
-        y2="14"
-        custom={0}
-        variants={barVariants}
-        animate={isHovered ? "hover" : "idle"}
+        initial={{ y2: 14 }}
+        animate={isHovered ? { y2: [14, 6, 16, 14] } : { y2: 14 }}
+        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
       />
       {/* Bar 2 (Middle: medium) */}
       <motion.line
         x1="12"
         y1="20"
         x2="12"
-        y2="10"
-        custom={1}
-        variants={barVariants}
-        animate={isHovered ? "hover" : "idle"}
+        initial={{ y2: 10 }}
+        animate={isHovered ? { y2: [10, 3, 12, 10] } : { y2: 10 }}
+        transition={{ duration: 0.5, delay: 0.07, ease: [0.34, 1.56, 0.64, 1] }}
       />
       {/* Bar 3 (Right: tall) */}
       <motion.line
         x1="18"
         y1="20"
         x2="18"
-        y2="4"
-        custom={2}
-        variants={barVariants}
-        animate={isHovered ? "hover" : "idle"}
+        initial={{ y2: 4 }}
+        animate={isHovered ? { y2: [4, 1, 6, 4] } : { y2: 4 }}
+        transition={{ duration: 0.5, delay: 0.14, ease: [0.34, 1.56, 0.64, 1] }}
       />
     </motion.svg>
   );
@@ -79,25 +59,9 @@ export function AnimatedBarChartIcon({ isHovered, isActive, className = "w-4 h-4
 
 /**
  * Animated What-If Simulator Sliders Icon
- * Slider knobs glide along rails with mechanical elastic settle.
+ * Top and bottom slider knobs slide horizontally across the rails with spring bounce.
  */
-export function AnimatedSlidersIcon({ isHovered, isActive, className = "w-4 h-4" }: AnimatedIconProps) {
-  const topKnobVariants: Variants = {
-    idle: { x: 0 },
-    hover: {
-      x: [0, 5, -2, 0],
-      transition: { duration: 0.55, ease: [0.34, 1.56, 0.64, 1] },
-    },
-  };
-
-  const bottomKnobVariants: Variants = {
-    idle: { x: 0 },
-    hover: {
-      x: [0, -5, 2, 0],
-      transition: { duration: 0.55, delay: 0.08, ease: [0.34, 1.56, 0.64, 1] },
-    },
-  };
-
+export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
     <motion.svg
       viewBox="0 0 24 24"
@@ -107,49 +71,43 @@ export function AnimatedSlidersIcon({ isHovered, isActive, className = "w-4 h-4"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      animate={isHovered ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
     >
       {/* Top Track */}
       <line x1="4" y1="8" x2="20" y2="8" />
-      <motion.g
-        variants={topKnobVariants}
-        animate={isHovered ? "hover" : "idle"}
-      >
-        <line x1="8" y1="4" x2="8" y2="12" strokeWidth="2.5" />
-      </motion.g>
+      {/* Top Slider Notch */}
+      <motion.line
+        x1="8"
+        y1="4"
+        x2="8"
+        y2="12"
+        strokeWidth="2.5"
+        animate={isHovered ? { x: [0, 8, -2, 0] } : { x: 0 }}
+        transition={{ duration: 0.55, ease: [0.34, 1.56, 0.64, 1] }}
+      />
 
       {/* Bottom Track */}
       <line x1="4" y1="16" x2="20" y2="16" />
-      <motion.g
-        variants={bottomKnobVariants}
-        animate={isHovered ? "hover" : "idle"}
-      >
-        <line x1="16" y1="12" x2="16" y2="20" strokeWidth="2.5" />
-      </motion.g>
+      {/* Bottom Slider Notch */}
+      <motion.line
+        x1="16"
+        y1="12"
+        x2="16"
+        y2="20"
+        strokeWidth="2.5"
+        animate={isHovered ? { x: [0, -8, 2, 0] } : { x: 0 }}
+        transition={{ duration: 0.55, delay: 0.08, ease: [0.34, 1.56, 0.64, 1] }}
+      />
     </motion.svg>
   );
 }
 
 /**
  * Animated Batch Processor Cloud Upload Icon
- * Cloud puffs buoyantly while the upload arrow leaps upward and settles.
+ * Arrow shoots upward and cloud pulses buoyantly.
  */
-export function AnimatedCloudUploadIcon({ isHovered, isActive, className = "w-4 h-4" }: AnimatedIconProps) {
-  const arrowVariants: Variants = {
-    idle: { y: 0, opacity: 1 },
-    hover: {
-      y: [0, -4, 1, 0],
-      transition: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
-    },
-  };
-
-  const cloudVariants: Variants = {
-    idle: { scale: 1 },
-    hover: {
-      scale: [1, 1.08, 0.98, 1],
-      transition: { duration: 0.45, ease: "easeOut" },
-    },
-  };
-
+export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
     <motion.svg
       viewBox="0 0 24 24"
@@ -159,19 +117,23 @@ export function AnimatedCloudUploadIcon({ isHovered, isActive, className = "w-4 
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      animate={isHovered ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
     >
+      {/* Cloud Body */}
       <motion.path
         d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"
-        variants={cloudVariants}
-        animate={isHovered ? "hover" : "idle"}
-        style={{ originX: "12px", originY: "12px" }}
+        animate={isHovered ? { scale: [1, 1.08, 0.96, 1] } : { scale: 1 }}
+        style={{ transformOrigin: "12px 10px", transformBox: "fill-box" }}
+        transition={{ duration: 0.45 }}
       />
+      {/* Upload Arrow (Shaft + Head) */}
       <motion.g
-        variants={arrowVariants}
-        animate={isHovered ? "hover" : "idle"}
+        animate={isHovered ? { y: [0, -6, 1, 0] } : { y: 0 }}
+        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
       >
-        <path d="M12 12v9" />
-        <path d="m16 16-4-4-4 4" />
+        <line x1="12" y1="12" x2="12" y2="21" />
+        <polyline points="16 16 12 12 8 16" />
       </motion.g>
     </motion.svg>
   );
@@ -179,18 +141,9 @@ export function AnimatedCloudUploadIcon({ isHovered, isActive, className = "w-4 
 
 /**
  * Animated Playbooks Catalog Book Icon
- * Left and right pages open/fan outward slightly on hover and spring back.
+ * Left and right leaves fan outward around the book spine.
  */
-export function AnimatedBookOpenIcon({ isHovered, isActive, className = "w-4 h-4" }: AnimatedIconProps) {
-  const bookVariants: Variants = {
-    idle: { scale: 1, rotate: 0 },
-    hover: {
-      scale: [1, 1.12, 0.96, 1],
-      rotate: [0, -3, 3, 0],
-      transition: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
-    },
-  };
-
+export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
     <motion.svg
       viewBox="0 0 24 24"
@@ -200,32 +153,32 @@ export function AnimatedBookOpenIcon({ isHovered, isActive, className = "w-4 h-4
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      variants={bookVariants}
-      animate={isHovered ? "hover" : "idle"}
-      style={{ originX: "12px", originY: "18px" }}
+      animate={isHovered ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+      transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
     >
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+      {/* Left Page */}
+      <motion.path
+        d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"
+        animate={isHovered ? { rotate: [0, -12, 3, 0], scale: [1, 1.06, 1] } : { rotate: 0, scale: 1 }}
+        style={{ transformOrigin: "12px 20px", transformBox: "fill-box" }}
+        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+      />
+      {/* Right Page */}
+      <motion.path
+        d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"
+        animate={isHovered ? { rotate: [0, 12, -3, 0], scale: [1, 1.06, 1] } : { rotate: 0, scale: 1 }}
+        style={{ transformOrigin: "12px 20px", transformBox: "fill-box" }}
+        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+      />
     </motion.svg>
   );
 }
 
 /**
  * Animated Settings & Integrations Cog Icon
- * Rotates exactly 90 degrees with mechanical spring damping.
+ * Rotates 90 degrees with mechanical spring damping + scale pop.
  */
-export function AnimatedSettingsIcon({ isHovered, isActive, className = "w-4 h-4" }: AnimatedIconProps) {
-  const cogVariants: Variants = {
-    idle: { rotate: 0 },
-    hover: {
-      rotate: [0, 95, 90],
-      transition: {
-        duration: 0.6,
-        ease: [0.34, 1.56, 0.64, 1],
-      },
-    },
-  };
-
+export function AnimatedSettingsIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
     <motion.svg
       viewBox="0 0 24 24"
@@ -235,9 +188,9 @@ export function AnimatedSettingsIcon({ isHovered, isActive, className = "w-4 h-4
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      variants={cogVariants}
-      animate={isHovered ? "hover" : "idle"}
-      style={{ originX: "12px", originY: "12px" }}
+      animate={isHovered ? { rotate: [0, 95, 90], scale: [1, 1.12, 1] } : { rotate: 0, scale: 1 }}
+      transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+      style={{ transformOrigin: "center", transformBox: "fill-box" }}
     >
       <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
       <circle cx="12" cy="12" r="3" />
@@ -247,27 +200,9 @@ export function AnimatedSettingsIcon({ isHovered, isActive, className = "w-4 h-4
 
 /**
  * Animated Sound Speaker Icon
- * Sound wave arcs pulse outward with acoustic micro-delay.
+ * Sound wave arcs radiate outward in sequence.
  */
 export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }: { isHovered: boolean; isMuted: boolean; className?: string }) {
-  const wave1Variants: Variants = {
-    idle: { opacity: 0.7, scale: 1 },
-    hover: {
-      opacity: [0.7, 1, 0.5, 1],
-      scale: [1, 1.2, 0.95, 1],
-      transition: { duration: 0.45, ease: "easeOut" },
-    },
-  };
-
-  const wave2Variants: Variants = {
-    idle: { opacity: 0.7, scale: 1 },
-    hover: {
-      opacity: [0.7, 1, 0.3, 1],
-      scale: [1, 1.3, 0.9, 1],
-      transition: { duration: 0.5, delay: 0.08, ease: "easeOut" },
-    },
-  };
-
   if (isMuted) {
     return (
       <motion.svg
@@ -278,8 +213,9 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
         strokeLinecap="round"
         strokeLinejoin="round"
         className={className}
-        animate={isHovered ? { rotate: [0, -10, 10, 0] } : { rotate: 0 }}
-        transition={{ duration: 0.4 }}
+        animate={isHovered ? { rotate: [0, -12, 12, 0], scale: [1, 1.1, 1] } : { rotate: 0, scale: 1 }}
+        transition={{ duration: 0.45 }}
+        style={{ transformOrigin: "center", transformBox: "fill-box" }}
       >
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
         <line x1="22" y1="9" x2="16" y2="15" />
@@ -297,19 +233,19 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      animate={isHovered ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+      transition={{ duration: 0.45 }}
     >
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <motion.path
         d="M15.54 8.46a5 5 0 0 1 0 7.07"
-        variants={wave1Variants}
-        animate={isHovered ? "hover" : "idle"}
-        style={{ originX: "11px", originY: "12px" }}
+        animate={isHovered ? { x: [0, 3, 0], opacity: [0.4, 1, 0.8] } : { x: 0, opacity: 0.7 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
       />
       <motion.path
         d="M19.07 4.93a10 10 0 0 1 0 14.14"
-        variants={wave2Variants}
-        animate={isHovered ? "hover" : "idle"}
-        style={{ originX: "11px", originY: "12px" }}
+        animate={isHovered ? { x: [0, 5, 0], opacity: [0.2, 1, 0.8] } : { x: 0, opacity: 0.7 }}
+        transition={{ duration: 0.5, delay: 0.08, ease: "easeOut" }}
       />
     </motion.svg>
   );
@@ -320,15 +256,6 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
  * Bot head tilts and antenna pulses on hover.
  */
 export function AnimatedBotIcon({ isHovered, className = "w-4 h-4" }: { isHovered: boolean; className?: string }) {
-  const botVariants: Variants = {
-    idle: { rotate: 0, scale: 1 },
-    hover: {
-      rotate: [0, -12, 8, 0],
-      scale: [1, 1.15, 0.95, 1],
-      transition: { duration: 0.55, ease: [0.34, 1.56, 0.64, 1] },
-    },
-  };
-
   return (
     <motion.svg
       viewBox="0 0 24 24"
@@ -338,9 +265,9 @@ export function AnimatedBotIcon({ isHovered, className = "w-4 h-4" }: { isHovere
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      variants={botVariants}
-      animate={isHovered ? "hover" : "idle"}
-      style={{ originX: "12px", originY: "16px" }}
+      animate={isHovered ? { rotate: [0, -14, 10, 0], scale: [1, 1.15, 1] } : { rotate: 0, scale: 1 }}
+      transition={{ duration: 0.55, ease: [0.34, 1.56, 0.64, 1] }}
+      style={{ transformOrigin: "center", transformBox: "fill-box" }}
     >
       <path d="M12 8V4H8" />
       <rect width="16" height="12" x="4" y="8" rx="2" />
