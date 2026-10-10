@@ -59,7 +59,7 @@ export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: Anima
 
 /**
  * Animated What-If Simulator Sliders Icon
- * Top and bottom slider knobs slide horizontally across the rails with spring bounce.
+ * Dual-layer sequential SVG pathLength line drawing for tracks and slider pins.
  */
 export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
@@ -71,11 +71,28 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      animate={isHovered ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+      animate={isHovered ? { scale: [1, 1.08, 1] } : { scale: 1 }}
       transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
     >
+      {/* Subtle Base Layer */}
+      <g opacity="0.3">
+        <line x1="4" y1="8" x2="20" y2="8" />
+        <line x1="8" y1="4" x2="8" y2="12" strokeWidth="2.5" />
+        <line x1="4" y1="16" x2="20" y2="16" />
+        <line x1="16" y1="12" x2="16" y2="20" strokeWidth="2.5" />
+      </g>
+
+      {/* Active Line-Drawing Layer */}
       {/* Top Track */}
-      <line x1="4" y1="8" x2="20" y2="8" />
+      <motion.line
+        x1="4"
+        y1="8"
+        x2="20"
+        y2="8"
+        initial={{ pathLength: 1 }}
+        animate={isHovered ? { pathLength: [0, 1], opacity: [0.3, 1] } : { pathLength: 1, opacity: 1 }}
+        transition={{ duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
+      />
       {/* Top Slider Notch */}
       <motion.line
         x1="8"
@@ -83,12 +100,21 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
         x2="8"
         y2="12"
         strokeWidth="2.5"
-        animate={isHovered ? { x: [0, 8, -2, 0] } : { x: 0 }}
-        transition={{ duration: 0.55, ease: [0.34, 1.56, 0.64, 1] }}
+        initial={{ pathLength: 1 }}
+        animate={isHovered ? { pathLength: [0, 1], x: [0, 5, -1, 0] } : { pathLength: 1, x: 0 }}
+        transition={{ duration: 0.4, delay: 0.12, ease: [0.34, 1.56, 0.64, 1] }}
       />
 
       {/* Bottom Track */}
-      <line x1="4" y1="16" x2="20" y2="16" />
+      <motion.line
+        x1="4"
+        y1="16"
+        x2="20"
+        y2="16"
+        initial={{ pathLength: 1 }}
+        animate={isHovered ? { pathLength: [0, 1], opacity: [0.3, 1] } : { pathLength: 1, opacity: 1 }}
+        transition={{ duration: 0.35, delay: 0.08, ease: [0.34, 1.56, 0.64, 1] }}
+      />
       {/* Bottom Slider Notch */}
       <motion.line
         x1="16"
@@ -96,8 +122,9 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
         x2="16"
         y2="20"
         strokeWidth="2.5"
-        animate={isHovered ? { x: [0, -8, 2, 0] } : { x: 0 }}
-        transition={{ duration: 0.55, delay: 0.08, ease: [0.34, 1.56, 0.64, 1] }}
+        initial={{ pathLength: 1 }}
+        animate={isHovered ? { pathLength: [0, 1], x: [0, -5, 1, 0] } : { pathLength: 1, x: 0 }}
+        transition={{ duration: 0.4, delay: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
       />
     </motion.svg>
   );
@@ -105,7 +132,7 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
 
 /**
  * Animated Batch Processor Cloud Upload Icon
- * Arrow shoots upward and cloud pulses buoyantly.
+ * Sequential SVG line drawing: Cloud perimeter traces -> Upload arrow stem draws -> Arrow head draws.
  */
 export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
@@ -117,31 +144,50 @@ export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: An
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      animate={isHovered ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+      animate={isHovered ? { scale: [1, 1.08, 1] } : { scale: 1 }}
       transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
     >
-      {/* Cloud Body */}
-      <motion.path
-        d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"
-        animate={isHovered ? { scale: [1, 1.08, 0.96, 1] } : { scale: 1 }}
-        style={{ transformOrigin: "12px 10px", transformBox: "fill-box" }}
-        transition={{ duration: 0.45 }}
-      />
-      {/* Upload Arrow (Shaft + Head) */}
-      <motion.g
-        animate={isHovered ? { y: [0, -6, 1, 0] } : { y: 0 }}
-        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-      >
+      {/* Subtle Base Layer */}
+      <g opacity="0.3">
+        <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
         <line x1="12" y1="12" x2="12" y2="21" />
         <polyline points="16 16 12 12 8 16" />
-      </motion.g>
+      </g>
+
+      {/* Active Line-Drawing Layer */}
+      {/* Cloud Perimeter */}
+      <motion.path
+        d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"
+        initial={{ pathLength: 1 }}
+        animate={isHovered ? { pathLength: [0, 1], opacity: [0.4, 1] } : { pathLength: 1, opacity: 1 }}
+        transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+      />
+
+      {/* Upload Arrow Shaft (Bottom to Top) */}
+      <motion.line
+        x1="12"
+        y1="21"
+        x2="12"
+        y2="12"
+        initial={{ pathLength: 1 }}
+        animate={isHovered ? { pathLength: [0, 1], y: [2, 0] } : { pathLength: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.15, ease: "easeOut" }}
+      />
+
+      {/* Upload Arrow Head (Chevron) */}
+      <motion.polyline
+        points="16 16 12 12 8 16"
+        initial={{ pathLength: 1 }}
+        animate={isHovered ? { pathLength: [0, 1], opacity: [0, 1] } : { pathLength: 1, opacity: 1 }}
+        transition={{ duration: 0.35, delay: 0.22, ease: "easeOut" }}
+      />
     </motion.svg>
   );
 }
 
 /**
  * Animated Playbooks Catalog Book Icon
- * Left and right leaves fan outward around the book spine.
+ * Sequential SVG line drawing: Left & right pages trace outwards from center spine.
  */
 export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
@@ -153,22 +199,29 @@ export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: Anima
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      animate={isHovered ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+      animate={isHovered ? { scale: [1, 1.08, 1] } : { scale: 1 }}
       transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
     >
-      {/* Left Page */}
+      {/* Subtle Base Layer */}
+      <g opacity="0.3">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+      </g>
+
+      {/* Active Line-Drawing Layer */}
+      {/* Left Page Path */}
       <motion.path
         d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"
-        animate={isHovered ? { rotate: [0, -12, 3, 0], scale: [1, 1.06, 1] } : { rotate: 0, scale: 1 }}
-        style={{ transformOrigin: "12px 20px", transformBox: "fill-box" }}
-        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+        initial={{ pathLength: 1 }}
+        animate={isHovered ? { pathLength: [0, 1], opacity: [0.3, 1] } : { pathLength: 1, opacity: 1 }}
+        transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
       />
-      {/* Right Page */}
+      {/* Right Page Path */}
       <motion.path
         d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"
-        animate={isHovered ? { rotate: [0, 12, -3, 0], scale: [1, 1.06, 1] } : { rotate: 0, scale: 1 }}
-        style={{ transformOrigin: "12px 20px", transformBox: "fill-box" }}
-        transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+        initial={{ pathLength: 1 }}
+        animate={isHovered ? { pathLength: [0, 1], opacity: [0.3, 1] } : { pathLength: 1, opacity: 1 }}
+        transition={{ duration: 0.45, delay: 0.08, ease: [0.34, 1.56, 0.64, 1] }}
       />
     </motion.svg>
   );
