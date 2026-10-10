@@ -3,25 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { 
-  BarChart3, 
-  Sliders, 
-  UploadCloud, 
-  BookOpen, 
-  Volume2, 
-  VolumeX, 
-  Bot, 
-  ShieldCheck, 
-  Sparkles,
-  Layers,
-  ChevronRight,
-  User,
-  Settings
-} from "lucide-react";
 import { useEffect, useState } from "react";
 import { getHealthStatus } from "@/lib/api";
 import { sound, playTick } from "@/lib/sound";
 import { useAuth } from "@/lib/auth";
+import {
+  AnimatedBarChartIcon,
+  AnimatedSlidersIcon,
+  AnimatedCloudUploadIcon,
+  AnimatedBookOpenIcon,
+  AnimatedSettingsIcon,
+  AnimatedVolumeIcon,
+  AnimatedBotIcon,
+} from "@/components/icons/AnimatedNavIcons";
 
 interface AppSidebarProps {
   onOpenProfile?: () => void;
@@ -62,11 +56,82 @@ function ValenceLogoGlyph({ className = "w-5 h-5 shrink-0" }: { className?: stri
   );
 }
 
+interface NavItemConfig {
+  name: string;
+  href: string;
+  badge?: string;
+  IconComponent: React.ComponentType<{ isHovered: boolean; isActive?: boolean; className?: string }>;
+}
+
+function SidebarNavItem({
+  item,
+  isActive,
+}: {
+  item: NavItemConfig;
+  isActive: boolean;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+  const Icon = item.IconComponent;
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    playTick();
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  return (
+    <Link
+      href={item.href}
+      prefetch={true}
+      onClick={() => sound.playClick(750)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className={`relative flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-medium transition-colors duration-150 ${
+        isActive
+          ? "text-[#051F20] font-bold"
+          : "text-stone-600 hover:text-[#051F20] hover:bg-white/60"
+      }`}
+    >
+      {isActive && (
+        <motion.div
+          layoutId="activeNavLiquidGlass"
+          className="absolute inset-0 liquid-glass-active z-0"
+          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+        />
+      )}
+      <div className="relative z-10 flex items-center gap-3">
+        <Icon
+          isHovered={isHovered}
+          isActive={isActive}
+          className={`w-4 h-4 transition-colors ${isActive ? "text-[#235347]" : "text-stone-400 group-hover:text-stone-600"}`}
+        />
+        <span>{item.name}</span>
+      </div>
+      {item.badge && (
+        <span
+          className={`relative z-10 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full ${
+            isActive
+              ? "bg-[#235347] text-white shadow-2xs"
+              : "bg-white text-stone-600 border border-[#E2EAE4]"
+          }`}
+        >
+          {item.badge}
+        </span>
+      )}
+    </Link>
+  );
+}
+
 export default function AppSidebar({ onOpenProfile, onOpenAuth }: AppSidebarProps = {}) {
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
   const [isHealthy, setIsHealthy] = useState<boolean | null>(null);
   const [isMuted, setIsMuted] = useState(false);
+  const [isAudioHovered, setIsAudioHovered] = useState(false);
+  const [isBotHovered, setIsBotHovered] = useState(false);
 
   useEffect(() => {
     setIsMuted(sound.getMuted());
@@ -80,12 +145,12 @@ export default function AppSidebar({ onOpenProfile, onOpenAuth }: AppSidebarProp
     setIsMuted(muted);
   };
 
-  const navLinks = [
-    { name: "Executive Suite", href: "/", icon: BarChart3, badge: "Live" },
-    { name: "What-If Simulator", href: "/simulator", icon: Sliders },
-    { name: "Batch Processor", href: "/batch", icon: UploadCloud },
-    { name: "Playbooks Catalog", href: "/playbooks", icon: BookOpen },
-    { name: "Integrations & Settings", href: "/settings", icon: Settings, badge: "Hub" },
+  const navLinks: NavItemConfig[] = [
+    { name: "Executive Suite", href: "/", IconComponent: AnimatedBarChartIcon, badge: "Live" },
+    { name: "What-If Simulator", href: "/simulator", IconComponent: AnimatedSlidersIcon },
+    { name: "Batch Processor", href: "/batch", IconComponent: AnimatedCloudUploadIcon },
+    { name: "Playbooks Catalog", href: "/playbooks", IconComponent: AnimatedBookOpenIcon },
+    { name: "Integrations & Settings", href: "/settings", IconComponent: AnimatedSettingsIcon, badge: "Hub" },
   ];
 
   return (
@@ -118,41 +183,13 @@ export default function AppSidebar({ onOpenProfile, onOpenAuth }: AppSidebarProp
 
           <nav className="space-y-1">
             {navLinks.map((item) => {
-              const Icon = item.icon;
               const isActive = pathname === item.href;
               return (
-                <Link
+                <SidebarNavItem
                   key={item.href}
-                  href={item.href}
-                  prefetch={true}
-                  onClick={() => sound.playClick(750)}
-                  className={`relative flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-medium transition-colors duration-150 ${
-                    isActive
-                      ? "text-[#051F20] font-bold"
-                      : "text-stone-600 hover:text-[#051F20] hover:bg-white/60"
-                  }`}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeNavLiquidGlass"
-                      className="absolute inset-0 liquid-glass-active z-0"
-                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                    />
-                  )}
-                  <div className="relative z-10 flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-[#235347]" : "text-stone-400"}`} />
-                    <span>{item.name}</span>
-                  </div>
-                  {item.badge && (
-                    <span className={`relative z-10 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                      isActive 
-                        ? "bg-[#235347] text-white shadow-2xs" 
-                        : "bg-white text-stone-600 border border-[#E2EAE4]"
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
+                  item={item}
+                  isActive={isActive}
+                />
               );
             })}
           </nav>
@@ -189,10 +226,19 @@ export default function AppSidebar({ onOpenProfile, onOpenAuth }: AppSidebarProp
           {/* Audio Synthesizer Toggle */}
           <button
             onClick={toggleSound}
+            onMouseEnter={() => {
+              setIsAudioHovered(true);
+              playTick();
+            }}
+            onMouseLeave={() => setIsAudioHovered(false)}
             className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs text-stone-600 hover:text-[#051F20] hover:bg-white/60 transition-colors"
           >
             <div className="flex items-center gap-3">
-              {isMuted ? <VolumeX className="w-4 h-4 text-stone-400" /> : <Volume2 className="w-4 h-4 text-[#235347]" />}
+              <AnimatedVolumeIcon
+                isHovered={isAudioHovered}
+                isMuted={isMuted}
+                className={`w-4 h-4 ${isMuted ? "text-stone-400" : "text-[#235347]"}`}
+              />
               <span>Tactile UI Audio</span>
             </div>
             <span className="text-[10px] font-mono font-bold text-stone-500">
@@ -238,10 +284,15 @@ export default function AppSidebar({ onOpenProfile, onOpenAuth }: AppSidebarProp
             window.dispatchEvent(new CustomEvent("toggle-valence-copilot"));
             window.dispatchEvent(new CustomEvent("toggle-churniq-copilot"));
           }}
+          onMouseEnter={() => {
+            setIsBotHovered(true);
+            playTick();
+          }}
+          onMouseLeave={() => setIsBotHovered(false)}
           title="Open AI Decision Copilot"
           className="p-2 rounded-xl bg-white hover:bg-[#DAF1DE] border border-[#E2EAE4] text-[#235347] transition-all shadow-2xs active:scale-95 cursor-pointer"
         >
-          <Bot className="w-4 h-4" />
+          <AnimatedBotIcon isHovered={isBotHovered} className="w-4 h-4" />
         </button>
       </div>
     </aside>
