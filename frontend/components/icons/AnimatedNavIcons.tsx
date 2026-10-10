@@ -15,11 +15,11 @@ const smoothSettle = [0.22, 1, 0.36, 1];
 
 /**
  * 1. Executive Suite Bar Chart Icon
- * Prolonged 3-bar harmonic wave surge with sinusoidal peaks.
+ * Prolonged 3-bar harmonic wave surge (zero container scaling).
  */
 export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -27,8 +27,6 @@ export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: Anima
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      animate={isHovered ? { scale: [1, 1.12, 0.98, 1] } : { scale: 1 }}
-      transition={{ duration: 0.8, ease: kineticEase }}
     >
       {/* Bar 1 (Left) */}
       <motion.line
@@ -57,17 +55,17 @@ export function AnimatedBarChartIcon({ isHovered, className = "w-4 h-4" }: Anima
         animate={isHovered ? { y2: [4, 1, 6, 3, 4] } : { y2: 4 }}
         transition={{ duration: 0.85, delay: 0.24, ease: kineticEase }}
       />
-    </motion.svg>
+    </svg>
   );
 }
 
 /**
  * 2. What-If Simulator Sliders Icon
- * Dynamic Equalizer & Rail Waveform: Top & bottom knobs physically glide across rails in opposing phase.
+ * Dynamic Equalizer: Knobs glide horizontally across rails in opposing phase (zero container scaling).
  */
 export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -75,10 +73,8 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      animate={isHovered ? { scale: [1, 1.12, 0.98, 1] } : { scale: 1 }}
-      transition={{ duration: 0.85, ease: kineticEase }}
     >
-      {/* Top Track (Subtle vertical waveform flex) */}
+      {/* Top Track (Vertical waveform flex) */}
       <motion.line
         x1="4"
         y1="8"
@@ -87,7 +83,7 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
         animate={isHovered ? { y1: [8, 6.5, 9.5, 8], y2: [8, 9.5, 6.5, 8] } : { y1: 8, y2: 8 }}
         transition={{ duration: 0.85, ease: smoothSettle }}
       />
-      {/* Top Slider Notch (Glides right with spring momentum + vertical pin stretch) */}
+      {/* Top Slider Notch (Glides right with spring recoil) */}
       <motion.g
         animate={isHovered ? { x: [0, 9, -3, 2, 0] } : { x: 0 }}
         transition={{ duration: 0.85, ease: kineticEase }}
@@ -129,17 +125,17 @@ export function AnimatedSlidersIcon({ isHovered, className = "w-4 h-4" }: Animat
           transition={{ duration: 0.85, delay: 0.1, ease: kineticEase }}
         />
       </motion.g>
-    </motion.svg>
+    </svg>
   );
 }
 
 /**
  * 3. Batch Processor Cloud Upload Icon
- * Anticipation Squash & Arrow Rocket Launch: Cloud squashes in anticipation, then arrow shoots skyward.
+ * Anticipation Squash & Arrow Rocket Launch (zero container scaling).
  */
 export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -147,8 +143,6 @@ export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: An
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      animate={isHovered ? { scale: [1, 1.12, 0.98, 1] } : { scale: 1 }}
-      transition={{ duration: 0.85, ease: kineticEase }}
     >
       {/* Cloud Body: Anticipation squash -> Buoyant expansion -> Soft settle */}
       <motion.path
@@ -162,7 +156,7 @@ export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: An
         transition={{ duration: 0.85, ease: kineticEase }}
       />
 
-      {/* Upload Arrow: Anticipation dip -> Rocket launch 8px skyward -> Parachute return */}
+      {/* Upload Arrow: Anticipation dip -> Rocket launch 9px skyward -> Parachute return */}
       <motion.g
         animate={isHovered ? {
           y: [0, 2, -9, 1, 0],
@@ -174,17 +168,17 @@ export function AnimatedCloudUploadIcon({ isHovered, className = "w-4 h-4" }: An
         <line x1="12" y1="12" x2="12" y2="21" />
         <polyline points="16 16 12 12 8 16" />
       </motion.g>
-    </motion.svg>
+    </svg>
   );
 }
 
 /**
  * 4. Playbooks Catalog Book Icon
- * 3D Tactile Paper Flutter: Left & right pages flap open in alternating 3D perspective wings.
+ * 3D Tactile Paper Flutter: Left & right pages flap open in 3D perspective wings (zero container scaling).
  */
 export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -192,8 +186,6 @@ export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: Anima
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      animate={isHovered ? { scale: [1, 1.12, 0.98, 1] } : { scale: 1 }}
-      transition={{ duration: 0.85, ease: kineticEase }}
       style={{ perspective: 600 }}
     >
       {/* Left Page Wing (3D Flap Flutter) */}
@@ -221,13 +213,13 @@ export function AnimatedBookOpenIcon({ isHovered, className = "w-4 h-4" }: Anima
         style={{ transformOrigin: "12px 20px", transformBox: "fill-box" }}
         transition={{ duration: 0.85, delay: 0.08, ease: kineticEase }}
       />
-    </motion.svg>
+    </svg>
   );
 }
 
 /**
  * 5. Integrations & Settings Cog Icon
- * Mechanical Ratchet Notch Turn: Anticipation wind-up (-15°) -> 105° rapid surge -> 90° tooth lock.
+ * Pure Mechanical Ratchet Notch Turn: -15° windup -> 90° tooth lock (zero container scaling).
  */
 export function AnimatedSettingsIcon({ isHovered, className = "w-4 h-4" }: AnimatedIconProps) {
   return (
@@ -239,10 +231,7 @@ export function AnimatedSettingsIcon({ isHovered, className = "w-4 h-4" }: Anima
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      animate={isHovered ? {
-        rotate: [0, -15, 105, 88, 90],
-        scale: [1, 0.92, 1.18, 0.97, 1]
-      } : { rotate: 0, scale: 1 }}
+      animate={isHovered ? { rotate: [0, -15, 105, 88, 90] } : { rotate: 0 }}
       transition={{ duration: 0.85, ease: kineticEase }}
       style={{ transformOrigin: "center", transformBox: "fill-box" }}
     >
@@ -254,7 +243,7 @@ export function AnimatedSettingsIcon({ isHovered, className = "w-4 h-4" }: Anima
 
 /**
  * 6. Tactile UI Audio Volume Icon
- * Radiating acoustic displacement + dispersion waves.
+ * Radiating acoustic displacement waves (zero container scaling).
  */
 export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }: { isHovered: boolean; isMuted: boolean; className?: string }) {
   if (isMuted) {
@@ -267,7 +256,7 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
         strokeLinecap="round"
         strokeLinejoin="round"
         className={className}
-        animate={isHovered ? { rotate: [0, -15, 15, -5, 0], scale: [1, 1.15, 0.95, 1] } : { rotate: 0, scale: 1 }}
+        animate={isHovered ? { rotate: [0, -15, 15, -5, 0] } : { rotate: 0 }}
         transition={{ duration: 0.75, ease: kineticEase }}
         style={{ transformOrigin: "center", transformBox: "fill-box" }}
       >
@@ -279,7 +268,7 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
   }
 
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -287,8 +276,6 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      animate={isHovered ? { scale: [1, 1.12, 0.98, 1] } : { scale: 1 }}
-      transition={{ duration: 0.75, ease: kineticEase }}
     >
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <motion.path
@@ -301,13 +288,13 @@ export function AnimatedVolumeIcon({ isHovered, isMuted, className = "w-4 h-4" }
         animate={isHovered ? { x: [0, 6, -1.5, 0], opacity: [0.2, 1, 0.8, 1] } : { x: 0, opacity: 0.7 }}
         transition={{ duration: 0.8, delay: 0.1, ease: kineticEase }}
       />
-    </motion.svg>
+    </svg>
   );
 }
 
 /**
  * 7. Decision Copilot Bot Icon
- * Playful 3D nod, antenna wobble & scale spring.
+ * Playful 3D nod and antenna wobble (zero container scaling).
  */
 export function AnimatedBotIcon({ isHovered, className = "w-4 h-4" }: { isHovered: boolean; className?: string }) {
   return (
@@ -321,9 +308,8 @@ export function AnimatedBotIcon({ isHovered, className = "w-4 h-4" }: { isHovere
       className={className}
       animate={isHovered ? {
         rotate: [0, -18, 12, -4, 0],
-        scale: [1, 1.18, 0.95, 1],
         y: [0, -2, 0]
-      } : { rotate: 0, scale: 1, y: 0 }}
+      } : { rotate: 0, y: 0 }}
       transition={{ duration: 0.85, ease: kineticEase }}
       style={{ transformOrigin: "center", transformBox: "fill-box" }}
     >
